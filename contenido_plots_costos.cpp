@@ -159,6 +159,7 @@ void contenido_plots_costos::RADIOBUTTONS()
             QStringList Lista1,Lista2,Lista3;
             ui->comboBoxTemp->clear();
             ui->comboBoxFilm->clear();
+            ui->comboBoxUOP->clear();
             Lista1 << "Select one..." << "Kelvin (°K)" << "Farenheit (°F)" << "Celsius (°C)" << "Ranking (°R)";
             Lista2 << "Select one..." << "Btu/hr ft^2 °F" << "CHU/hr ft^2 °F";
             Lista3 << "Select one..." << "US $ / Btu" << "US $ / CHU";
@@ -169,6 +170,7 @@ void contenido_plots_costos::RADIOBUTTONS()
             QStringList Lista1,Lista2,Lista3;
             ui->comboBoxTemp->clear();
             ui->comboBoxFilm->clear();
+            ui->comboBoxUOP->clear();
             Lista1 << "Select one..." << "Kelvin (°K)" << "Farenheit (°F)" << "Celsius (°C)" << "Ranking (°R)";
             Lista2 << "Select one..." << "W/m^2 °K" << "W/m^2 °C";
             Lista3 << "Select one..." << "US $ / KW" << "US $ / W";

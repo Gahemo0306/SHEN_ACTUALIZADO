@@ -39,7 +39,8 @@
 #define INFO_A_P_DIVERSO "./Iad.bin"
 #define INFO_A_P_BOTH "./Iab.bin"
 
-#define INFO_AP_UNIFORME "iapu.bin"
+#define INFO_AP_UNIFORME "./Iapu.bin"
+#define INFO_AP_DIVERSO "./Iapd.bin"
 
 #define AYUDA_FILENAME "./help,bin"
 

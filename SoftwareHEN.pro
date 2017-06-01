@@ -6,7 +6,7 @@
 
 QT+= core gui
 
-QMAKE_CXXFLAGS += -std=gnu++14 #-std=gnu++14
+QMAKE_CXXFLAGS += -std=gnu++14
 
 greaterThan(QT_MAJOR_VERSION,4): QT += widgets printsupport
 

@@ -1957,22 +1957,14 @@ QVector<double> VecCostDiverso::getOperationCost() const
 
 QDataStream &operator<<(QDataStream &out22, const VecCostDiverso &VCD)
 {
-    return out22 << VCD.Muniforme << VCD.Mdiverso
-                 << VCD.MMin << VCD.MMax << VCD.MInc
-                 << VCD.MK << VCD.MTS
-                 << VCD.MTE << VCD.MWCP << VCD.Mh
-                 << VCD.MCalentamiento << VCD.MEnfriamento
-                 << VCD.MCapitalCost << VCD.MOperationCost;
+    return out22 << VCD.Muniforme << VCD.Mdiverso << VCD.MMin << VCD.MMax << VCD.MInc << VCD.MK << VCD.MTS
+                 << VCD.MTE << VCD.MWCP << VCD.Mh << VCD.MCalentamiento << VCD.MEnfriamento << VCD.MCapitalCost << VCD.MOperationCost;
 }
 
 QDataStream &operator>>(QDataStream &in22, VecCostDiverso &VCD)
 {
-    return in22  >> VCD.Muniforme >> VCD.Mdiverso
-                 >> VCD.MMin >> VCD.MMax >> VCD.MInc
-                 >> VCD.MK >> VCD.MTS
-                 >> VCD.MTE >> VCD.MWCP >> VCD.Mh
-                 >> VCD.MCalentamiento >> VCD.MEnfriamento
-                 >> VCD.MCapitalCost >> VCD.MOperationCost;
+    return in22  >> VCD.Muniforme >> VCD.Mdiverso >> VCD.MMin >> VCD.MMax >> VCD.MInc >> VCD.MK >> VCD.MTS
+                 >> VCD.MTE >> VCD.MWCP >> VCD.Mh>> VCD.MCalentamiento >> VCD.MEnfriamento >> VCD.MCapitalCost >> VCD.MOperationCost;
 }
 
 
@@ -2097,16 +2089,62 @@ QDataStream &operator>>(QDataStream &in24, CostosCapitalCost &units)
     return in24 >> units.MCapCost;
 }
 
-infoapuniforme::infoapuniforme(QVector<double> &Checkboxes,double Min,double Max,double Inc,bool estatico,bool incremento)
+infoapuniforme::infoapuniforme(QVector<double> &Checkboxes, bool estatico, bool incremento, bool SI, bool SIS
+                               , double Min, double Max, double Inc, QVector<double> &TS, QVector<double> &TE,
+                               QVector<double> &WCP, QVector<double> &H, QVector<double> &Enfriamento,
+                               QVector<double> &Calentamiento, int CTo, int CCo,
+                               QVector<QVector<double>> &CapitalCost, QVector<double> &OperationCost)
 {
-    MMin = Min;
-    MMax = Max;
-    MInc = Inc;
-    Mestatico = estatico;
-    Mincremento = incremento;
     MCheckboxes.resize(Checkboxes.size());
     for(int i = 0; i < Checkboxes.size(); i++){
         MCheckboxes[i] = Checkboxes[i];
+    }
+    Mestatico = estatico;
+    Mincremento = incremento;
+    MSI = SI;
+    MSIS = SIS;
+    MMin = Min;
+    MMax = Max;
+    MInc = Inc;
+    MTS.resize(TS.size());
+    MTE.resize(TE.size());
+    MWCP.resize(WCP.size());
+    MH.resize(H.size());
+    MCTo = CTo;
+    MCCo = CCo;
+    MCalentamiento.resize(Calentamiento.size());
+    MEnfriamento.resize(Enfriamento.size());
+    MCapitalCost.resize(CapitalCost.size());
+    double columns = CapitalCost[0].size();
+    for(int j = 0; j < CapitalCost.size(); j++){
+        MCapitalCost[j].resize(columns);
+    }
+    MOperationCost.resize(OperationCost.size());
+    for(int i = 0; i < TS.size(); i++){
+        MTS[i] = TS[i];
+    }
+    for(int i = 0; i < TE.size(); i++){
+        MTE[i] = TE[i];
+    }
+    for(int i = 0; i < WCP.size(); i++){
+        MWCP[i] = WCP[i];
+    }
+    for(int i = 0; i < H.size(); i++){
+        MH[i] = H[i];
+    }
+    for(int i = 0; i < Calentamiento.size(); i++){
+        MCalentamiento[i] = Calentamiento[i];
+    }
+    for(int i = 0; i < Enfriamento.size(); i++){
+        MEnfriamento[i] = Enfriamento[i];
+    }
+    for(int i = 0; i < CapitalCost.size(); i++){
+        for(int j = 0; j < columns; j++){
+            MCapitalCost[i][j] = CapitalCost[i][j];
+        }
+    }
+    for(int i = 0; i < OperationCost.size(); i++){
+        MOperationCost[i] = OperationCost[i];
     }
 }
 
@@ -2125,6 +2163,16 @@ double infoapuniforme::getInc()
     return MInc;
 }
 
+int infoapuniforme::getCTo()
+{
+    return MCTo;
+}
+
+int infoapuniforme::getCCo()
+{
+    return MCCo;
+}
+
 bool infoapuniforme::getestatico()
 {
     return Mestatico;
@@ -2135,21 +2183,75 @@ bool infoapuniforme::getincremento()
     return Mincremento;
 }
 
+bool infoapuniforme::getSI()
+{
+    return MSI;
+}
+
+bool infoapuniforme::getSIS()
+{
+    return MSIS;
+}
+
 QVector<double> infoapuniforme::getCheckboxes()
 {
     return MCheckboxes;
 }
 
+QVector<double> infoapuniforme::getTS()
+{
+    return MTS;
+}
+
+QVector<double> infoapuniforme::getTE()
+{
+    return MTE;
+}
+
+QVector<double> infoapuniforme::getWCP()
+{
+    return MWCP;
+}
+
+QVector<double> infoapuniforme::getH()
+{
+    return MH;
+}
+
+QVector<double> infoapuniforme::getEnfriamento()
+{
+    return MEnfriamento;
+}
+
+QVector<double> infoapuniforme::getCalentamiento()
+{
+    return MCalentamiento;
+}
+
+QVector<double> infoapuniforme::getOperationCost()
+{
+    return MOperationCost;
+}
+
+QVector<QVector<double> > infoapuniforme::getCapitalCost()
+{
+    return MCapitalCost;
+}
+
 QDataStream &operator<<(QDataStream &out25, const infoapuniforme &checkboxes)
 {
-    return out25 << checkboxes.MCheckboxes << checkboxes.MMin << checkboxes.MMax << checkboxes.MInc
-                 << checkboxes.Mestatico << checkboxes.Mincremento;
+    return out25 << checkboxes.MMin << checkboxes.MMax << checkboxes.MInc << checkboxes.Mestatico << checkboxes.Mincremento
+                 << checkboxes.MSI << checkboxes.MSIS << checkboxes.MCheckboxes << checkboxes.MTS << checkboxes.MTE
+                 << checkboxes.MWCP << checkboxes.MH << checkboxes.MEnfriamento << checkboxes.MCalentamiento << checkboxes.MOperationCost
+                 << checkboxes.MCapitalCost << checkboxes.MCTo << checkboxes.MCCo;
 }
 
 QDataStream &operator>>(QDataStream &in25, infoapuniforme &checkboxes)
 {
-    return in25 >> checkboxes.MCheckboxes >> checkboxes.MMin >> checkboxes.MMax >> checkboxes.MInc
-                >> checkboxes.Mestatico >> checkboxes.Mincremento;
+    return in25 >> checkboxes.MMin >> checkboxes.MMax >> checkboxes.MInc >> checkboxes.Mestatico >> checkboxes.Mincremento
+                >> checkboxes.MSI >> checkboxes.MSIS >> checkboxes.MCheckboxes >> checkboxes.MTS >> checkboxes.MTE
+                >> checkboxes.MWCP >> checkboxes.MH >> checkboxes.MEnfriamento >> checkboxes.MCalentamiento >> checkboxes.MOperationCost
+                >> checkboxes.MCapitalCost >> checkboxes.MCTo >> checkboxes.MCCo;
 }
 
 TabAnalisis::TabAnalisis(int TabAnalisis, int Ventanamadre)
@@ -2163,7 +2265,7 @@ int TabAnalisis::getTabAnalisis()
     return MTabAnalisis;
 }
 
-int TabAnalisis::getVentanaMadre()
+int TabAnalisis::getVentanamadre()
 {
     return MVentanamadre;
 }
@@ -2175,5 +2277,346 @@ QDataStream &operator<<(QDataStream &out26, const TabAnalisis &TA)
 
 QDataStream &operator>>(QDataStream &in26, TabAnalisis &TA)
 {
-    return in26 >> TA.MTabAnalisis >> TA.MTabAnalisis;
+    return in26 >> TA.MTabAnalisis >> TA.MVentanamadre;
+}
+
+infoapdiversa::infoapdiversa(QVector<double> &Checkboxes, bool estatico, bool incremento, bool SI, bool SIS,
+                             double K, double Min, double Max, double Inc, QVector<double> &TS, QVector<double> &TE,
+                             QVector<double> &WCP, QVector<double> &H, QVector<double> &Enfriamento,
+                             QVector<double> &Calentamiento, int CTo, int CCo, QVector<QVector<double> > &CapitalCost,
+                             QVector<double> &OperationCost)
+{
+    MCheckboxes.resize(Checkboxes.size());
+    for(int i = 0; i < Checkboxes.size(); i++){
+        MCheckboxes[i] = Checkboxes[i];
+    }
+    Mestatico = estatico;
+    Mincremento = incremento;
+    MSI = SI;
+    MSIS = SIS;
+    MMin = Min;
+    MMax = Max;
+    MInc = Inc;
+    MK = K;
+    MTS.resize(TS.size());
+    MTE.resize(TE.size());
+    MWCP.resize(WCP.size());
+    MH.resize(H.size());
+    MCTo = CTo;
+    MCCo = CCo;
+    MCalentamiento.resize(Calentamiento.size());
+    MEnfriamento.resize(Enfriamento.size());
+    MCapitalCost.resize(CapitalCost.size());
+    double columns = CapitalCost[0].size();
+    for(int j = 0; j < CapitalCost.size(); j++){
+        MCapitalCost[j].resize(columns);
+    }
+    MOperationCost.resize(OperationCost.size());
+    for(int i = 0; i < TS.size(); i++){
+        MTS[i] = TS[i];
+    }
+    for(int i = 0; i < TE.size(); i++){
+        MTE[i] = TE[i];
+    }
+    for(int i = 0; i < WCP.size(); i++){
+        MWCP[i] = WCP[i];
+    }
+    for(int i = 0; i < H.size(); i++){
+        MH[i] = H[i];
+    }
+    for(int i = 0; i < Calentamiento.size(); i++){
+        MCalentamiento[i] = Calentamiento[i];
+    }
+    for(int i = 0; i < Enfriamento.size(); i++){
+        MEnfriamento[i] = Enfriamento[i];
+    }
+    for(int i = 0; i < CapitalCost.size(); i++){
+        for(int j = 0; j < columns; j++){
+            MCapitalCost[i][j] = CapitalCost[i][j];
+        }
+    }
+    for(int i = 0; i < OperationCost.size(); i++){
+        MOperationCost[i] = OperationCost[i];
+    }
+}
+
+double infoapdiversa::getMin()
+{
+    return MMin;
+}
+
+double infoapdiversa::getMax()
+{
+    return MMax;
+}
+
+double infoapdiversa::getInc()
+{
+    return MInc;
+}
+
+double infoapdiversa::getK()
+{
+    return MK;
+}
+
+int infoapdiversa::getCTo()
+{
+    return MCTo;
+}
+
+int infoapdiversa::getCCo()
+{
+    return MCCo;
+}
+
+bool infoapdiversa::getestatico()
+{
+    return Mestatico;
+}
+
+bool infoapdiversa::getincremento()
+{
+    return Mincremento;
+}
+
+bool infoapdiversa::getSI()
+{
+    return MSI;
+}
+
+bool infoapdiversa::getSIS()
+{
+    return MSIS;
+}
+
+QVector<double> infoapdiversa::getCheckboxes()
+{
+    return MCheckboxes;
+}
+
+QVector<double> infoapdiversa::getTS()
+{
+    return MTS;
+}
+
+QVector<double> infoapdiversa::getTE()
+{
+    return MTE;
+}
+
+QVector<double> infoapdiversa::getWCP()
+{
+    return MWCP;
+}
+
+QVector<double> infoapdiversa::getH()
+{
+    return MH;
+}
+
+QVector<double> infoapdiversa::getEnfriamento()
+{
+    return MEnfriamento;
+}
+
+QVector<double> infoapdiversa::getCalentamiento()
+{
+    return MCalentamiento;
+}
+
+QVector<double> infoapdiversa::getOperationCost()
+{
+    return MOperationCost;
+}
+
+QVector<QVector<double> > infoapdiversa::getCapitalCost()
+{
+    return MCapitalCost;
+}
+
+QDataStream &operator<<(QDataStream &out27, const infoapdiversa &apdiversa)
+{
+    return out27 << apdiversa.MMin << apdiversa.MMax << apdiversa.MInc << apdiversa.MK << apdiversa.Mestatico << apdiversa.Mincremento
+                 << apdiversa.MSI << apdiversa.MSIS << apdiversa.MCheckboxes << apdiversa.MTS << apdiversa.MTE
+                 << apdiversa.MWCP << apdiversa.MH << apdiversa.MEnfriamento << apdiversa.MCalentamiento << apdiversa.MOperationCost
+                 << apdiversa.MCapitalCost << apdiversa.MCTo << apdiversa.MCCo;
+}
+
+QDataStream &operator>>(QDataStream &in27, infoapdiversa &apdiversa)
+{
+    return in27 >> apdiversa.MMin >> apdiversa.MMax >> apdiversa.MInc >> apdiversa.MK >> apdiversa.Mestatico >> apdiversa.Mincremento
+                >> apdiversa.MSI >> apdiversa.MSIS >> apdiversa.MCheckboxes >> apdiversa.MTS >> apdiversa.MTE
+                >> apdiversa.MWCP >> apdiversa.MH >> apdiversa.MEnfriamento >> apdiversa.MCalentamiento >> apdiversa.MOperationCost
+                >> apdiversa.MCapitalCost >> apdiversa.MCTo >> apdiversa.MCCo;
+}
+
+infoapboth::infoapboth(QVector<double> &Checkboxes, bool estatico, bool incremento, bool SI, bool SIS, double K, double Min,
+                       double Max, double Inc, QVector<double> &TS, QVector<double> &TE, QVector<double> &WCP, QVector<double> &H,
+                       QVector<double> &Enfriamento, QVector<double> &Calentamiento, int CTo, int CCo,
+                       QVector<QVector<double> > &CapitalCost, QVector<double> &OperationCost)
+{
+    MCheckboxes.resize(Checkboxes.size());
+    for(int i = 0; i < Checkboxes.size(); i++){
+        MCheckboxes[i] = Checkboxes[i];
+    }
+    Mestatico = estatico;
+    Mincremento = incremento;
+    MSI = SI;
+    MSIS = SIS;
+    MMin = Min;
+    MMax = Max;
+    MInc = Inc;
+    MK = K;
+    MTS.resize(TS.size());
+    MTE.resize(TE.size());
+    MWCP.resize(WCP.size());
+    MH.resize(H.size());
+    MCTo = CTo;
+    MCCo = CCo;
+    MCalentamiento.resize(Calentamiento.size());
+    MEnfriamento.resize(Enfriamento.size());
+    MCapitalCost.resize(CapitalCost.size());
+    double columns = CapitalCost[0].size();
+    for(int j = 0; j < CapitalCost.size(); j++){
+        MCapitalCost[j].resize(columns);
+    }
+    MOperationCost.resize(OperationCost.size());
+    for(int i = 0; i < TS.size(); i++){
+        MTS[i] = TS[i];
+    }
+    for(int i = 0; i < TE.size(); i++){
+        MTE[i] = TE[i];
+    }
+    for(int i = 0; i < WCP.size(); i++){
+        MWCP[i] = WCP[i];
+    }
+    for(int i = 0; i < H.size(); i++){
+        MH[i] = H[i];
+    }
+    for(int i = 0; i < Calentamiento.size(); i++){
+        MCalentamiento[i] = Calentamiento[i];
+    }
+    for(int i = 0; i < Enfriamento.size(); i++){
+        MEnfriamento[i] = Enfriamento[i];
+    }
+    for(int i = 0; i < CapitalCost.size(); i++){
+        for(int j = 0; j < columns; j++){
+            MCapitalCost[i][j] = CapitalCost[i][j];
+        }
+    }
+    for(int i = 0; i < OperationCost.size(); i++){
+        MOperationCost[i] = OperationCost[i];
+    }
+}
+
+double infoapboth::getMin()
+{
+    return MMin;
+}
+
+double infoapboth::getMax()
+{
+    return MMax;
+}
+
+double infoapboth::getInc()
+{
+    return MInc;
+}
+
+double infoapboth::getK()
+{
+    return MK;
+}
+
+int infoapboth::getCTo()
+{
+    return MCTo;
+}
+
+int infoapboth::getCCo()
+{
+    return MCCo;
+}
+
+bool infoapboth::getestatico()
+{
+    return Mestatico;
+}
+
+bool infoapboth::getincremento()
+{
+    return Mincremento;
+}
+
+bool infoapboth::getSI()
+{
+    return MSI;
+}
+
+bool infoapboth::getSIS()
+{
+    return MSIS;
+}
+
+QVector<double> infoapboth::getCheckboxes()
+{
+    return MCheckboxes;
+}
+
+QVector<double> infoapboth::getTS()
+{
+    return MTS;
+}
+
+QVector<double> infoapboth::getTE()
+{
+    return MTE;
+}
+
+QVector<double> infoapboth::getWCP()
+{
+    return MWCP;
+}
+
+QVector<double> infoapboth::getH()
+{
+    return MH;
+}
+
+QVector<double> infoapboth::getEnfriamento()
+{
+    return MEnfriamento;
+}
+
+QVector<double> infoapboth::getCalentamiento()
+{
+    return MCalentamiento;
+}
+
+QVector<double> infoapboth::getOperationCost()
+{
+    return MOperationCost;
+}
+
+QVector<QVector<double> > infoapboth::getCapitalCost()
+{
+    return MCapitalCost;
+}
+
+QDataStream &operator<<(QDataStream &out28, const infoapboth &apboth)
+{
+    return out28 << apboth.MMin << apboth.MMax << apboth.MInc << apboth.MK << apboth.Mestatico << apboth.Mincremento
+                 << apboth.MSI << apboth.MSIS << apboth.MCheckboxes << apboth.MTS << apboth.MTE
+                 << apboth.MWCP << apboth.MH << apboth.MEnfriamento << apboth.MCalentamiento << apboth.MOperationCost
+                 << apboth.MCapitalCost << apboth.MCTo << apboth.MCCo;
+}
+
+QDataStream &operator>>(QDataStream &in28, infoapboth &apboth)
+{
+    return in28 >> apboth.MMin >> apboth.MMax >> apboth.MInc >> apboth.MK >> apboth.Mestatico >> apboth.Mincremento
+                >> apboth.MSI >> apboth.MSIS >> apboth.MCheckboxes >> apboth.MTS >> apboth.MTE
+                >> apboth.MWCP >> apboth.MH >> apboth.MEnfriamento >> apboth.MCalentamiento >> apboth.MOperationCost
+                >> apboth.MCapitalCost >> apboth.MCTo >> apboth.MCCo;
 }

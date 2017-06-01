@@ -592,19 +592,37 @@ QDataStream &operator>>(QDataStream &in24, CostosCapitalCost &units);
 
 class infoapuniforme{
 public:
-    infoapuniforme(QVector<double> &Checkboxes,double Min,double Max,double Inc, bool estatico,bool incremento);
+    infoapuniforme(QVector<double> &Checkboxes, bool estatico, bool incremento, bool SI, bool SIS
+                   , double Min, double Max, double Inc, QVector<double> &TS, QVector<double> &TE,
+                   QVector<double> &WCP, QVector<double> &H, QVector<double> &Enfriamento, QVector<double> &Calentamiento,
+                   int CTo, int CCo,
+                   QVector<QVector<double>> &CapitalCost, QVector<double> &OperationCost);
     double getMin();
     double getMax();
     double getInc();
+    int getCTo();
+    int getCCo();
     bool getestatico();
     bool getincremento();
+    bool getSI();
+    bool getSIS();
     QVector<double> getCheckboxes();
+    QVector<double> getTS();
+    QVector<double> getTE();
+    QVector<double> getWCP();
+    QVector<double> getH();
+    QVector<double> getEnfriamento();
+    QVector<double> getCalentamiento();
+    QVector<double> getOperationCost();
+    QVector<QVector<double>> getCapitalCost();
     friend QDataStream &operator<<(QDataStream &out25, const infoapuniforme &checkboxes);
     friend QDataStream &operator>>(QDataStream &in25, infoapuniforme &checkboxes);
 private:
-    QVector<double> MCheckboxes;
+    QVector<double> MCheckboxes, MTS, MTE,MWCP,MH,MEnfriamento,MOperationCost,MCalentamiento;
+    QVector<QVector<double>> MCapitalCost;
     double MMin,MMax,MInc;
-    bool Mestatico,Mincremento;
+    int MCTo,MCCo;
+    bool Mestatico,Mincremento,MSI,MSIS;
 };
 QDataStream &operator<<(QDataStream &out25, const infoapuniforme &checkboxes);
 QDataStream &operator>>(QDataStream &in25, infoapuniforme &checkboxes);
@@ -622,5 +640,81 @@ private:
 };
 QDataStream &operator<<(QDataStream &out26, const TabAnalisis &TA);
 QDataStream &operator>>(QDataStream &in26, TabAnalisis &TA);
+
+class infoapdiversa{
+public:
+    infoapdiversa(QVector<double> &Checkboxes, bool estatico, bool incremento, bool SI, bool SIS
+                   ,double K, double Min, double Max, double Inc, QVector<double> &TS, QVector<double> &TE,
+                   QVector<double> &WCP, QVector<double> &H, QVector<double> &Enfriamento, QVector<double> &Calentamiento,
+                   int CTo, int CCo,
+                   QVector<QVector<double>> &CapitalCost, QVector<double> &OperationCost);
+    double getMin();
+    double getMax();
+    double getInc();
+    double getK();
+    int getCTo();
+    int getCCo();
+    bool getestatico();
+    bool getincremento();
+    bool getSI();
+    bool getSIS();
+    QVector<double> getCheckboxes();
+    QVector<double> getTS();
+    QVector<double> getTE();
+    QVector<double> getWCP();
+    QVector<double> getH();
+    QVector<double> getEnfriamento();
+    QVector<double> getCalentamiento();
+    QVector<double> getOperationCost();
+    QVector<QVector<double>> getCapitalCost();
+    friend QDataStream &operator<<(QDataStream &out27, const infoapdiversa &apdiversa);
+    friend QDataStream &operator>>(QDataStream &in27, infoapdiversa &apdiversa);
+private:
+    QVector<double> MCheckboxes, MTS, MTE,MWCP,MH,MEnfriamento,MOperationCost,MCalentamiento;
+    QVector<QVector<double>> MCapitalCost;
+    double MMin,MMax,MInc,MK;
+    int MCTo,MCCo;
+    bool Mestatico,Mincremento,MSI,MSIS;
+};
+QDataStream &operator<<(QDataStream &out27, const infoapdiversa &apdiversa);
+QDataStream &operator>>(QDataStream &in27, infoapdiversa &apdiversa);
+
+class infoapboth{
+public:
+    infoapboth(QVector<double> &Checkboxes, bool estatico, bool incremento, bool SI, bool SIS
+                   ,double K, double Min, double Max, double Inc, QVector<double> &TS, QVector<double> &TE,
+                   QVector<double> &WCP, QVector<double> &H, QVector<double> &Enfriamento, QVector<double> &Calentamiento,
+                   int CTo, int CCo,
+                   QVector<QVector<double>> &CapitalCost, QVector<double> &OperationCost);
+    double getMin();
+    double getMax();
+    double getInc();
+    double getK();
+    int getCTo();
+    int getCCo();
+    bool getestatico();
+    bool getincremento();
+    bool getSI();
+    bool getSIS();
+    QVector<double> getCheckboxes();
+    QVector<double> getTS();
+    QVector<double> getTE();
+    QVector<double> getWCP();
+    QVector<double> getH();
+    QVector<double> getEnfriamento();
+    QVector<double> getCalentamiento();
+    QVector<double> getOperationCost();
+    QVector<QVector<double>> getCapitalCost();
+    friend QDataStream &operator<<(QDataStream &out28, const infoapboth &apboth);
+    friend QDataStream &operator>>(QDataStream &in28, infoapboth &apboth);
+private:
+    QVector<double> MCheckboxes, MTS, MTE,MWCP,MH,MEnfriamento,MOperationCost,MCalentamiento;
+    QVector<QVector<double>> MCapitalCost;
+    double MMin,MMax,MInc,MK;
+    int MCTo,MCCo;
+    bool Mestatico,Mincremento,MSI,MSIS;
+};
+QDataStream &operator<<(QDataStream &out28, const infoapboth &apboth);
+QDataStream &operator>>(QDataStream &in28, infoapboth &apboth);
 
 #endif // DUVALORACTION_H
