@@ -1124,15 +1124,18 @@ void plotter::plot(int ventanaplot, bool uniforme, bool diverso, bool estatico, 
             AREAS.resize(Iteraciones+1);
             DTMIN.resize(Iteraciones+1);
             int j = 0;
+            int l = 0;
             for(int i = 0; i < (Iteraciones+1) ; i++){
                  Plot_Dtmin_vs_Areas plot3(TS,TE,Wcp,h,Calentamiento,Enfriamento,DTmin,CTo,CCo);
                  double AREA = plot3.getAREAS();
                  if(AREA < 0){
-                    AREAS[i] = AREAS[i-1];
-                    DTMIN[i] = DTMIN[i-1];
+//                    AREAS[i] = AREAS[i-1];
+//                    DTMIN[i] = DTMIN[i-1];
+                     continue;
                  }else{
-                     AREAS[i] = AREA;
-                     DTMIN[i] = DTmin;
+                     AREAS[l] = AREA;
+                     DTMIN[l] = DTmin;
+                     l++;
                  }
                  DTmin = DTmin + Incremento;
                  ui->qcustomplot->addGraph();

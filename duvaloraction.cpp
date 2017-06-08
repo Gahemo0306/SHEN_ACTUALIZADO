@@ -2014,37 +2014,35 @@ void UnidadesSerAux::ConvertirUnidades(QVector<double> Calentamiento,
                 MEnfriamento[i] = Enfriamento[i] - 459.67;
             }
         }
-    } else {
-        if (SIN == 1) {
-            // SISTEMA INTERNACIONAL
-            //  CONVIERTE LAS TEMPERATURAS A UNIDADES DE �C
-            //  WCP A UNIDADES DE BTU/HR�F
-            //  H SIGUE CONSTANTE BTU/HR FT^2 �F
-            // CONVERSION DE TEMPERATURA DE ENTRADA Y OBJETIVO
-            if (A == 1) {
-                // Conversi�n de Kelvin a Celsius
-                for (int i =0; i < 2; i++){
-                    MCalentamiento[i] = Calentamiento[i] + 273.15;
-                    MEnfriamento[i] = Enfriamento[i] + 273.15;
-                }
-            } else if (A == 2) {
-                // Conversi�n de Farenheit a Celsius
-                for (int i =0; i < 2; i++){
-                    MCalentamiento[i] = Calentamiento[i] * 1.8 + 32.0;
-                    MEnfriamento[i] = Enfriamento[i] * 1.8 + 32.0;
-                }
-            } else if (A == 3) {
-                // Conversi�n de Celsius a Celsius
-                for (int i =0; i < 2; i++){
-                    MCalentamiento[i] = Calentamiento[i];
-                    MEnfriamento[i] = Enfriamento[i];
-                }
-            } else if (A == 4){
-                // Conversi�n de Ranking a Celsius
-                for (int i =0; i < 2; i++){
-                    MCalentamiento[i] = (Calentamiento[i]+ 273.15) * 1.8;
-                    MEnfriamento[i] = (Enfriamento[i] + 273.15) * 1.8;
-                }
+    } else if(SIN == 1) {
+        // SISTEMA INTERNACIONAL
+        //  CONVIERTE LAS TEMPERATURAS A UNIDADES DE �C
+        //  WCP A UNIDADES DE BTU/HR�F
+        //  H SIGUE CONSTANTE BTU/HR FT^2 �F
+        // CONVERSION DE TEMPERATURA DE ENTRADA Y OBJETIVO
+        if (A == 1) {
+            // Conversi�n de Kelvin a Celsius
+            for (int i =0; i < 2; i++){
+                MCalentamiento[i] = Calentamiento[i] + 273.15;
+                MEnfriamento[i] = Enfriamento[i] + 273.15;
+            }
+        } else if (A == 2) {
+            // Conversi�n de Farenheit a Celsius
+            for (int i =0; i < 2; i++){
+                MCalentamiento[i] = Calentamiento[i] * 1.8 + 32.0;
+                MEnfriamento[i] = Enfriamento[i] * 1.8 + 32.0;
+            }
+        } else if (A == 3) {
+            // Conversi�n de Celsius a Celsius
+            for (int i =0; i < 2; i++){
+                MCalentamiento[i] = Calentamiento[i];
+                MEnfriamento[i] = Enfriamento[i];
+            }
+        } else if (A == 4){
+            // Conversi�n de Ranking a Celsius
+            for (int i =0; i < 2; i++){
+                MCalentamiento[i] = (Calentamiento[i]+ 273.15) * 1.8;
+                MEnfriamento[i] = (Enfriamento[i] + 273.15) * 1.8;
             }
         }
     }

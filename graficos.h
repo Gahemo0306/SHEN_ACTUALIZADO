@@ -69,8 +69,16 @@ public:
                         QVector<double> Cp, QVector<double> h, QVector<double> Calentamiento,
                         QVector<double> Enfriamento,double DTmin,int CTo,int CCo);
     double getAREAS();
+    QVector<double> getDTmed();
+    QVector<double> getDelta2();
+    QVector<double> getDelta1();
+    QVector<double> getVectorAreas();
+    QVector<double> getVectorEntalpia();
+    QVector<QVector<double>> getINTERVALOS_AGRUPADOS();
 private:
     double MAREAS;
+    QVector<double> MDTmed,MDelta2,MDelta1,MVectorAreas,MVectorEntalpia;
+    QVector<QVector<double>> MINTERVALOS_AGRUPADOS;
 };
 
 class Plot_curvascompuestas_diversa
@@ -88,7 +96,6 @@ private:
     QVector<double> MCFENTALPIA,MCFTEMPERATURAS;
     double MK;
 };
-
 
 class Plot_CCAJUSTADA_DIVERSA
 {
@@ -114,7 +121,6 @@ private:
     double MK;
 };
 
-
 class PlotGCC_DIVERSA
 {
 public:
@@ -137,7 +143,13 @@ public:
                         QVector<double> Enfriamento, double K, double DTmin, float punto1, float punto2);
     double getAREAS();
     double getK();
+    QVector<double> getVectorAreas();
+    QVector<double> getVectorEntalpia();
+    QVector<double> getDeltaTLM();
+    QVector<QVector<double>> getINTERVALOS_AGRUPADOS();
 private:
+    QVector<double> MVectorAreas,MVectorEntalpia,MDeltaTLM;
+    QVector<QVector<double>> MINTERVALOS_AGRUPADOS;
     double MAREAS;
     double MK;
 };
@@ -164,8 +176,20 @@ public:
     double getCostoTotal();
     double getCostoOperacionTotal();
     double getCostoCapitalTotal();
+    double getOpeCosC();
+    double getOpeCosH();
+    double getCapCos3();
+    double getCapCos2();
+    double getCapCos1();
+    double getAH();
+    double getAR();
+    double getAC();
+    double getQH();
+    double getQR();
+    double getQC();
 private:
     double MCostoTotal, MCostoOperacionTotal, MCostoCapitalTotal;
+    double MOpeCosC, MOpeCosH , MCapCos3 , MCapCos2 , MCapCos1, MAH, MQH, MAR, MQR, MAC, MQC;
 };
 
 class Plot_Costos_vs_Min_Divera

@@ -1844,6 +1844,51 @@ void AnalisisPersonalizado::Info_Uniforme(bool UPT, bool UAP, bool UCP,
             Checkboxes[0] = 0;
         }
         if(UAP == true){
+            Checkboxes[1] = 1;
+        }else if(UAP == true){
+            Checkboxes[1] = 0;
+        }
+        if(UCP == true ){
+            Checkboxes[2] = 1;
+        }else if(UCP == true){
+            Checkboxes[2] = 0;
+        }
+        if(UHCC == true){
+            Checkboxes[3] = 1;
+        }else if(UHCC == false){
+            Checkboxes[3] = 0;
+        }
+        if(UCC == true){
+            Checkboxes[4] = 1;
+        }else if(UCC == false){
+            Checkboxes[4] = 0;
+        }
+        if(UCCC == true){
+            Checkboxes[5] = 1;
+        }else if(UCCC == false){
+            Checkboxes[5] = 0;
+        }
+        if(UCCA == true){
+            Checkboxes[6] = 1;
+        }else if(UCCA == false){
+            Checkboxes[6] = 0;
+        }
+        if(UGCC == true){
+            Checkboxes[7] = 1;
+        }else if(UGCC ==  false){
+            Checkboxes[7] = 0;
+        }
+        if(UADTM == true){
+            Checkboxes[8] = 1;
+        }else if(UADTM ==  false){
+            Checkboxes[8] = 0;
+        }
+        if(UCDTM == true){
+            Checkboxes[9] = 1;
+        }else if(UCDTM ==  false){
+            Checkboxes[9] = 0;
+        }
+        if(UAP == true || UADTM == true){ //GUARDADOR DE INFO
             if(metodoservicios_uniformes() == false){
                 QMessageBox::warning(this,tr("Error"),tr("Missing information"));
                 return;
@@ -1871,14 +1916,14 @@ void AnalisisPersonalizado::Info_Uniforme(bool UPT, bool UAP, bool UCP,
                 CTo = 0;
                 CCo = 1;
             }
-        }else if(UAP == false){
+        }else{
             Enfriamento.resize(2);
             Calentamiento.resize(2);
             Checkboxes[1] = 0;
             CTo = 0;
             CCo = 0;
         }
-        if(UCP == true){
+        if(UCP == true || UADTM == true){ //GUARDADOR DE INFO
             if(metodocapital_uniformes() == false && metodooperacional_uniformes() == false){
                 QMessageBox::warning(this,tr("Error"),tr("Missing information"));
                 return;
@@ -1913,116 +1958,14 @@ void AnalisisPersonalizado::Info_Uniforme(bool UPT, bool UAP, bool UCP,
                 OperationCost[i] = ui->UtableOperation->item(i,0)->text().toDouble();
             }
             OperationCost = ConvertirOperationCost(OperationCost,SI,SIS,cbUOP);
-        }else if(UCP == false){
-            Checkboxes[2] = 0;
-            CapitalCost.resize(1);
-            for(int i = 0; i < 1 ;i++){
-                CapitalCost[i].resize(2);
-            }
-            OperationCost.resize(2);
-        }
-        if(UHCC == true){
-            Checkboxes[3] = 1;
-        }else if(UHCC == false){
-            Checkboxes[3] = 0;
-        }
-        if(UCC == true){
-            Checkboxes[4] = 1;
-        }else if(UCC == false){
-            Checkboxes[4] = 0;
-        }
-        if(UCCC == true){
-            Checkboxes[5] = 1;
-        }else if(UCCC == false){
-            Checkboxes[5] = 0;
-        }
-        if(UCCA == true){
-            Checkboxes[6] = 1;
-        }else if(UCCA == false){
-            Checkboxes[6] = 0;
-        }
-        if(UGCC == true){
-            Checkboxes[7] = 1;
-        }else if(UGCC ==  false){
-            Checkboxes[7] = 0;
-        }
-        if(UADTM == true){
-            if(metodoservicios_uniformes() == false){
-                QMessageBox::warning(this,tr("Error"),tr("Missing information"));
-                return;
-            }
-            Checkboxes[8] = 1;
-            int ncols;
-            ncols = ui->services->columnCount();
-            Enfriamento.resize(ncols);
-            Calentamiento.resize(ncols);
-            Enf.resize(ncols);
-            Cal.resize(ncols);
-            for (int j = 0; j < ncols ; j++){
-                Cal[j] = ui->services->item(0,j)->text().toDouble();
-                Enf[j] = ui->services->item(1,j)->text().toDouble();
-            }
-            UnidadesSerAux units2(SI,SIS,0);
-            int A = ui->Uunits_temp->currentIndex(); //corregido
-            units2.ConvertirUnidades(Cal,Enf,SI,SIS,A);
-            Enfriamento = units2.getEnfriamento();
-            Calentamiento = units2.getCalentamiento();
-            if (ui->UTodcomboBox->currentIndex() == 1){
-                CTo = 1;
-                CCo = 0;
-            }else if(ui->UTodcomboBox->currentIndex() == 2){
-                CTo = 0;
-                CCo = 1;
-            }
-        }else if(UADTM ==  false){
-            Enfriamento.resize(2);
-            Calentamiento.resize(2);
-            CTo = 0;
-            CCo = 0;
-            Checkboxes[8] = 0;
-        }
-        if(UCDTM == true){
-            if(metodocapital_uniformes() == false && metodooperacional_uniformes() == false){
-                QMessageBox::warning(this,tr("Error"),tr("Missing information"));
-                return;
-            }
-            Checkboxes[9] = 1;
-            int ccsize = ui->UtableCapital->columnCount();
-            int rcsize = ui->UtableCapital->rowCount();
+        }else{
+            int rcsize = 1;
+            int ccsize = 2;
             CapitalCost.resize(rcsize);
-            if(ccsize == 5){
-                for(int i = 0; i < rcsize ;i++){
-                    CapitalCost[i].resize(ccsize);
-                }
-                for(int j = 0; j < rcsize ; j++){
-                    for(int i = 0; i < ccsize;i++){
-                        CapitalCost[j][i] =  ui->UtableCapital->item(j,i)->text().toDouble();
-                    }
-                }
-            }else if (ccsize == 4){
-                for(int i = 0; i < rcsize ;i++){
-                    CapitalCost[i].resize(ccsize);
-                }
-                for(int j = 0; j < rcsize ; j++){
-                    for(int i = 0; i < ccsize;i++){
-                        CapitalCost[j][i] =  ui->UtableCapital->item(j,i)->text().toDouble();
-                    }
-                }
+            for(int i = 0; i < rcsize ;i++){
+                CapitalCost[i].resize(ccsize);
             }
-            int cbUOP = ui->Ucapital_units->currentIndex();
-            int opsize = ui->UtableOperation->rowCount();
-            OperationCost.resize(opsize);
-            for(int i = 0; i < opsize ; i++){
-                OperationCost[i] = ui->UtableOperation->item(i,0)->text().toDouble();
-            }
-            OperationCost = ConvertirOperationCost(OperationCost,SI,SIS,cbUOP);
-        }else if(UCDTM ==  false){
-            Checkboxes[9] = 0;
-            CapitalCost.resize(1);
-            for(int i = 0; i < 1 ;i++){
-                CapitalCost[i].resize(2);
-            }
-            OperationCost.resize(2);
+            OperationCost.resize(rcsize);
         }
     }
     infoapuniforme info(Checkboxes,estatico,incremento,SI,SIS,Min,Max,Inc,TS,TE,WCP,H,Enfriamento,
@@ -2124,14 +2067,14 @@ void AnalisisPersonalizado::Info_Diversa(bool DPT, bool DAP, bool DCP,
                 Enf[j] = ui->Dservices->item(1,j)->text().toDouble();
             }
             UnidadesSerAux units2(SI,SIS,0);
-            int A = ui->Uunits_temp->currentIndex(); //corregido
+            int A = ui->Dunits_temp->currentIndex(); //corregido
             units2.ConvertirUnidades(Cal,Enf,SI,SIS,A);
             Enfriamento = units2.getEnfriamento();
             Calentamiento = units2.getCalentamiento();
-            if (ui->UTodcomboBox->currentIndex() == 1){
+            if (ui->DTodcomboBox->currentIndex() == 1){
                 CTo = 1;
                 CCo = 0;
-            }else if(ui->UTodcomboBox->currentIndex() == 2){
+            }else if(ui->DTodcomboBox->currentIndex() == 2){
                 CTo = 0;
                 CCo = 1;
             }
@@ -2222,6 +2165,51 @@ void AnalisisPersonalizado::Info_Diversa(bool DPT, bool DAP, bool DCP,
             Checkboxes[0] = 0;
         }
         if(DAP == true){
+            Checkboxes[1] = 1;
+        }else if(DAP == false){
+            Checkboxes[1] = 0;
+        }
+        if(DCP == true){
+            Checkboxes[2] = 1;
+        }else if(DCP == false){
+            Checkboxes[2] = 0;
+        }
+        if(DHCC == true){
+            Checkboxes[3] = 1;
+        }else if(DHCC == false){
+            Checkboxes[3] = 0;
+        }
+        if(DCC == true){
+            Checkboxes[4] = 1;
+        }else if(DCC == false){
+            Checkboxes[4] = 0;
+        }
+        if(DCCC == true){
+            Checkboxes[5] = 1;
+        }else if(DCCC == false){
+            Checkboxes[5] = 0;
+        }
+        if(DCCA == true){
+            Checkboxes[6] = 1;
+        }else if(DCCA == false){
+            Checkboxes[6] = 0;
+        }
+        if(DGCC == true){
+            Checkboxes[7] = 1;
+        }else if(DGCC ==  false){
+            Checkboxes[7] = 0;
+        }
+        if(DADTM == true){
+            Checkboxes[8] = 1;
+        }else if(DADTM ==  false){
+            Checkboxes[8] = 0;
+        }
+        if(DCDTM == true){
+            Checkboxes[9] = 1;
+        }else if(DCDTM ==  false){
+            Checkboxes[9] = 0;
+        }
+        if(DAP == true || DADTM == true){ //GUARDADOR DE INFO
             if(metodoservicios_diverso() == false){
                 QMessageBox::warning(this,tr("Error"),tr("Missing information"));
                 return;
@@ -2249,14 +2237,14 @@ void AnalisisPersonalizado::Info_Diversa(bool DPT, bool DAP, bool DCP,
                 CTo = 0;
                 CCo = 1;
             }
-        }else if(DAP == false){
+        }else{
             Enfriamento.resize(2);
             Calentamiento.resize(2);
             Checkboxes[1] = 0;
             CTo = 0;
             CCo = 0;
         }
-        if(DCP == true){
+        if(DCP == true || DCDTM == true){ //GUARDADOR DE INFO
             if(metodocapital_diverso() == false && metodooperacional_diverso() == false){
                 QMessageBox::warning(this,tr("Error"),tr("Missing information"));
                 return;
@@ -2291,111 +2279,8 @@ void AnalisisPersonalizado::Info_Diversa(bool DPT, bool DAP, bool DCP,
                 OperationCost[i] = ui->DtableOperation->item(i,0)->text().toDouble();
             }
             OperationCost = ConvertirOperationCost(OperationCost,SI,SIS,cbUOP);
-        }else if(DCP == false){
+        }else{
             Checkboxes[2] = 0;
-            CapitalCost.resize(1);
-            for(int i = 0; i < 1 ;i++){
-                CapitalCost[i].resize(2);
-            }
-            OperationCost.resize(2);
-        }
-        if(DHCC == true){
-            Checkboxes[3] = 1;
-        }else if(DHCC == false){
-            Checkboxes[3] = 0;
-        }
-        if(DCC == true){
-            Checkboxes[4] = 1;
-        }else if(DCC == false){
-            Checkboxes[4] = 0;
-        }
-        if(DCCC == true){
-            Checkboxes[5] = 1;
-        }else if(DCCC == false){
-            Checkboxes[5] = 0;
-        }
-        if(DCCA == true){
-            Checkboxes[6] = 1;
-        }else if(DCCA == false){
-            Checkboxes[6] = 0;
-        }
-        if(DGCC == true){
-            Checkboxes[7] = 1;
-        }else if(DGCC ==  false){
-            Checkboxes[7] = 0;
-        }
-        if(DADTM == true){
-            if(metodoservicios_uniformes() == false){
-                QMessageBox::warning(this,tr("Error"),tr("Missing information"));
-                return;
-            }
-            Checkboxes[8] = 1;
-            int ncols;
-            ncols = ui->Dservices->columnCount();
-            Enfriamento.resize(ncols);
-            Calentamiento.resize(ncols);
-            Enf.resize(ncols);
-            Cal.resize(ncols);
-            for (int j = 0; j < ncols ; j++){
-                Cal[j] = ui->Dservices->item(0,j)->text().toDouble();
-                Enf[j] = ui->Dservices->item(1,j)->text().toDouble();
-            }
-            UnidadesSerAux units2(SI,SIS,0);
-            int A = ui->Dunits_temp->currentIndex(); //corregido
-            units2.ConvertirUnidades(Cal,Enf,SI,SIS,A);
-            Enfriamento = units2.getEnfriamento();
-            Calentamiento = units2.getCalentamiento();
-            if (ui->DTodcomboBox->currentIndex() == 1){
-                CTo = 1;
-                CCo = 0;
-            }else if(ui->DTodcomboBox->currentIndex() == 2){
-                CTo = 0;
-                CCo = 1;
-            }
-        }else if(DADTM ==  false){
-            Enfriamento.resize(2);
-            Calentamiento.resize(2);
-            CTo = 0;
-            CCo = 0;
-            Checkboxes[8] = 0;
-        }
-        if(DCDTM == true){
-            if(metodocapital_uniformes() == false && metodooperacional_uniformes() == false){
-                QMessageBox::warning(this,tr("Error"),tr("Missing information"));
-                return;
-            }
-            Checkboxes[9] = 1;
-            int ccsize = ui->DtableCapital->columnCount();
-            int rcsize = ui->DtableCapital->rowCount();
-            CapitalCost.resize(rcsize);
-            if(ccsize == 5){
-                for(int i = 0; i < rcsize ;i++){
-                    CapitalCost[i].resize(ccsize);
-                }
-                for(int j = 0; j < rcsize ; j++){
-                    for(int i = 0; i < ccsize;i++){
-                        CapitalCost[j][i] =  ui->DtableCapital->item(j,i)->text().toDouble();
-                    }
-                }
-            }else if (ccsize == 4){
-                for(int i = 0; i < rcsize ;i++){
-                    CapitalCost[i].resize(ccsize);
-                }
-                for(int j = 0; j < rcsize ; j++){
-                    for(int i = 0; i < ccsize;i++){
-                        CapitalCost[j][i] =  ui->DtableCapital->item(j,i)->text().toDouble();
-                    }
-                }
-            }
-            int cbUOP = ui->Dcapital_units->currentIndex();
-            int opsize = ui->DtableOperation->rowCount();
-            OperationCost.resize(opsize);
-            for(int i = 0; i < opsize ; i++){
-                OperationCost[i] = ui->DtableOperation->item(i,0)->text().toDouble();
-            }
-            OperationCost = ConvertirOperationCost(OperationCost,SI,SIS,cbUOP);
-        }else if(DCDTM ==  false){
-            Checkboxes[9] = 0;
             CapitalCost.resize(1);
             for(int i = 0; i < 1 ;i++){
                 CapitalCost[i].resize(2);
@@ -2601,6 +2486,51 @@ void AnalisisPersonalizado::Info_Both(bool BPT, bool BAP, bool BCP,
             Checkboxes[0] = 0;
         }
         if(BAP == true){
+            Checkboxes[1] = 1;
+        }else if(BAP == false){
+            Checkboxes[1] = 0;
+        }
+        if(BCP == true){
+            Checkboxes[2] = 1;
+        }else if(BCP == false){
+            Checkboxes[2] = 0;
+        }
+        if(BHCC == true){
+            Checkboxes[3] = 1;
+        }else if(BHCC == false){
+            Checkboxes[3] = 0;
+        }
+        if(BCC == true){
+            Checkboxes[4] = 1;
+        }else if(BCC == false){
+            Checkboxes[4] = 0;
+        }
+        if(BCCC == true){
+            Checkboxes[5] = 1;
+        }else if(BCCC == false){
+            Checkboxes[5] = 0;
+        }
+        if(BCCA == true){
+            Checkboxes[6] = 1;
+        }else if(BCCA == false){
+            Checkboxes[6] = 0;
+        }
+        if(BGCC == true){
+            Checkboxes[7] = 1;
+        }else if(BGCC ==  false){
+            Checkboxes[7] = 0;
+        }
+        if(BADTM == true){
+            Checkboxes[8] = 1;
+        }else if(BADTM ==  false){
+            Checkboxes[8] = 0;
+        }
+        if(BCDTM == true){
+            Checkboxes[9] = 1;
+        }else if(BCDTM ==  false){
+            Checkboxes[9] = 0;
+        }
+        if(BAP == true || BADTM == true){
             if(metodoservicios_both() == false){
                 QMessageBox::warning(this,tr("Error"),tr("Missing information"));
                 return;
@@ -2628,14 +2558,14 @@ void AnalisisPersonalizado::Info_Both(bool BPT, bool BAP, bool BCP,
                 CTo = 0;
                 CCo = 1;
             }
-        }else if(BAP == false){
+        }else{
             Enfriamento.resize(2);
             Calentamiento.resize(2);
             Checkboxes[1] = 0;
             CTo = 0;
             CCo = 0;
         }
-        if(BCP == true){
+        if(BCP == true || BCDTM == true){
             if(metodocapital_both() == false && metodooperacional_both() == false){
                 QMessageBox::warning(this,tr("Error"),tr("Missing information"));
                 return;
@@ -2670,111 +2600,8 @@ void AnalisisPersonalizado::Info_Both(bool BPT, bool BAP, bool BCP,
                 OperationCost[i] = ui->BtableOperation->item(i,0)->text().toDouble();
             }
             OperationCost = ConvertirOperationCost(OperationCost,SI,SIS,cbUOP);
-        }else if(BCP == false){
+        }else{
             Checkboxes[2] = 0;
-            CapitalCost.resize(1);
-            for(int i = 0; i < 1 ;i++){
-                CapitalCost[i].resize(2);
-            }
-            OperationCost.resize(2);
-        }
-        if(BHCC == true){
-            Checkboxes[3] = 1;
-        }else if(BHCC == false){
-            Checkboxes[3] = 0;
-        }
-        if(BCC == true){
-            Checkboxes[4] = 1;
-        }else if(BCC == false){
-            Checkboxes[4] = 0;
-        }
-        if(BCCC == true){
-            Checkboxes[5] = 1;
-        }else if(BCCC == false){
-            Checkboxes[5] = 0;
-        }
-        if(BCCA == true){
-            Checkboxes[6] = 1;
-        }else if(BCCA == false){
-            Checkboxes[6] = 0;
-        }
-        if(BGCC == true){
-            Checkboxes[7] = 1;
-        }else if(BGCC ==  false){
-            Checkboxes[7] = 0;
-        }
-        if(BADTM == true){
-            if(metodoservicios_both() == false){
-                QMessageBox::warning(this,tr("Error"),tr("Missing information"));
-                return;
-            }
-            Checkboxes[8] = 1;
-            int ncols;
-            ncols = ui->Bservices->columnCount();
-            Enfriamento.resize(ncols);
-            Calentamiento.resize(ncols);
-            Enf.resize(ncols);
-            Cal.resize(ncols);
-            for (int j = 0; j < ncols ; j++){
-                Cal[j] = ui->Bservices->item(0,j)->text().toDouble();
-                Enf[j] = ui->Bservices->item(1,j)->text().toDouble();
-            }
-            UnidadesSerAux units2(SI,SIS,0);
-            int A = ui->Bunits_temp->currentIndex(); //corregido
-            units2.ConvertirUnidades(Cal,Enf,SI,SIS,A);
-            Enfriamento = units2.getEnfriamento();
-            Calentamiento = units2.getCalentamiento();
-            if (ui->BTodcomboBox->currentIndex() == 1){
-                CTo = 1;
-                CCo = 0;
-            }else if(ui->BTodcomboBox->currentIndex() == 2){
-                CTo = 0;
-                CCo = 1;
-            }
-        }else if(BADTM ==  false){
-            Enfriamento.resize(2);
-            Calentamiento.resize(2);
-            CTo = 0;
-            CCo = 0;
-            Checkboxes[8] = 0;
-        }
-        if(BCDTM == true){
-            if(metodocapital_both() == false && metodooperacional_both() == false){
-                QMessageBox::warning(this,tr("Error"),tr("Missing information"));
-                return;
-            }
-            Checkboxes[9] = 1;
-            int ccsize = ui->BtableCapital->columnCount();
-            int rcsize = ui->BtableCapital->rowCount();
-            CapitalCost.resize(rcsize);
-            if(ccsize == 5){
-                for(int i = 0; i < rcsize ;i++){
-                    CapitalCost[i].resize(ccsize);
-                }
-                for(int j = 0; j < rcsize ; j++){
-                    for(int i = 0; i < ccsize;i++){
-                        CapitalCost[j][i] =  ui->BtableCapital->item(j,i)->text().toDouble();
-                    }
-                }
-            }else if (ccsize == 4){
-                for(int i = 0; i < rcsize ;i++){
-                    CapitalCost[i].resize(ccsize);
-                }
-                for(int j = 0; j < rcsize ; j++){
-                    for(int i = 0; i < ccsize;i++){
-                        CapitalCost[j][i] =  ui->BtableCapital->item(j,i)->text().toDouble();
-                    }
-                }
-            }
-            int cbUOP = ui->Bcapital_units->currentIndex();
-            int opsize = ui->BtableOperation->rowCount();
-            OperationCost.resize(opsize);
-            for(int i = 0; i < opsize ; i++){
-                OperationCost[i] = ui->BtableOperation->item(i,0)->text().toDouble();
-            }
-            OperationCost = ConvertirOperationCost(OperationCost,SI,SIS,cbUOP);
-        }else if(BCDTM ==  false){
-            Checkboxes[9] = 0;
             CapitalCost.resize(1);
             for(int i = 0; i < 1 ;i++){
                 CapitalCost[i].resize(2);

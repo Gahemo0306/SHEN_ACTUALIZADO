@@ -41,6 +41,8 @@ private slots:
     void on_actionProblem_Table_2_triggered();
     void on_actionSummary_triggered();
 
+    void on_actionProblem_Table_triggered();
+
 signals:
     void actionNew(int ValorTabla);
 };

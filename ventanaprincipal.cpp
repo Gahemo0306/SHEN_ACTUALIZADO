@@ -104,9 +104,6 @@ void VentanaPrincipal::on_actionNew_triggered() //NEW
     loadSubWindow(new TablaDatos(this),ValorACTION);
 }
 
-
-
-
 void VentanaPrincipal::on_actionOpen_triggered()
 {
     int ValorACTION = 2;
@@ -139,7 +136,6 @@ void VentanaPrincipal::on_actionClose_triggered()
     close();
 }
 
-
 void VentanaPrincipal::on_actionCustom_Analysis_triggered()
 {
     int ValorACTION = 3;
@@ -170,4 +166,10 @@ void VentanaPrincipal::on_actionSummary_triggered()
 {
     int ValorACTION = 5;
     loadSubWindow(new Summary(this),ValorACTION);
+}
+
+void VentanaPrincipal::on_actionProblem_Table_triggered()
+{
+    int ValorACTION = 6;;
+    loadSubWindow(new problemtable(this),ValorACTION);
 }

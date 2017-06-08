@@ -157,7 +157,7 @@ void Contenido_PLOTS::accionguardar()
     bool incremento = ui->IncrementradioButton->isChecked();
     QFile F(WORKSPACE_FILENAME);
     if (!F.open(QIODevice::ReadOnly)){
-        QMessageBox::warning(this,tr("Error"),tr("Nada no pasa nada"));
+        QMessageBox::warning(this,tr("Error"),tr("Error"));
         return;
     }
     QDataStream in2(&F);
@@ -185,7 +185,7 @@ void Contenido_PLOTS::accionguardar()
     F.close();
     QFile FileUnidades(UNIDADES_FILENAME);
     if (!FileUnidades.open(QIODevice::ReadOnly)){
-        QMessageBox::warning(this,tr("Error"),tr("Nada no pasa nada"));
+        QMessageBox::warning(this,tr("Error"),tr("Error"));
         return;
     }
     QDataStream in3(&FileUnidades);
@@ -204,7 +204,7 @@ void Contenido_PLOTS::accionguardar()
     FileUnidades.close();
     QFile Fil(TABPLOT_FILENAME);
     if (!Fil.open(QIODevice::ReadOnly)){
-        QMessageBox::warning(this,tr("Error"),tr("Nada no pasa nada"));
+        QMessageBox::warning(this,tr("Error"),tr("Error"));
         return;
     }
     QDataStream in4(&Fil);
@@ -336,7 +336,6 @@ void Contenido_PLOTS::accionguardar()
             }
             QDataStream out10(&FileBools);
             out10.setVersion(QDataStream::Qt_5_4);
-            //VecPlot_CurvasCompuestasAjustadasbool VecCCAB(uniforme,diverso,estatico,incremento);
             VecGCCbool VecGCCbools(uniforme,diverso,estatico,incremento);
             out10 << VecGCCbools;
             FileBools.flush();
@@ -409,7 +408,6 @@ void Contenido_PLOTS::accionguardar()
             out15 << GCCED;
             FileVec.flush();
             FileVec.close();
-            qDebug() << "REPOR";
         }else if(diverso == true && incremento == true){
             QFile FileBools(VECPLOTGCC_BOOL_FILENAME);
             if (!FileBools.open(QIODevice::WriteOnly)){
@@ -437,7 +435,6 @@ void Contenido_PLOTS::accionguardar()
             Inc = units.ConvertirInc(Inc,SI,SIS,UTemp);
             K = ui->k->value();
             VecGCCDD GCCDD(uniforme,diverso,estatico,incremento,TS,TE,Wcp,h,Min,Max,Inc,K);
-            //VecGCCdinamico VecGCdin(uniforme,diverso,estatico,incremento,TS,TE,Wcp,Min,Max,Inc);
             out16 << GCCDD;
             FileVec.flush();
             FileVec.close();

@@ -31,6 +31,25 @@ private slots:
     void tablaproblema_estatico_diverso(double DTmin,double k,QString text);
     void tablaproblema_incremento_diverso(double DTmin, double k, QString text, float punto1, float punto2);
     void tablaproblema_estatico_both(double DTmin, double k, QString text, float punto1, float punto2);
+    void areas_estatico_uniforme(double DTmin, QString text);
+    void areas_incremento_uniforme(double DTmin,QString text);
+    void areas_estatico_diverso(double DTmin,double k,QString text,float punto1,float punto2);
+    void areas_incremento_diverso(double DTmin,double k,QString text,float punto1,float punto2);
+    void areas_estatico_both(double DTmin,double k , QString text,float punto1,float punto2);
+    void areas_incremento_both(double DTmin,double k,QString text, float punto1, float punto2);
+    void costos_estatico_uniforme(double DTmin, QString text);
+//    void costos_incremento_uniforme(double DTmin,QString text);
+//    void costos_estatico_diverso(double DTmin,double k,QString text,float punto1,float punto2);
+//    void costos_incremento_diverso(double DTmin,double k,QString text,float punto1,float punto2);
+    //FECHA
+    QString currDate();
+
+    //BOTON PDF
+    void on_pushButton_clicked();
+    QString espaceadorcalculos(QString text,QString row);
+    //QString acompletador(int diferencia, int syzebytes, int tamano);
+    bool compararrows(QString row1,QString row2);
+
 private:
     Ui::Summary *ui;
     QString item_select;

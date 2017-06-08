@@ -62,7 +62,7 @@ void problemtable::on_pushButton_clicked()
     bool diverso = ui->diverse->isChecked();
     QFile F(WORKSPACE_FILENAME);
     if (!F.open(QIODevice::ReadOnly)){
-        QMessageBox::warning(this,tr("Error"),tr("Nada no pasa nada"));
+        QMessageBox::warning(this,tr("Error"),tr("Error"));
         return;
     }
     QDataStream in2(&F);
