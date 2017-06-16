@@ -1722,6 +1722,7 @@ void AnalisisPersonalizado::Info_Uniforme(bool UPT, bool UAP, bool UCP,
     int CTo,CCo;
     if(estatico == true){
         Min = ui->Minimun->value();
+        Min = units.ConvertirDTmin(Min,SI,SIS,UTemp);
         Max = 0;
         Inc = 0;
         Checkboxes.resize(8);
@@ -1813,14 +1814,14 @@ void AnalisisPersonalizado::Info_Uniforme(bool UPT, bool UAP, bool UCP,
         }else if(UHCC == false){
             Checkboxes[3] = 0;
         }
-        if(UCC == true){
+        if(UCCC == true){
             Checkboxes[4] = 1;
-        }else if(UCC == false){
+        }else if(UCCC == false){
             Checkboxes[4] = 0;
         }
-        if(UCCC == true){
+        if(UCC == true){
             Checkboxes[5] = 1;
-        }else if(UCCC == false){
+        }else if(UCC == false){
             Checkboxes[5] = 0;
         }
         if(UCCA == true){
@@ -1837,6 +1838,9 @@ void AnalisisPersonalizado::Info_Uniforme(bool UPT, bool UAP, bool UCP,
         Min = ui->Minimun->value();
         Max = ui->Maximun->value();
         Inc = ui->Increment->value();
+        Min = units.ConvertirDTmin(Min,SI,SIS,UTemp);
+        Max = units.ConvertirMax(Max,SI,SIS,UTemp);
+        Inc = units.ConvertirInc(Inc,SI,SIS,UTemp);
         Checkboxes.resize(10);
         if(UPT == true){
             Checkboxes[0] = 1;
@@ -1858,14 +1862,14 @@ void AnalisisPersonalizado::Info_Uniforme(bool UPT, bool UAP, bool UCP,
         }else if(UHCC == false){
             Checkboxes[3] = 0;
         }
-        if(UCC == true){
+        if(UCCC == true){
             Checkboxes[4] = 1;
-        }else if(UCC == false){
+        }else if(UCCC == false){
             Checkboxes[4] = 0;
         }
-        if(UCCC == true){
+        if(UCC == true){
             Checkboxes[5] = 1;
-        }else if(UCCC == false){
+        }else if(UCC == false){
             Checkboxes[5] = 0;
         }
         if(UCCA == true){
@@ -1893,7 +1897,6 @@ void AnalisisPersonalizado::Info_Uniforme(bool UPT, bool UAP, bool UCP,
                 QMessageBox::warning(this,tr("Error"),tr("Missing information"));
                 return;
             }
-            Checkboxes[1] = 1;
             int ncols;
             ncols = ui->services->columnCount();
             Enfriamento.resize(ncols);
@@ -1919,16 +1922,14 @@ void AnalisisPersonalizado::Info_Uniforme(bool UPT, bool UAP, bool UCP,
         }else{
             Enfriamento.resize(2);
             Calentamiento.resize(2);
-            Checkboxes[1] = 0;
             CTo = 0;
             CCo = 0;
         }
-        if(UCP == true || UADTM == true){ //GUARDADOR DE INFO
+        if(UCP == true || UCDTM == true){ //GUARDADOR DE INFO
             if(metodocapital_uniformes() == false && metodooperacional_uniformes() == false){
                 QMessageBox::warning(this,tr("Error"),tr("Missing information"));
                 return;
             }
-            Checkboxes[2] = 1;
             int ccsize = ui->UtableCapital->columnCount();
             int rcsize = ui->UtableCapital->rowCount();
             CapitalCost.resize(rcsize);
@@ -2044,6 +2045,7 @@ void AnalisisPersonalizado::Info_Diversa(bool DPT, bool DAP, bool DCP,
         Min = ui->Dminimun->value();
         Max = 0;
         Inc = 0;
+        Min = units.ConvertirDTmin(Min,SI,SIS,UTemp);
         Checkboxes.resize(8);
         if(DPT == true){
             Checkboxes[0] = 1;
@@ -2133,14 +2135,14 @@ void AnalisisPersonalizado::Info_Diversa(bool DPT, bool DAP, bool DCP,
         }else if(DHCC == false){
             Checkboxes[3] = 0;
         }
-        if(DCC == true){
+        if(DCCC == true){
             Checkboxes[4] = 1;
-        }else if(DCC == false){
+        }else if(DCCC == false){
             Checkboxes[4] = 0;
         }
-        if(DCCC == true){
+        if(DCC == true){
             Checkboxes[5] = 1;
-        }else if(DCCC == false){
+        }else if(DCC == false){
             Checkboxes[5] = 0;
         }
         if(DCCA == true){
@@ -2158,6 +2160,9 @@ void AnalisisPersonalizado::Info_Diversa(bool DPT, bool DAP, bool DCP,
         Min = ui->Dminimun->value();
         Max = ui->Dmaximun->value();
         Inc = ui->Dincrement->value();
+        Min = units.ConvertirDTmin(Min,SI,SIS,UTemp);
+        Max = units.ConvertirMax(Max,SI,SIS,UTemp);
+        Inc = units.ConvertirInc(Inc,SI,SIS,UTemp);
         Checkboxes.resize(10);
         if(DPT == true){
             Checkboxes[0] = 1;
@@ -2179,14 +2184,14 @@ void AnalisisPersonalizado::Info_Diversa(bool DPT, bool DAP, bool DCP,
         }else if(DHCC == false){
             Checkboxes[3] = 0;
         }
-        if(DCC == true){
+        if(DCCC == true){
             Checkboxes[4] = 1;
-        }else if(DCC == false){
+        }else if(DCCC == false){
             Checkboxes[4] = 0;
         }
-        if(DCCC == true){
+        if(DCC == true){
             Checkboxes[5] = 1;
-        }else if(DCCC == false){
+        }else if(DCC == false){
             Checkboxes[5] = 0;
         }
         if(DCCA == true){
@@ -2214,7 +2219,6 @@ void AnalisisPersonalizado::Info_Diversa(bool DPT, bool DAP, bool DCP,
                 QMessageBox::warning(this,tr("Error"),tr("Missing information"));
                 return;
             }
-            Checkboxes[1] = 1;
             int ncols;
             ncols = ui->Dservices->columnCount();
             Enfriamento.resize(ncols);
@@ -2240,7 +2244,6 @@ void AnalisisPersonalizado::Info_Diversa(bool DPT, bool DAP, bool DCP,
         }else{
             Enfriamento.resize(2);
             Calentamiento.resize(2);
-            Checkboxes[1] = 0;
             CTo = 0;
             CCo = 0;
         }
@@ -2249,7 +2252,6 @@ void AnalisisPersonalizado::Info_Diversa(bool DPT, bool DAP, bool DCP,
                 QMessageBox::warning(this,tr("Error"),tr("Missing information"));
                 return;
             }
-            Checkboxes[2] = 1;
             int ccsize = ui->DtableCapital->columnCount();
             int rcsize = ui->DtableCapital->rowCount();
             CapitalCost.resize(rcsize);
@@ -2280,7 +2282,6 @@ void AnalisisPersonalizado::Info_Diversa(bool DPT, bool DAP, bool DCP,
             }
             OperationCost = ConvertirOperationCost(OperationCost,SI,SIS,cbUOP);
         }else{
-            Checkboxes[2] = 0;
             CapitalCost.resize(1);
             for(int i = 0; i < 1 ;i++){
                 CapitalCost[i].resize(2);
@@ -2363,8 +2364,9 @@ void AnalisisPersonalizado::Info_Both(bool BPT, bool BAP, bool BCP,
     if(estatico == true){
         K = ui->Bk->value();
         Min = ui->Bminimun->value();
-        Max = ui->Bmaximun->value();
-        Inc = ui->Bincrement->value();
+        Max = 0;
+        Inc = 0;
+        Min = units.ConvertirDTmin(Min,SI,SIS,UTemp);
         Checkboxes.resize(8);
         if(BPT == true){
             Checkboxes[0] = 1;
@@ -2454,14 +2456,14 @@ void AnalisisPersonalizado::Info_Both(bool BPT, bool BAP, bool BCP,
         }else if(BHCC == false){
             Checkboxes[3] = 0;
         }
-        if(BCC == true){
+        if(BCCC == true){
             Checkboxes[4] = 1;
-        }else if(BCC == false){
+        }else if(BCCC == false){
             Checkboxes[4] = 0;
         }
-        if(BCCC == true){
+        if(BCC == true){
             Checkboxes[5] = 1;
-        }else if(BCCC == false){
+        }else if(BCC == false){
             Checkboxes[5] = 0;
         }
         if(BCCA == true){
@@ -2479,6 +2481,9 @@ void AnalisisPersonalizado::Info_Both(bool BPT, bool BAP, bool BCP,
         Min = ui->Bminimun->value();
         Max = ui->Bmaximun->value();
         Inc = ui->Bincrement->value();
+        Min = units.ConvertirDTmin(Min,SI,SIS,UTemp);
+        Max = units.ConvertirMax(Max,SI,SIS,UTemp);
+        Inc = units.ConvertirInc(Inc,SI,SIS,UTemp);
         Checkboxes.resize(10);
         if(BPT == true){
             Checkboxes[0] = 1;
@@ -2500,14 +2505,14 @@ void AnalisisPersonalizado::Info_Both(bool BPT, bool BAP, bool BCP,
         }else if(BHCC == false){
             Checkboxes[3] = 0;
         }
-        if(BCC == true){
+        if(BCCC == true){
             Checkboxes[4] = 1;
-        }else if(BCC == false){
+        }else if(BCCC == false){
             Checkboxes[4] = 0;
         }
-        if(BCCC == true){
+        if(BCC == true){
             Checkboxes[5] = 1;
-        }else if(BCCC == false){
+        }else if(BCC == false){
             Checkboxes[5] = 0;
         }
         if(BCCA == true){
@@ -2535,7 +2540,6 @@ void AnalisisPersonalizado::Info_Both(bool BPT, bool BAP, bool BCP,
                 QMessageBox::warning(this,tr("Error"),tr("Missing information"));
                 return;
             }
-            Checkboxes[1] = 1;
             int ncols;
             ncols = ui->Bservices->columnCount();
             Enfriamento.resize(ncols);
@@ -2561,7 +2565,6 @@ void AnalisisPersonalizado::Info_Both(bool BPT, bool BAP, bool BCP,
         }else{
             Enfriamento.resize(2);
             Calentamiento.resize(2);
-            Checkboxes[1] = 0;
             CTo = 0;
             CCo = 0;
         }
@@ -2570,7 +2573,6 @@ void AnalisisPersonalizado::Info_Both(bool BPT, bool BAP, bool BCP,
                 QMessageBox::warning(this,tr("Error"),tr("Missing information"));
                 return;
             }
-            Checkboxes[2] = 1;
             int ccsize = ui->BtableCapital->columnCount();
             int rcsize = ui->BtableCapital->rowCount();
             CapitalCost.resize(rcsize);
@@ -2601,7 +2603,6 @@ void AnalisisPersonalizado::Info_Both(bool BPT, bool BAP, bool BCP,
             }
             OperationCost = ConvertirOperationCost(OperationCost,SI,SIS,cbUOP);
         }else{
-            Checkboxes[2] = 0;
             CapitalCost.resize(1);
             for(int i = 0; i < 1 ;i++){
                 CapitalCost[i].resize(2);

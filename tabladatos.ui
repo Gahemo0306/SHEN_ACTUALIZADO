@@ -36,14 +36,14 @@
    </item>
    <item row="0" column="1">
     <layout class="QGridLayout" name="gridLayout_3">
-     <item row="1" column="0">
+     <item row="0" column="0">
       <widget class="QLabel" name="label">
        <property name="text">
         <string>Number of streams:</string>
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
+     <item row="2" column="0">
       <widget class="QRadioButton" name="SIradioButton">
        <property name="enabled">
         <bool>false</bool>
@@ -53,14 +53,14 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="0" colspan="2">
+     <item row="1" column="0" colspan="2">
       <widget class="QLabel" name="label_5">
        <property name="text">
         <string>Select a system of units:</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
+     <item row="0" column="1">
       <layout class="QGridLayout" name="gridLayout_5">
        <item row="0" column="1">
         <widget class="QPushButton" name="Addcorrientes">
@@ -78,14 +78,14 @@
        </item>
       </layout>
      </item>
-     <item row="4" column="1">
+     <item row="3" column="1">
       <widget class="QComboBox" name="TcomboBox">
        <property name="enabled">
         <bool>true</bool>
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
+     <item row="2" column="1">
       <widget class="QRadioButton" name="SISradioButton">
        <property name="enabled">
         <bool>false</bool>
@@ -95,81 +95,45 @@
        </property>
       </widget>
      </item>
-     <item row="6" column="1">
+     <item row="5" column="1">
       <widget class="QComboBox" name="FcomboBox">
        <property name="enabled">
         <bool>true</bool>
        </property>
       </widget>
      </item>
-     <item row="6" column="0">
+     <item row="5" column="0">
       <widget class="QLabel" name="label_3">
        <property name="text">
         <string>Film Coefficient:</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>Temperature:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="8" column="0" colspan="2">
+     <item row="7" column="0" colspan="2">
       <widget class="Line" name="line">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
       </widget>
      </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_6">
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>Type of analysis:</string>
+        <string>Temperature:</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="QComboBox" name="TypeAnalysis">
-       <item>
-        <property name="text">
-         <string>Select one...</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Problem Table</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Area Prediction</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Cost Prediction</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>All</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item row="5" column="0">
-      <widget class="QLabel" name="label_4">
-       <property name="text">
-        <string>WCp:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="1">
+     <item row="4" column="1">
       <widget class="QComboBox" name="WcomboBox">
        <property name="enabled">
         <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>WCp:</string>
        </property>
       </widget>
      </item>
@@ -206,7 +170,7 @@
       </widget>
      </item>
      <item row="3" column="0">
-      <widget class="QPushButton" name="SavepushButton_2">
+      <widget class="QPushButton" name="Saveas">
        <property name="text">
         <string>Save as</string>
        </property>
@@ -220,7 +184,7 @@
       </widget>
      </item>
      <item row="2" column="0">
-      <widget class="QPushButton" name="SavepushButton">
+      <widget class="QPushButton" name="Save">
        <property name="text">
         <string>Save </string>
        </property>

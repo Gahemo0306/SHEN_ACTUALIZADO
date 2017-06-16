@@ -1657,7 +1657,7 @@ Plot_Dtmin_vs_Areas::Plot_Dtmin_vs_Areas(QVector<double> Tsupply, QVector<double
         Delta1= INTERVALOS_AGRUPADOS[i][2]-INTERVALOS_AGRUPADOS[i][0];
         DTm[i] = qFabs((Delta2-Delta1)/(log(Delta2/Delta1)));
         if(DTm[i] != DTm[i]){
-            DTm[i] =  qFabs((Delta2 + Delta1) / 2);
+            DTm[i] = (qFabs(Delta2) + qFabs(Delta1))/ 2;
         }
         MDelta1[i] = Delta1;
         MDelta2[i] = Delta2;
@@ -1669,7 +1669,7 @@ Plot_Dtmin_vs_Areas::Plot_Dtmin_vs_Areas(QVector<double> Tsupply, QVector<double
         Delta1= INTERVALOS_AGRUPADOS[i][0]-INTERVALOS_AGRUPADOS[i][2];
         DTm[i] = qFabs((Delta2-Delta1)/(log(Delta2/Delta1)));
         if(DTm[i] != DTm[i]){
-            DTm[i] =  qFabs((Delta2 + Delta1) / 2);
+            DTm[i] = (qFabs(Delta2) + qFabs(Delta1))/ 2;
         }
         MDelta1[i] = Delta1;
         MDelta2[i] = Delta2;
@@ -2349,7 +2349,6 @@ Plot_curvascompuestas_diversa::Plot_curvascompuestas_diversa(QVector<double> Tsu
             break;
         }
         errorPasado = error;
-        //qDebug() <<  "error" << error  << "Valor de K" << ValoresdeK[min_pos] << iterador << min_pos;
         if(error > tolerancia){
             punto1 = ValoresdeK[min_pos]-incremento;
             punto2 = ValoresdeK[min_pos]+incremento;
@@ -2358,7 +2357,6 @@ Plot_curvascompuestas_diversa::Plot_curvascompuestas_diversa(QVector<double> Tsu
     }
     MK = K;
     K = ValoresdeK[min_pos];
-
     QVector<double> DeltasTi;
     n = Tsupply.size();
     DeltasTi.resize(n);
@@ -2732,7 +2730,6 @@ Plot_CCAJUSTADA_DIVERSA::Plot_CCAJUSTADA_DIVERSA(QVector<double> Tsupply, QVecto
             break;
         }
         errorPasado = error;
-        //qDebug() <<  "error" << error  << "Valor de K" << ValoresdeK[min_pos] << iterador << min_pos;
         if(error > tolerancia){
             punto1 = ValoresdeK[min_pos]-incremento;
             punto2 = ValoresdeK[min_pos]+incremento;
@@ -6112,12 +6109,18 @@ Plot_Costos_vs_Areas_Uniforme::Plot_Costos_vs_Areas_Uniforme(QVector<double> Tsu
         Delta2= INTERVALOS_AGRUPADOS[i][3]-INTERVALOS_AGRUPADOS[i][1];
         Delta1= INTERVALOS_AGRUPADOS[i][2]-INTERVALOS_AGRUPADOS[i][0];
         DTm[i] = qFabs((Delta2-Delta1)/(log(Delta2/Delta1)));
+        if(DTm[i] != DTm[i]){
+            DTm[i] = (qFabs(Delta2) + qFabs(Delta1))/ 2;
+        }
         }
     }else if(CCo==1){
         for(i=0; i < r1; i++){
         Delta2= INTERVALOS_AGRUPADOS[i][3]-INTERVALOS_AGRUPADOS[i][1];
         Delta1= INTERVALOS_AGRUPADOS[i][0]-INTERVALOS_AGRUPADOS[i][2];
         DTm[i] = qFabs((Delta2-Delta1)/(log(Delta2/Delta1)));
+        if(DTm[i] != DTm[i]){
+            DTm[i] = (qFabs(Delta2) + qFabs(Delta1))/ 2;
+        }
         }
     }
     QVector<QVector<double>> Calcal;
@@ -6189,7 +6192,8 @@ Plot_Costos_vs_Areas_Uniforme::Plot_Costos_vs_Areas_Uniforme(QVector<double> Tsu
     }
     //AGLOMERADOS DE  AREA ENERGIA
     nfils = Areas.size();
-    double  AC = 0, QC = 0, MAC = 0, MQC = 0 ;
+    double  AC = 0, QC = 0;
+    MAC = 0, MQC = 0 ;
     for (i = 0; i < r2FRI ; i++){
         AC = AC + Areas[i];
         MAC = MAC + Areas[i];
@@ -6197,14 +6201,16 @@ Plot_Costos_vs_Areas_Uniforme::Plot_Costos_vs_Areas_Uniforme(QVector<double> Tsu
         MQC = MQC + Intervalos_de_Entalpia[i];
 
     }
-    double AR = 0, QR = 0, MAR = 0, MQR = 0;
+    double AR = 0, QR = 0;
+    MAR = 0, MQR = 0;
     for(i = r2FRI; i < nfils-r1CAL; i++){
         AR = AR + Areas[i];
         QR = QR + Intervalos_de_Entalpia[i];
         MAR = MAR + Areas[i];
         MQR = MQR + Intervalos_de_Entalpia[i];
     }
-    double AH = 0, QH = 0, MAH = 0, MQH = 0;
+    double AH = 0, QH = 0;
+    MAH = 0, MQH = 0;
     for(i = nfils-r1CAL; i < nfils; i++){
         AH = AH + Areas[i];
         QH = QH + Intervalos_de_Entalpia[i];
@@ -7222,19 +7228,28 @@ Plot_Costos_vs_Min_Divera::Plot_Costos_vs_Min_Divera(QVector<double> Tsupply, QV
     //AGLOMERADOS DE  AREA ENERGIA
     nfils = Areas.size();
     double  AC = 0, QC = 0;
+    MAC = 0, MQC = 0;
     for (i = 0; i < r2FRI ; i++){
         AC = AC + Areas[i];;
         QC = QC + Intervalos_de_Entalpia[i];
+        MAC = MAC + Areas[i];;
+        MQC = MQC + Intervalos_de_Entalpia[i];
     }
     double AR = 0, QR = 0;
+    MAR = 0, MQR = 0;
     for(i = r2FRI; i < nfils-r1CAL; i++){
         AR = AR + Areas[i];
         QR = QR + Intervalos_de_Entalpia[i];
+        MAR = MAR + Areas[i];
+        MQR = MQR + Intervalos_de_Entalpia[i];
     }
     double AH = 0, QH = 0;
+    MAH = 0, MQH = 0;
     for(i = nfils-r1CAL; i < nfils; i++){
         AH = AH + Areas[i];
         QH = QH + Intervalos_de_Entalpia[i];
+        MAH = MAH + Areas[i];
+        MQH = MQH + Intervalos_de_Entalpia[i];
     }
     nfils = CapitalCost[0].size();
     if(nfils == 5){
@@ -7242,12 +7257,15 @@ Plot_Costos_vs_Min_Divera::Plot_Costos_vs_Min_Divera(QVector<double> Tsupply, QV
         double Xfactor = pow(1+ CapitalCost[0][3] ,CapitalCost[0][4]);
         double FactorAnual =( CapitalCost[0][3]* Xfactor )/( Xfactor - 1);
         double CapCos1 = (CapitalCost[0][0] + CapitalCost[0][1]* pow(AC,CapitalCost[0][2])) * FactorAnual;
+        MCapCos1 = CapCos1;
         Xfactor = pow(1+ CapitalCost[1][3] ,CapitalCost[1][4]);
         FactorAnual =( CapitalCost[1][3]* Xfactor )/( Xfactor - 1);
         double CapCos2 =( CapitalCost[1][0] + CapitalCost[1][1]* pow(AR,CapitalCost[1][2]))* FactorAnual;
+        MCapCos2 = CapCos2;
         Xfactor = pow(1+ CapitalCost[2][3] ,CapitalCost[2][4]);
         FactorAnual =( CapitalCost[2][3]* Xfactor )/( Xfactor - 1);
         double CapCos3 =( CapitalCost[2][0] + CapitalCost[2][1]* pow(AH,CapitalCost[2][2]))* FactorAnual;
+        MCapCos3 = CapCos3;
         MCostoCapitalTotal = CapCos1 + CapCos2 + CapCos3;
         //COSTOS DE OPERACION
         if(SI == true){
@@ -7280,5 +7298,60 @@ double Plot_Costos_vs_Min_Divera::getCostoCapitalTotal()
 double Plot_Costos_vs_Min_Divera::getK()
 {
     return MK;
+}
+
+double Plot_Costos_vs_Min_Divera::getOpeCosC()
+{
+    return MOpeCosC;
+}
+
+double Plot_Costos_vs_Min_Divera::getOpeCosH()
+{
+    return MOpeCosH;
+}
+
+double Plot_Costos_vs_Min_Divera::getCapCos3()
+{
+    return MCapCos3;
+}
+
+double Plot_Costos_vs_Min_Divera::getCapCos2()
+{
+    return MCapCos2;
+}
+
+double Plot_Costos_vs_Min_Divera::getCapCos1()
+{
+    return MCapCos1;
+}
+
+double Plot_Costos_vs_Min_Divera::getAH()
+{
+    return MAH;
+}
+
+double Plot_Costos_vs_Min_Divera::getAR()
+{
+    return MAR;
+}
+
+double Plot_Costos_vs_Min_Divera::getAC()
+{
+    return MAC;
+}
+
+double Plot_Costos_vs_Min_Divera::getQH()
+{
+    return MQH;
+}
+
+double Plot_Costos_vs_Min_Divera::getQR()
+{
+    return MQR;
+}
+
+double Plot_Costos_vs_Min_Divera::getQC()
+{
+    return MQC;
 }
 

@@ -101,7 +101,10 @@ void VentanaPrincipal::on_actionNew_triggered() //NEW
     out1 << valoraction;
     F.flush();
     F.close();
-    loadSubWindow(new TablaDatos(this),ValorACTION);
+    TablaDatos* _tabladatos = new TablaDatos(this);
+    connect(this, &VentanaPrincipal::actionSave,_tabladatos, &TablaDatos::SaveToogle);
+    connect(this, &VentanaPrincipal::actionSaveas,_tabladatos, &TablaDatos::SaveAsToogle);
+    loadSubWindow(_tabladatos,ValorACTION);
 }
 
 void VentanaPrincipal::on_actionOpen_triggered()
@@ -118,17 +121,10 @@ void VentanaPrincipal::on_actionOpen_triggered()
     out1 << valoraction;
     F.flush();
     F.close();
-    loadSubWindow(new TablaDatos(this),ValorACTION);
-}
-
-void VentanaPrincipal::on_actionSave_triggered()
-{
-    //conectar con la ventana tablas save
-}
-
-void VentanaPrincipal::on_actionSave_as_triggered()
-{
-    //conectar con la ventana tablas save as
+    TablaDatos* _tabladatos = new TablaDatos(this);
+    connect(this, &VentanaPrincipal::actionSave,_tabladatos, &TablaDatos::SaveToogle);
+    connect(this, &VentanaPrincipal::actionSaveas,_tabladatos, &TablaDatos::SaveAsToogle);
+    loadSubWindow(_tabladatos,ValorACTION);
 }
 
 void VentanaPrincipal::on_actionClose_triggered()
@@ -142,24 +138,16 @@ void VentanaPrincipal::on_actionCustom_Analysis_triggered()
     loadSubWindow(new AnalisisPersonalizado(this),ValorACTION);
 }
 
-
 void VentanaPrincipal::on_actionPlots_triggered()
 {
     int ValorACTION = 4;
     loadSubWindow(new plots(this),ValorACTION);
 }
 
-
 void VentanaPrincipal::on_actionHelp_triggered()
 {
     int ValorACTION = 7;
     loadSubWindow(new Help(this),ValorACTION);
-}
-
-void VentanaPrincipal::on_actionProblem_Table_2_triggered()
-{
-    int ValorACTION = 6;;
-    loadSubWindow(new problemtable(this),ValorACTION);
 }
 
 void VentanaPrincipal::on_actionSummary_triggered()
@@ -172,4 +160,17 @@ void VentanaPrincipal::on_actionProblem_Table_triggered()
 {
     int ValorACTION = 6;;
     loadSubWindow(new problemtable(this),ValorACTION);
+}
+
+
+void VentanaPrincipal::on_actionSave_triggered()
+{
+    bool checked = true;
+    emit actionSave(checked);
+}
+
+void VentanaPrincipal::on_actionSave_as_triggered()
+{
+    bool checked = true;
+    emit actionSaveas(checked);
 }

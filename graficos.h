@@ -204,8 +204,21 @@ public:
     double getCostoOperacionTotal();
     double getCostoCapitalTotal();
     double getK();
+    double getOpeCosC();
+    double getOpeCosH();
+    double getCapCos3();
+    double getCapCos2();
+    double getCapCos1();
+    double getAH();
+    double getAR();
+    double getAC();
+    double getQH();
+    double getQR();
+    double getQC();
 private:
-    double MK, MCostoTotal, MCostoOperacionTotal, MCostoCapitalTotal;
+    double MK;
+    double MCostoTotal, MCostoOperacionTotal, MCostoCapitalTotal;
+    double MOpeCosC, MOpeCosH , MCapCos3 , MCapCos2 , MCapCos1, MAH, MQH, MAR, MQR, MAC, MQC;
 };
 
 

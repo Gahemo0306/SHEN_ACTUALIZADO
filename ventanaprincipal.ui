@@ -77,7 +77,6 @@
     <addaction name="actionCustom_Analysis"/>
     <addaction name="separator"/>
     <addaction name="actionPlots"/>
-    <addaction name="actionProblem_Table_2"/>
     <addaction name="actionArea_Targets"/>
     <addaction name="actionSuper_Targeting"/>
     <addaction name="actionNetwork_Design"/>
@@ -270,21 +269,6 @@
     <string>Problem Table</string>
    </property>
   </action>
-  <action name="actionArea_Targets_2">
-   <property name="text">
-    <string>Area Targets</string>
-   </property>
-  </action>
-  <action name="actionSuper_Targeting_2">
-   <property name="text">
-    <string>Super Targeting</string>
-   </property>
-  </action>
-  <action name="actionReport_Options">
-   <property name="text">
-    <string>Report Options</string>
-   </property>
-  </action>
   <action name="actionNetwork_Design">
    <property name="text">
     <string>Network Design</string>
@@ -391,15 +375,6 @@
   <action name="actionSummary">
    <property name="text">
     <string>Summary</string>
-   </property>
-  </action>
-  <action name="actionProblem_Table_2">
-   <property name="icon">
-    <iconset resource="resources.qrc">
-     <normaloff>:/resources/Resources/table-icon-png-2.png</normaloff>:/resources/Resources/table-icon-png-2.png</iconset>
-   </property>
-   <property name="text">
-    <string>Problem Table</string>
    </property>
   </action>
  </widget>

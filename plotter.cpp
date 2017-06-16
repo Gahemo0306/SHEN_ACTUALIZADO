@@ -766,7 +766,7 @@ void plotter::plot(int ventanaplot, bool uniforme, bool diverso, bool estatico, 
             QVector<double> CFENTALPIA = plot.getCFENTALPIA();
             QVector<double> CFTEMPERATURAS = plot.getCFTEMPERATURAS();
             ui->qcustomplot->addGraph();
-            ui->qcustomplot->graph(0)->setName("Cold curve");
+            ui->qcustomplot->graph(1)->setName("Cold curve");
             ui->qcustomplot->graph(1)->setPen(QPen(Qt::blue));
             ui->qcustomplot->graph(1)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
             ui->qcustomplot->graph(1)->setData(CFENTALPIA,CFTEMPERATURAS);
@@ -798,7 +798,7 @@ void plotter::plot(int ventanaplot, bool uniforme, bool diverso, bool estatico, 
             QVector<double> CFENTALPIA = plot1.getCFENTALPIA();
             QVector<double> CFTEMPERATURAS = plot1.getCFTEMPERATURAS();
             ui->qcustomplot->addGraph();
-            ui->qcustomplot->graph(0)->setName("Cold curve");
+            ui->qcustomplot->graph(1)->setName("Cold curve");
             ui->qcustomplot->graph(1)->setPen(QPen(Qt::blue));
             ui->qcustomplot->graph(1)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
             ui->qcustomplot->graph(1)->setData(CFENTALPIA,CFTEMPERATURAS);
@@ -1076,6 +1076,7 @@ void plotter::plot(int ventanaplot, bool uniforme, bool diverso, bool estatico, 
             double DTmin = Minimo;
             float punto1 = 0.05;
             float punto2 = 10.0;
+
             for( int i = 0; i <= Iteraciones ; i++){
                  PlotGCC_DIVERSA plotGCCD(TS,TE,Wcp,h,DTmin,K,punto1,punto2);
                  QVector<double> GCENTALPIA = plotGCCD.getGCENTALPIA();
@@ -1123,14 +1124,11 @@ void plotter::plot(int ventanaplot, bool uniforme, bool diverso, bool estatico, 
             QVector<double> AREAS,DTMIN;
             AREAS.resize(Iteraciones+1);
             DTMIN.resize(Iteraciones+1);
-            int j = 0;
             int l = 0;
             for(int i = 0; i < (Iteraciones+1) ; i++){
                  Plot_Dtmin_vs_Areas plot3(TS,TE,Wcp,h,Calentamiento,Enfriamento,DTmin,CTo,CCo);
                  double AREA = plot3.getAREAS();
                  if(AREA < 0){
-//                    AREAS[i] = AREAS[i-1];
-//                    DTMIN[i] = DTMIN[i-1];
                      continue;
                  }else{
                      AREAS[l] = AREA;
@@ -1138,20 +1136,6 @@ void plotter::plot(int ventanaplot, bool uniforme, bool diverso, bool estatico, 
                      l++;
                  }
                  DTmin = DTmin + Incremento;
-                 ui->qcustomplot->addGraph();
-                 ui->qcustomplot->graph(j)->setPen(QPen(Qt::red));
-                 ui->qcustomplot->graph(j)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
-                 ui->qcustomplot->graph(j)->setLineStyle(QCPGraph::lsLine);
-                 ui->qcustomplot->graph(j)->setName("Total area");
-                 ui->qcustomplot->graph(j)->setData(DTMIN,AREAS);
-                 ui->qcustomplot->graph(j)->rescaleAxes();
-                 ui->qcustomplot->graph(j)->rescaleAxes(true);
-                 if(i == 0){
-                     ui->qcustomplot->graph(j)->setName("Total area");
-                 }else if( i >= 1){
-                     ui->qcustomplot->legend->removeItem(ui->qcustomplot->legend->itemCount()-1);
-                 }
-                 j++;
             }
             if(SI == true){
                 ui->qcustomplot->xAxis->setLabel("DTMIN ªF");
@@ -1160,6 +1144,14 @@ void plotter::plot(int ventanaplot, bool uniforme, bool diverso, bool estatico, 
                 ui->qcustomplot->xAxis->setLabel("DTMIN ªC");
                 ui->qcustomplot->yAxis->setLabel("AREAS mt^2");
             }
+            ui->qcustomplot->addGraph();
+            ui->qcustomplot->graph(0)->setPen(QPen(Qt::red));
+            ui->qcustomplot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
+            ui->qcustomplot->graph(0)->setLineStyle(QCPGraph::lsLine);
+            ui->qcustomplot->graph(0)->setName("Total area");
+            ui->qcustomplot->graph(0)->setData(DTMIN,AREAS);
+            ui->qcustomplot->graph(0)->rescaleAxes();
+            ui->qcustomplot->graph(0)->rescaleAxes(true);
             ui->qcustomplot->plotLayout()->insertRow(0);
             ui->qcustomplot->plotLayout()->addElement(0, 0, new QCPTextElement(ui->qcustomplot, "Area vs Delta T min", QFont("sans", 12, QFont::Bold)));
             ui->qcustomplot->replot();
@@ -1175,36 +1167,21 @@ void plotter::plot(int ventanaplot, bool uniforme, bool diverso, bool estatico, 
             DTMIN.resize(Iteraciones+1);
             float punto1 = 0.05;
             float punto2 = 10.0;
-            int j = 0;
+            int l = 0;
             for(int i = 0; i < (Iteraciones+1) ; i++){
                  Plot_Dtmin_vs_Areas_DIVERSO plot3(TS,TE,Wcp,h,Calentamiento,Enfriamento,
                                                    K,DTmin,punto1,punto2);
                  double AREA = plot3.getAREAS();
                  if(AREA < 0){
-                     AREAS[i] = AREAS[i-1];
-                     DTMIN[i] = DTMIN[i-1];
+                    continue;
                  }else{
-                     AREAS[i] = AREA;
-                     DTMIN[i] = DTmin;
+                     AREAS[l] = AREA;
+                     DTMIN[l] = DTmin;
+                     l++;
                  }
                  DTmin = DTmin + Incremento;
                  punto1 = float (plot3.getK());
                  punto2 = 10.0;
-                 DTmin = DTmin + Incremento;
-                 ui->qcustomplot->addGraph();
-                 ui->qcustomplot->graph(j)->setPen(QPen(Qt::red));
-                 ui->qcustomplot->graph(j)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
-                 ui->qcustomplot->graph(j)->setLineStyle(QCPGraph::lsLine);
-                 ui->qcustomplot->graph(j)->setName("Total area");
-                 ui->qcustomplot->graph(j)->setData(DTMIN,AREAS);
-                 ui->qcustomplot->graph(j)->rescaleAxes();
-                 ui->qcustomplot->graph(j)->rescaleAxes(true);
-                 if(i == 0){
-                     ui->qcustomplot->graph(j)->setName("Total area");
-                 }else if( i >= 1){
-                     ui->qcustomplot->legend->removeItem(ui->qcustomplot->legend->itemCount()-1);
-                 }
-                 j++;
             }
             if(SI == true){
                 ui->qcustomplot->xAxis->setLabel("DTMIN ªF");
@@ -1213,6 +1190,14 @@ void plotter::plot(int ventanaplot, bool uniforme, bool diverso, bool estatico, 
                 ui->qcustomplot->xAxis->setLabel("DTMIN ªC");
                 ui->qcustomplot->yAxis->setLabel("AREAS mt^2");
             }
+            ui->qcustomplot->addGraph();
+            ui->qcustomplot->graph(0)->setPen(QPen(Qt::red));
+            ui->qcustomplot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
+            ui->qcustomplot->graph(0)->setLineStyle(QCPGraph::lsLine);
+            ui->qcustomplot->graph(0)->setName("Total area");
+            ui->qcustomplot->graph(0)->setData(DTMIN,AREAS);
+            ui->qcustomplot->graph(0)->rescaleAxes();
+            ui->qcustomplot->graph(0)->rescaleAxes(true);
             ui->qcustomplot->plotLayout()->insertRow(0);
             ui->qcustomplot->plotLayout()->addElement(0, 0, new QCPTextElement(ui->qcustomplot, "Area vs Delta T min", QFont("sans", 12, QFont::Bold)));
             ui->qcustomplot->replot();
@@ -1235,7 +1220,7 @@ void plotter::plot(int ventanaplot, bool uniforme, bool diverso, bool estatico, 
             VECCOSTOCAPITALTOTAL.resize(Iteraciones+1);
             VECCOSTOOPERACIONTOTAL.resize(Iteraciones+1);
             VECDTMIN.resize(Iteraciones+1);
-            int j = 0;
+            int l = 0;
             for(int i = 0; i < (Iteraciones+1) ; i++){
                 Plot_Costos_vs_Areas_Uniforme plot4(TS,TE,Wcp,h,Calentamiento,Enfriamento,
                                                     CapitalCost,OperaetionCost2,DTmin,CTo,CCo,SI,SIS);
@@ -1243,62 +1228,46 @@ void plotter::plot(int ventanaplot, bool uniforme, bool diverso, bool estatico, 
                 double COSTOCAPITALTOTAL = plot4.getCostoCapitalTotal();
                 double COSTOOPERACIONTOTAL = plot4.getCostoOperacionTotal();
                 if(COSTOTOTAL < 0 || COSTOCAPITALTOTAL < 0 || COSTOOPERACIONTOTAL < 0 ){
-                    VECCOSTOTOTAL[i] = VECCOSTOTOTAL[i-1];
-                    VECCOSTOCAPITALTOTAL[i] = VECCOSTOCAPITALTOTAL[i-1];
-                    VECCOSTOOPERACIONTOTAL[i] = VECCOSTOOPERACIONTOTAL[i-1];
-                    VECDTMIN[i] = VECDTMIN[i-1];
+                    continue;
                 }else{
-                    VECCOSTOTOTAL[i] = COSTOTOTAL;
-                    VECCOSTOCAPITALTOTAL[i] = COSTOCAPITALTOTAL;
-                    VECCOSTOOPERACIONTOTAL[i] = COSTOOPERACIONTOTAL;
-                    VECDTMIN[i] = DTmin;
+                    VECCOSTOTOTAL[l] = COSTOTOTAL;
+                    VECCOSTOCAPITALTOTAL[l] = COSTOCAPITALTOTAL;
+                    VECCOSTOOPERACIONTOTAL[l] = COSTOOPERACIONTOTAL;
+                    VECDTMIN[l] = DTmin;
+                    l++;
                 }
                 DTmin = DTmin + Incremento;
-                ui->qcustomplot->addGraph();
-                if(i == 0){
-                    ui->qcustomplot->graph(j)->setName("Total cost");
-                }else if( i >= 1){
-                    ui->qcustomplot->legend->removeItem(ui->qcustomplot->legend->itemCount()-1);
-                }
-                ui->qcustomplot->graph(j)->setPen(QPen(Qt::red));
-                ui->qcustomplot->graph(j)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
-                ui->qcustomplot->graph(j)->setLineStyle(QCPGraph::lsLine);
-                ui->qcustomplot->graph(j)->setData(VECDTMIN,VECCOSTOTOTAL);
-                ui->qcustomplot->graph(j)->rescaleAxes();
-                ui->qcustomplot->graph(j)->rescaleAxes(true);
-                j++;
-                ui->qcustomplot->addGraph();
-                if(i == 0){
-                    ui->qcustomplot->graph(j)->setName("Total operation cost");
-                }else if( i >= 1){
-                    ui->qcustomplot->legend->removeItem(ui->qcustomplot->legend->itemCount()-1);
-                }
-                ui->qcustomplot->graph(j)->setPen(QPen(Qt::blue));
-                ui->qcustomplot->graph(j)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
-                ui->qcustomplot->graph(j)->setLineStyle(QCPGraph::lsLine);
-                ui->qcustomplot->graph(j)->setData(VECDTMIN,VECCOSTOOPERACIONTOTAL);
-                ui->qcustomplot->graph(j)->rescaleAxes();
-                ui->qcustomplot->graph(j)->rescaleAxes(true);
-                j++;
-                ui->qcustomplot->addGraph();
-                if(i == 0){
-                    ui->qcustomplot->graph(j)->setName("Total capital cost");
-                }else if( i >= 1){
-                    ui->qcustomplot->legend->removeItem(ui->qcustomplot->legend->itemCount()-1);
-                }
-                ui->qcustomplot->graph(j)->setPen(QPen(Qt::darkCyan));
-                ui->qcustomplot->graph(j)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
-                ui->qcustomplot->graph(j)->setLineStyle(QCPGraph::lsLine);
-                ui->qcustomplot->graph(j)->setData(VECDTMIN,VECCOSTOCAPITALTOTAL);
-                ui->qcustomplot->graph(j)->rescaleAxes();
-                ui->qcustomplot->graph(j)->rescaleAxes(true);
             }
+            ui->qcustomplot->addGraph();
+            ui->qcustomplot->graph(0)->setName("Total cost");
+            ui->qcustomplot->graph(0)->setPen(QPen(Qt::red));
+            ui->qcustomplot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
+            ui->qcustomplot->graph(0)->setLineStyle(QCPGraph::lsLine);
+            ui->qcustomplot->graph(0)->setData(VECDTMIN,VECCOSTOTOTAL);
+            ui->qcustomplot->graph(0)->rescaleAxes();
+            ui->qcustomplot->graph(0)->rescaleAxes(true);
+            ui->qcustomplot->addGraph();
+            ui->qcustomplot->graph(1)->setName("Total operation cost");
+            ui->qcustomplot->graph(1)->setPen(QPen(Qt::blue));
+            ui->qcustomplot->graph(1)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
+            ui->qcustomplot->graph(1)->setLineStyle(QCPGraph::lsLine);
+            ui->qcustomplot->graph(1)->setData(VECDTMIN,VECCOSTOOPERACIONTOTAL);
+            ui->qcustomplot->graph(1)->rescaleAxes();
+            ui->qcustomplot->graph(1)->rescaleAxes(true);
+            ui->qcustomplot->addGraph();
+            ui->qcustomplot->graph(2)->setName("Total capital cost");
+            ui->qcustomplot->graph(2)->setPen(QPen(Qt::darkCyan));
+            ui->qcustomplot->graph(2)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
+            ui->qcustomplot->graph(2)->setLineStyle(QCPGraph::lsLine);
+            ui->qcustomplot->graph(2)->setData(VECDTMIN,VECCOSTOCAPITALTOTAL);
+            ui->qcustomplot->graph(2)->rescaleAxes();
+            ui->qcustomplot->graph(2)->rescaleAxes(true);
             if(SI == true){
                 ui->qcustomplot->xAxis->setLabel("DTMIN ªF");
                 ui->qcustomplot->yAxis->setLabel("COSTOS US $ / YEAR");
             }else if(SIS == true){
                 ui->qcustomplot->xAxis->setLabel("DTMIN ªC");
-                ui->qcustomplot->yAxis->setLabel("AREAS US $ / YEAR");
+                ui->qcustomplot->yAxis->setLabel("COSTOS US $ / YEAR");
             }
             ui->qcustomplot->plotLayout()->insertRow(0);
             ui->qcustomplot->plotLayout()->addElement(0, 0, new QCPTextElement(ui->qcustomplot, "Cost vs Delta T min", QFont("sans", 12, QFont::Bold)));
@@ -1318,70 +1287,53 @@ void plotter::plot(int ventanaplot, bool uniforme, bool diverso, bool estatico, 
             float punto2 = 10.0;
             int j = 0;
             for(int i = 0; i < (Iteraciones+1) ; i++){
-               Plot_Costos_vs_Min_Divera plot4(TS,TE,Wcp,h,Calentamiento,Enfriamento,
-                                               CapitalCost,OperaetionCost2,K,DTmin,punto1,punto2,SI,SIS);
+                Plot_Costos_vs_Min_Divera plot4(TS,TE,Wcp,h,Calentamiento,Enfriamento,
+                                                CapitalCost,OperaetionCost2,K,DTmin,punto1,punto2,SI,SIS);
                 double COSTOTOTAL = plot4.getCostoTotal();
                 double COSTOCAPITALTOTAL = plot4.getCostoCapitalTotal();
                 double COSTOOPERACIONTOTAL = plot4.getCostoOperacionTotal();
-                 if(COSTOTOTAL < 0 || COSTOCAPITALTOTAL < 0 || COSTOOPERACIONTOTAL < 0 ){
-                    VECCOSTOTOTAL[i] = VECCOSTOTOTAL[i-1];
-                    VECCOSTOCAPITALTOTAL[i] = VECCOSTOCAPITALTOTAL[i-1];
-                    VECCOSTOOPERACIONTOTAL[i] = VECCOSTOOPERACIONTOTAL[i-1];
-                    VECDTMIN[i] = VECDTMIN[i-1];
-                 }else{
-                     VECCOSTOTOTAL[i] = COSTOTOTAL;
-                     VECCOSTOCAPITALTOTAL[i] = COSTOCAPITALTOTAL;
-                     VECCOSTOOPERACIONTOTAL[i] = COSTOOPERACIONTOTAL;
-                     VECDTMIN[i] = DTmin;
-                 }
-                 DTmin = DTmin + Incremento;
-                 punto1 = float (plot4.getK());
-                 punto2 = 10.0;
-                 ui->qcustomplot->addGraph();
-                 if(i == 0){
-                     ui->qcustomplot->graph(j)->setName("Total cost");
-                 }else if( i >= 1){
-                     ui->qcustomplot->legend->removeItem(ui->qcustomplot->legend->itemCount()-1);
-                 }
-                 ui->qcustomplot->graph(j)->setPen(QPen(Qt::red));
-                 ui->qcustomplot->graph(j)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
-                 ui->qcustomplot->graph(j)->setLineStyle(QCPGraph::lsLine);
-                 ui->qcustomplot->graph(j)->setData(VECDTMIN,VECCOSTOTOTAL);
-                 ui->qcustomplot->graph(j)->rescaleAxes();
-                 ui->qcustomplot->graph(j)->rescaleAxes(true);
-                 j++;
-                 ui->qcustomplot->addGraph();
-                 if(i == 0){
-                     ui->qcustomplot->graph(j)->setName("Total operation cost");
-                 }else if( i >= 1){
-                     ui->qcustomplot->legend->removeItem(ui->qcustomplot->legend->itemCount()-1);
-                 }
-                 ui->qcustomplot->graph(j)->setPen(QPen(Qt::blue));
-                 ui->qcustomplot->graph(j)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
-                 ui->qcustomplot->graph(j)->setLineStyle(QCPGraph::lsLine);
-                 ui->qcustomplot->graph(j)->setData(VECDTMIN,VECCOSTOOPERACIONTOTAL);
-                 ui->qcustomplot->graph(j)->rescaleAxes();
-                 ui->qcustomplot->graph(j)->rescaleAxes(true);
-                 j++;
-                 ui->qcustomplot->addGraph();
-                 if(i == 0){
-                     ui->qcustomplot->graph(j)->setName("Total capital cost");
-                 }else if( i >= 1){
-                     ui->qcustomplot->legend->removeItem(ui->qcustomplot->legend->itemCount()-1);
-                 }
-                 ui->qcustomplot->graph(j)->setPen(QPen(Qt::darkCyan));
-                 ui->qcustomplot->graph(j)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
-                 ui->qcustomplot->graph(j)->setLineStyle(QCPGraph::lsLine);
-                 ui->qcustomplot->graph(j)->setData(VECDTMIN,VECCOSTOCAPITALTOTAL);
-                 ui->qcustomplot->graph(j)->rescaleAxes();
-                 ui->qcustomplot->graph(j)->rescaleAxes(true);
+                if(COSTOTOTAL < 0 || COSTOCAPITALTOTAL < 0 || COSTOOPERACIONTOTAL < 0 ){
+                    continue;
+                }else{
+                    VECCOSTOTOTAL[j] = COSTOTOTAL;
+                    VECCOSTOCAPITALTOTAL[j] = COSTOCAPITALTOTAL;
+                    VECCOSTOOPERACIONTOTAL[j] = COSTOOPERACIONTOTAL;
+                    VECDTMIN[j] = DTmin;
+                }
+                DTmin = DTmin + Incremento;
+                punto1 = float (plot4.getK());
+                punto2 = 10.0;
             }
+            ui->qcustomplot->addGraph();
+            ui->qcustomplot->graph(0)->setName("Total cost");
+            ui->qcustomplot->graph(0)->setPen(QPen(Qt::red));
+            ui->qcustomplot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
+            ui->qcustomplot->graph(0)->setLineStyle(QCPGraph::lsLine);
+            ui->qcustomplot->graph(0)->setData(VECDTMIN,VECCOSTOTOTAL);
+            ui->qcustomplot->graph(0)->rescaleAxes();
+            ui->qcustomplot->graph(0)->rescaleAxes(true);
+            ui->qcustomplot->addGraph();
+            ui->qcustomplot->graph(1)->setName("Total operation cost");
+            ui->qcustomplot->graph(1)->setPen(QPen(Qt::blue));
+            ui->qcustomplot->graph(1)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
+            ui->qcustomplot->graph(1)->setLineStyle(QCPGraph::lsLine);
+            ui->qcustomplot->graph(1)->setData(VECDTMIN,VECCOSTOOPERACIONTOTAL);
+            ui->qcustomplot->graph(1)->rescaleAxes();
+            ui->qcustomplot->graph(1)->rescaleAxes(true);
+            ui->qcustomplot->addGraph();
+            ui->qcustomplot->graph(2)->setName("Total capital cost");
+            ui->qcustomplot->graph(2)->setPen(QPen(Qt::darkCyan));
+            ui->qcustomplot->graph(2)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
+            ui->qcustomplot->graph(2)->setLineStyle(QCPGraph::lsLine);
+            ui->qcustomplot->graph(2)->setData(VECDTMIN,VECCOSTOCAPITALTOTAL);
+            ui->qcustomplot->graph(2)->rescaleAxes();
+            ui->qcustomplot->graph(2)->rescaleAxes(true);
             if(SI == true){
                 ui->qcustomplot->xAxis->setLabel("DTMIN ªF");
                 ui->qcustomplot->yAxis->setLabel("COSTOS US $ / YEAR");
             }else if(SIS == true){
                 ui->qcustomplot->xAxis->setLabel("DTMIN ªC");
-                ui->qcustomplot->yAxis->setLabel("AREAS US $ / YEAR");
+                ui->qcustomplot->yAxis->setLabel("COSTOS US $ / YEAR");
             }
             ui->qcustomplot->plotLayout()->insertRow(0);
             ui->qcustomplot->plotLayout()->addElement(0, 0, new QCPTextElement(ui->qcustomplot, "Cost vs Delta T min", QFont("sans", 12, QFont::Bold)));
@@ -1410,7 +1362,6 @@ void plotter::on_pushButton_clicked()
 void plotter::on_pushButton_2_clicked()
 {
     QString file_name = QFileDialog::getSaveFileName(this,"Save the file");
-    qDebug() << file_name;
     QString URL = file_name + ".pdf";
     QFile file(URL);
     if (!file.open(QIODevice::WriteOnly|QFile::WriteOnly))

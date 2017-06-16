@@ -136,6 +136,18 @@ void contenido_plots_cc::on_k_valueChanged()
 
 void contenido_plots_cc::Guardar()
 {
+    QFile FileUnidades(UNIDADES_FILENAME);
+    if (!FileUnidades.open(QIODevice::ReadOnly)){
+        QMessageBox::warning(this,tr("Error"),tr("Error"));
+        return;
+    }
+    QDataStream in3(&FileUnidades);
+    in3.setVersion(QDataStream::Qt_5_4);
+    Unidades units;
+    in3 >> units;
+    int UTemp = units.getUTemp();
+    bool SI = units.getSI();
+    bool SIS = units.getSIS();
     bool uniforme = ui->radioButton->isChecked();
     bool diverso = ui->radioButton_2->isChecked();
     if(uniforme == true ){
@@ -167,6 +179,7 @@ void contenido_plots_cc::Guardar()
         double Min = ui->value->value();
         double Max = 0;
         double Inc = 0;
+        Min = units.ConvertirDTmin(Min,SI,SIS,UTemp);
         double K = ui->k->value();
         bool estatico = false;
         bool incremento = false;
@@ -175,4 +188,6 @@ void contenido_plots_cc::Guardar()
         FileVec.flush();
         FileVec.close();
     }
+    FileUnidades.flush();
+    FileUnidades.close();
 }
