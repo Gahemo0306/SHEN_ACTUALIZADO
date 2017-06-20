@@ -756,8 +756,8 @@ void Summary::desplegar_info(QString text)
                     ui->tablewidget->clear();
                     ui->tablewidget->setVisible(true);
                     QStringList Headers;
-                    Headers << "Agglomerates" << "Capital cost" << "Operational cost" << "Total cost" ;
-                    ui->tablewidget->setColumnCount(4);
+                    Headers << "Area Agglomerate" << "Energy Agglomerate" << "Capital cost" << "Operational cost" << "Total cost" ;
+                    ui->tablewidget->setColumnCount(5);
                     ui->tablewidget->setHorizontalHeaderLabels(Headers);
                     double DTmin = Min;
                     costos_estatico_uniforme(DTmin,text);
@@ -765,8 +765,8 @@ void Summary::desplegar_info(QString text)
                     ui->tablewidget->clear();
                     ui->tablewidget->setVisible(true);
                     QStringList Headers;
-                    Headers << "Agglomerates" << "Capital cost" << "Operational cost" << "Total cost" ;
-                    ui->tablewidget->setColumnCount(4);
+                    Headers << "Area Agglomerate" << "Energy Agglomerate" << "Capital cost" << "Operational cost" << "Total cost" ;
+                    ui->tablewidget->setColumnCount(5);
                     ui->tablewidget->setHorizontalHeaderLabels(Headers);
                     double Minimo = Min, Maximo = Max, Incremento = Inc;
                     double Iteraciones =(Maximo-Minimo)/Incremento;
@@ -783,8 +783,8 @@ void Summary::desplegar_info(QString text)
                     ui->tablewidget->clear();
                     ui->tablewidget->setVisible(true);
                     QStringList Headers;
-                    Headers << "Agglomerates" << "Capital cost" << "Operational cost" << "Total cost" ;
-                    ui->tablewidget->setColumnCount(4);
+                    Headers << "Area Agglomerate" << "Energy Agglomerate" << "Capital cost" << "Operational cost" << "Total cost" ;
+                    ui->tablewidget->setColumnCount(5);
                     ui->tablewidget->setHorizontalHeaderLabels(Headers);
                     double k = K , DTmin = Min;
                     float punto1 = .5, punto2 = 10;
@@ -793,8 +793,8 @@ void Summary::desplegar_info(QString text)
                     ui->tablewidget->clear();
                     ui->tablewidget->setVisible(true);
                     QStringList Headers;
-                    Headers << "INT1" << "INT2" << "INT3" << "INT4"  << "DTmlog" << "Enthalpy" << "Areas";
-                    ui->tablewidget->setColumnCount(7);
+                    Headers << "Area Agglomerate" << "Energy Agglomerate" << "Capital cost" << "Operational cost" << "Total cost" ;
+                    ui->tablewidget->setColumnCount(5);
                     ui->tablewidget->setHorizontalHeaderLabels(Headers);
                     double Minimo = Min, Maximo = Max, Incremento = Inc, k = K;
                     double Iteraciones =(Maximo-Minimo)/Incremento;
@@ -814,18 +814,20 @@ void Summary::desplegar_info(QString text)
                     ui->tablewidget->clear();
                     ui->tablewidget->setVisible(true);
                     QStringList Headers;
-                    Headers << "Agglomerates" << "Capital cost" << "Operational cost" << "Total cost" ;
-                    ui->tablewidget->setColumnCount(4);
+                    Headers << "Area Agglomerate" << "Energy Agglomerate" << "Capital cost" << "Operational cost" << "Total cost" ;
+                    ui->tablewidget->setColumnCount(5);
                     ui->tablewidget->setHorizontalHeaderLabels(Headers);
                     double k = K , DTmin = Min;
                     float punto1 = .5, punto2 = 10;
+                    CONTADORFILAS = 0;
                     costos_estatico_both(DTmin,k,text,punto1,punto2);
+                    CONTADORROWS.clear();
                 }else if(incremento == true){
                     ui->tablewidget->clear();
                     ui->tablewidget->setVisible(true);
                     QStringList Headers;
-                    Headers << "INT1" << "INT2" << "INT3" << "INT4"  << "DTmlog" << "Enthalpy" << "Areas";
-                    ui->tablewidget->setColumnCount(7);
+                    Headers << "Area Agglomerate" << "Energy Agglomerate" << "Capital cost" << "Operational cost" << "Total cost" ;
+                    ui->tablewidget->setColumnCount(5);
                     ui->tablewidget->setHorizontalHeaderLabels(Headers);
                     double Minimo = Min, Maximo = Max, Incremento = Inc, k = K;
                     double Iteraciones =(Maximo-Minimo)/Incremento;
@@ -1807,23 +1809,23 @@ void Summary::costos_estatico_uniforme(double DTmin, QString text)
     double MQR = plot.getQR();
     double MAC = plot.getAC();
     double MQC = plot.getQC();
-    QVector<double> AreaAglomerados, EnergiaAglomerados,CapitalCost,OperationCost,TotalCost;
-    AreaAglomerados.resize(3),EnergiaAglomerados.resize(3), CapitalCost.resize(3),OperationCost.resize(3),TotalCost.resize(3);
+    QVector<double> AreaAglomerados, EnergiaAglomerados,VecCapitalCost,VecOperationCost,TotalCost;
+    AreaAglomerados.resize(3),EnergiaAglomerados.resize(3), VecCapitalCost.resize(3),VecOperationCost.resize(3),TotalCost.resize(3);
     AreaAglomerados[0] = MAC;
     AreaAglomerados[1] = MAR;
     AreaAglomerados[2] = MAH;
     EnergiaAglomerados[0] = MQC;
     EnergiaAglomerados[1] = MQR;
     EnergiaAglomerados[2] = MQH;
-    CapitalCost[0] = MCapCos1;
-    CapitalCost[1] = MCapCos2;
-    CapitalCost[2] = MCapCos3;
-    OperationCost[0] = MOpeCosC;
-    OperationCost[1] = 0;
-    OperationCost[2] = MOpeCosH;
-    TotalCost[0] = CapitalCost[0] + OperationCost[0];
-    TotalCost[1] = CapitalCost[1];
-    TotalCost[2] = CapitalCost[2] + OperationCost[2];
+    VecCapitalCost[0] = MCapCos1;
+    VecCapitalCost[1] = MCapCos2;
+    VecCapitalCost[2] = MCapCos3;
+    VecOperationCost[0] = MOpeCosC;
+    VecOperationCost[1] = 0;
+    VecOperationCost[2] = MOpeCosH;
+    TotalCost[0] = VecCapitalCost[0] + VecOperationCost[0];
+    TotalCost[1] = VecCapitalCost[1];
+    TotalCost[2] = VecCapitalCost[2] + VecOperationCost[2];
     ui->tablewidget->setRowCount(AreaAglomerados.size());
     int row = ui->tablewidget->rowCount();
     QStringList Rows;
@@ -1833,18 +1835,18 @@ void Summary::costos_estatico_uniforme(double DTmin, QString text)
     ui->tablewidget->setVerticalHeaderLabels(Rows);
     double val1, val2, val3,val4,val5;
     int j=0;
-    for(int i =0; i < row ; i++){
+    for(int i = 0; i < row ; i++){
         val1 = AreaAglomerados[j];
         val2 = EnergiaAglomerados[j];
-        val3 = CapitalCost[j];
-        val4 = OperationCost[j];
+        val3 = VecCapitalCost[j];
+        val4 = VecOperationCost[j];
         val5 = TotalCost[j];
         ui->tablewidget->setItem(i,0, new QTableWidgetItem(QString::number(val1)));
         ui->tablewidget->setItem(i,1, new QTableWidgetItem(QString::number(val2)));
         ui->tablewidget->setItem(i,2, new QTableWidgetItem(QString::number(val3)));
         ui->tablewidget->setItem(i,3, new QTableWidgetItem(QString::number(val4)));
         ui->tablewidget->setItem(i,4, new QTableWidgetItem(QString::number(val5)));
-        j=j+1;
+        j++;
     }
     if(text == "Agglomerates"){
         for(int i =0; i < row ; i++){
@@ -1880,57 +1882,56 @@ void Summary::costos_incremento_uniforme(double DTmin, QString text)
     double MQR = plot.getQR();
     double MAC = plot.getAC();
     double MQC = plot.getQC();
-    QVector<double> AreaAglomerados, EnergiaAglomerados,CapitalCost,OperationCost,TotalCost;
-    AreaAglomerados.resize(3),EnergiaAglomerados.resize(3), CapitalCost.resize(3),OperationCost.resize(3),TotalCost.resize(3);
+    QVector<double> AreaAglomerados, EnergiaAglomerados,VecCapitalCost,VecOperationCost,TotalCost;
+    AreaAglomerados.resize(3),EnergiaAglomerados.resize(3), VecCapitalCost.resize(3),VecOperationCost.resize(3),TotalCost.resize(3);
     AreaAglomerados[0] = MAC;
     AreaAglomerados[1] = MAR;
     AreaAglomerados[2] = MAH;
     EnergiaAglomerados[0] = MQC;
     EnergiaAglomerados[1] = MQR;
     EnergiaAglomerados[2] = MQH;
-    CapitalCost[0] = MCapCos1;
-    CapitalCost[1] = MCapCos2;
-    CapitalCost[2] = MCapCos3;
-    OperationCost[0] = MOpeCosC;
-    OperationCost[1] = 0;
-    OperationCost[2] = MOpeCosH;
-    TotalCost[0] = CapitalCost[0] + OperationCost[0];
-    TotalCost[1] = CapitalCost[1];
-    TotalCost[2] = CapitalCost[2] + OperationCost[2];
+    VecCapitalCost[0] = MCapCos1;
+    VecCapitalCost[1] = MCapCos2;
+    VecCapitalCost[2] = MCapCos3;
+    VecOperationCost[0] = MOpeCosC;
+    VecOperationCost[1] = 0;
+    VecOperationCost[2] = MOpeCosH;
+    TotalCost[0] = VecCapitalCost[0] + VecOperationCost[0];
+    TotalCost[1] = VecCapitalCost[1];
+    TotalCost[2] = VecCapitalCost[2] + VecOperationCost[2];
     CONTADORFILAS = CONTADORFILAS + AreaAglomerados.size();
     ui->tablewidget->setRowCount(CONTADORFILAS);
     int row = ui->tablewidget->rowCount();
-    QStringList Rows;
-    for(int i = CONTADORFILAS; i < row; i++){
-        Rows << "DTmin:  " + QString::number(DTmin);
+    for(int i = CONTADORFILAS - AreaAglomerados.size(); i < row; i++){
+        CONTADORROWS << "DTmin:  " + QString::number(DTmin);
     }
-    ui->tablewidget->setVerticalHeaderLabels(Rows);
+    ui->tablewidget->setVerticalHeaderLabels(CONTADORROWS);
     double val1, val2, val3,val4,val5;
     int j=0;
-    for(int i = CONTADORFILAS; i < row ; i++){
+    for(int i = CONTADORFILAS - AreaAglomerados.size() ; i < row ; i++){
         val1 = AreaAglomerados[j];
         val2 = EnergiaAglomerados[j];
-        val3 = CapitalCost[j];
-        val4 = OperationCost[j];
+        val3 = VecCapitalCost[j];
+        val4 = VecOperationCost[j];
         val5 = TotalCost[j];
         ui->tablewidget->setItem(i,0, new QTableWidgetItem(QString::number(val1)));
         ui->tablewidget->setItem(i,1, new QTableWidgetItem(QString::number(val2)));
         ui->tablewidget->setItem(i,2, new QTableWidgetItem(QString::number(val3)));
         ui->tablewidget->setItem(i,3, new QTableWidgetItem(QString::number(val4)));
         ui->tablewidget->setItem(i,4, new QTableWidgetItem(QString::number(val5)));
-        j=j+1;
+        j++;
     }
     if(text == "Agglomerates"){
-        for(int i = CONTADORFILAS; i < row ; i++){
+        for(int i = CONTADORFILAS - AreaAglomerados.size(); i < row ; i++){
             ui->tablewidget->item(i,0)->setBackground(Qt::red); // areas
             ui->tablewidget->item(i,1)->setBackground(Qt::red); // areas
         }
     }else if(text == "Capital cost"){
-        for(int i = CONTADORFILAS; i < row ; i++){
+        for(int i = CONTADORFILAS - AreaAglomerados.size(); i < row ; i++){
             ui->tablewidget->item(i,2)->setBackground(Qt::blue); // areas
         }
     }else if(text == "Operational cost"){
-        for(int i = CONTADORFILAS; i < row ; i++){
+        for(int i = CONTADORFILAS - AreaAglomerados.size(); i < row ; i++){
             ui->tablewidget->item(i,3)->setBackground(Qt::yellow); // areas
         }
     }else if(text =="Total cost"){
@@ -1955,23 +1956,23 @@ void Summary::costos_estatico_diversa(double DTmin, double k, QString text, floa
     double MAC = plot.getAC();
     double MQC = plot.getQC();
     double valuek = plot.getK();
-    QVector<double> AreaAglomerados, EnergiaAglomerados,CapitalCost,OperationCost,TotalCost;
-    AreaAglomerados.resize(3),EnergiaAglomerados.resize(3), CapitalCost.resize(3),OperationCost.resize(3),TotalCost.resize(3);
+    QVector<double> AreaAglomerados, EnergiaAglomerados,VecCapitalCost,VecOperationCost,TotalCost;
+    AreaAglomerados.resize(3),EnergiaAglomerados.resize(3), VecCapitalCost.resize(3),VecOperationCost.resize(3),TotalCost.resize(3);
     AreaAglomerados[0] = MAC;
     AreaAglomerados[1] = MAR;
     AreaAglomerados[2] = MAH;
     EnergiaAglomerados[0] = MQC;
     EnergiaAglomerados[1] = MQR;
     EnergiaAglomerados[2] = MQH;
-    CapitalCost[0] = MCapCos1;
-    CapitalCost[1] = MCapCos2;
-    CapitalCost[2] = MCapCos3;
-    OperationCost[0] = MOpeCosC;
-    OperationCost[1] = 0;
-    OperationCost[2] = MOpeCosH;
-    TotalCost[0] = CapitalCost[0] + OperationCost[0];
-    TotalCost[1] = CapitalCost[1];
-    TotalCost[2] = CapitalCost[2] + OperationCost[2];
+    VecCapitalCost[0] = MCapCos1;
+    VecCapitalCost[1] = MCapCos2;
+    VecCapitalCost[2] = MCapCos3;
+    VecOperationCost[0] = MOpeCosC;
+    VecOperationCost[1] = 0;
+    VecOperationCost[2] = MOpeCosH;
+    TotalCost[0] = VecCapitalCost[0] + VecOperationCost[0];
+    TotalCost[1] = VecCapitalCost[1];
+    TotalCost[2] = VecCapitalCost[2] + VecOperationCost[2];
     ui->tablewidget->setRowCount(AreaAglomerados.size());
     int row = ui->tablewidget->rowCount();
     QStringList Rows;
@@ -1984,8 +1985,8 @@ void Summary::costos_estatico_diversa(double DTmin, double k, QString text, floa
     for(int i =0; i < row ; i++){
         val1 = AreaAglomerados[j];
         val2 = EnergiaAglomerados[j];
-        val3 = CapitalCost[j];
-        val4 = OperationCost[j];
+        val3 = VecCapitalCost[j];
+        val4 = VecOperationCost[j];
         val5 = TotalCost[j];
         ui->tablewidget->setItem(i,0, new QTableWidgetItem(QString::number(val1)));
         ui->tablewidget->setItem(i,1, new QTableWidgetItem(QString::number(val2)));
@@ -2028,62 +2029,61 @@ void Summary::costos_incremento_diverso(double DTmin, double k, QString text, fl
     double MQR = plot.getQR();
     double MAC = plot.getAC();
     double MQC = plot.getQC();
-    K1 = plot.getK();
-    QVector<double> AreaAglomerados, EnergiaAglomerados,CapitalCost,OperationCost,TotalCost;
-    AreaAglomerados.resize(3),EnergiaAglomerados.resize(3), CapitalCost.resize(3),OperationCost.resize(3),TotalCost.resize(3);
+    double valuek = plot.getK();
+    QVector<double> AreaAglomerados, EnergiaAglomerados,VecCapitalCost,VecOperationCost,TotalCost;
+    AreaAglomerados.resize(3),EnergiaAglomerados.resize(3), VecCapitalCost.resize(3),VecOperationCost.resize(3),TotalCost.resize(3);
     AreaAglomerados[0] = MAC;
     AreaAglomerados[1] = MAR;
     AreaAglomerados[2] = MAH;
     EnergiaAglomerados[0] = MQC;
     EnergiaAglomerados[1] = MQR;
     EnergiaAglomerados[2] = MQH;
-    CapitalCost[0] = MCapCos1;
-    CapitalCost[1] = MCapCos2;
-    CapitalCost[2] = MCapCos3;
-    OperationCost[0] = MOpeCosC;
-    OperationCost[1] = 0;
-    OperationCost[2] = MOpeCosH;
-    TotalCost[0] = CapitalCost[0] + OperationCost[0];
-    TotalCost[1] = CapitalCost[1];
-    TotalCost[2] = CapitalCost[2] + OperationCost[2];
+    VecCapitalCost[0] = MCapCos1;
+    VecCapitalCost[1] = MCapCos2;
+    VecCapitalCost[2] = MCapCos3;
+    VecOperationCost[0] = MOpeCosC;
+    VecOperationCost[1] = 0;
+    VecOperationCost[2] = MOpeCosH;
+    TotalCost[0] = VecCapitalCost[0] + VecOperationCost[0];
+    TotalCost[1] = VecCapitalCost[1];
+    TotalCost[2] = VecCapitalCost[2] + VecOperationCost[2];
     CONTADORFILAS = CONTADORFILAS + AreaAglomerados.size();
     ui->tablewidget->setRowCount(CONTADORFILAS);
     int row = ui->tablewidget->rowCount();
-    QStringList Rows;
-    for(int i = CONTADORFILAS; i < row; i++){
-        Rows << "DTmin:  " + QString::number(DTmin) + "& K:" + QString::number(K1) ;
+    for(int i = CONTADORFILAS - AreaAglomerados.size() ; i < row; i++){
+        CONTADORROWS << "DTmin:  " + QString::number(DTmin) + "& K:" + QString::number(valuek) ;
     }
-    ui->tablewidget->setVerticalHeaderLabels(Rows);
+    ui->tablewidget->setVerticalHeaderLabels(CONTADORROWS);
     double val1, val2, val3,val4,val5;
     int j=0;
-    for(int i = CONTADORFILAS; i < row ; i++){
+    for(int i = CONTADORFILAS - AreaAglomerados.size(); i < row ; i++){
         val1 = AreaAglomerados[j];
         val2 = EnergiaAglomerados[j];
-        val3 = CapitalCost[j];
-        val4 = OperationCost[j];
+        val3 = VecCapitalCost[j];
+        val4 = VecOperationCost[j];
         val5 = TotalCost[j];
         ui->tablewidget->setItem(i,0, new QTableWidgetItem(QString::number(val1)));
         ui->tablewidget->setItem(i,1, new QTableWidgetItem(QString::number(val2)));
         ui->tablewidget->setItem(i,2, new QTableWidgetItem(QString::number(val3)));
         ui->tablewidget->setItem(i,3, new QTableWidgetItem(QString::number(val4)));
         ui->tablewidget->setItem(i,4, new QTableWidgetItem(QString::number(val5)));
-        j=j+1;
+        j++;
     }
     if(text == "Agglomerates"){
-        for(int i = CONTADORFILAS; i < row ; i++){
+        for(int i = CONTADORFILAS - AreaAglomerados.size(); i < row ; i++){
             ui->tablewidget->item(i,0)->setBackground(Qt::red); // areas
             ui->tablewidget->item(i,1)->setBackground(Qt::red); // areas
         }
     }else if(text == "Capital cost"){
-        for(int i = CONTADORFILAS; i < row ; i++){
+        for(int i = CONTADORFILAS - AreaAglomerados.size(); i < row ; i++){
             ui->tablewidget->item(i,2)->setBackground(Qt::blue); // areas
         }
     }else if(text == "Operational cost"){
-        for(int i = CONTADORFILAS; i < row ; i++){
+        for(int i = CONTADORFILAS - AreaAglomerados.size(); i < row ; i++){
             ui->tablewidget->item(i,3)->setBackground(Qt::yellow); // areas
         }
     }else if(text =="Total cost"){
-        for(int i = CONTADORFILAS; i < row ; i++){
+        for(int i = CONTADORFILAS - AreaAglomerados.size() ; i < row ; i++){
             ui->tablewidget->item(i,4)->setBackground(Qt::yellow); // areas
         }
     }
@@ -2103,65 +2103,63 @@ void Summary::costos_estatico_both(double DTmin, double k, QString text, float p
     double MQR = plot.getQR();
     double MAC = plot.getAC();
     double MQC = plot.getQC();
-    QVector<double> AreaAglomerados, EnergiaAglomerados,VECCapitalCost,VECOperationCost,TotalCost;
-    AreaAglomerados.resize(3),EnergiaAglomerados.resize(3), VECCapitalCost.resize(3),VECOperationCost.resize(3),TotalCost.resize(3);
+    QVector<double> AreaAglomerados, EnergiaAglomerados,VecCapitalCost,VecOperationCost,TotalCost;
+    AreaAglomerados.resize(3),EnergiaAglomerados.resize(3), VecCapitalCost.resize(3),VecOperationCost.resize(3),TotalCost.resize(3);
     AreaAglomerados[0] = MAC;
     AreaAglomerados[1] = MAR;
     AreaAglomerados[2] = MAH;
     EnergiaAglomerados[0] = MQC;
     EnergiaAglomerados[1] = MQR;
     EnergiaAglomerados[2] = MQH;
-    VECCapitalCost[0] = MCapCos1;
-    VECCapitalCost[1] = MCapCos2;
-    VECCapitalCost[2] = MCapCos3;
-    VECOperationCost[0] = MOpeCosC;
-    VECOperationCost[1] = 0;
-    VECOperationCost[2] = MOpeCosH;
-    TotalCost[0] = VECCapitalCost[0] + VECOperationCost[0];
-    TotalCost[1] = VECCapitalCost[1];
-    TotalCost[2] = VECCapitalCost[2] + VECOperationCost[2];
+    VecCapitalCost[0] = MCapCos1;
+    VecCapitalCost[1] = MCapCos2;
+    VecCapitalCost[2] = MCapCos3;
+    VecOperationCost[0] = MOpeCosC;
+    VecOperationCost[1] = 0;
+    VecOperationCost[2] = MOpeCosH;
+    TotalCost[0] = VecCapitalCost[0] + VecOperationCost[0];
+    TotalCost[1] = VecCapitalCost[1];
+    TotalCost[2] = VecCapitalCost[2] + VecOperationCost[2];
     CONTADORFILAS = CONTADORFILAS + AreaAglomerados.size();
     ui->tablewidget->setRowCount(CONTADORFILAS);
     int row = ui->tablewidget->rowCount();
-    QStringList Rows;
-    for(int i = CONTADORFILAS; i < row; i++){
-        Rows << "DTmin:  " + QString::number(DTmin);
+    for(int i = CONTADORFILAS - AreaAglomerados.size() ; i < row; i++){
+        CONTADORROWS << "DTmin:  " + QString::number(DTmin);
     }
-    ui->tablewidget->setVerticalHeaderLabels(Rows);
+    ui->tablewidget->setVerticalHeaderLabels(CONTADORROWS);
     double val1, val2, val3,val4,val5;
     int j=0;
-    for(int i = CONTADORFILAS; i < row ; i++){
+    for(int i = CONTADORFILAS - AreaAglomerados.size() ; i < row ; i++){
         val1 = AreaAglomerados[j];
         val2 = EnergiaAglomerados[j];
-        val3 = VECCapitalCost[j];
-        val4 = VECOperationCost[j];
+        val3 = VecCapitalCost[j];
+        val4 = VecOperationCost[j];
         val5 = TotalCost[j];
         ui->tablewidget->setItem(i,0, new QTableWidgetItem(QString::number(val1)));
         ui->tablewidget->setItem(i,1, new QTableWidgetItem(QString::number(val2)));
         ui->tablewidget->setItem(i,2, new QTableWidgetItem(QString::number(val3)));
         ui->tablewidget->setItem(i,3, new QTableWidgetItem(QString::number(val4)));
         ui->tablewidget->setItem(i,4, new QTableWidgetItem(QString::number(val5)));
-        j=j+1;
+        j++;
     }
     if(text == "Agglomerates"){
-        for(int i = CONTADORFILAS; i < row ; i++){
+        for(int i = CONTADORFILAS - AreaAglomerados.size(); i < row ; i++){
             ui->tablewidget->item(i,0)->setBackground(Qt::red); // areas
             ui->tablewidget->item(i,1)->setBackground(Qt::red); // areas
         }
     }else if(text == "Capital cost"){
-        for(int i = CONTADORFILAS; i < row ; i++){
+        for(int i = CONTADORFILAS - AreaAglomerados.size(); i < row ; i++){
             ui->tablewidget->item(i,2)->setBackground(Qt::blue); // areas
         }
     }else if(text == "Operational cost"){
-        for(int i = CONTADORFILAS; i < row ; i++){
+        for(int i = CONTADORFILAS - AreaAglomerados.size(); i < row ; i++){
             ui->tablewidget->item(i,3)->setBackground(Qt::yellow); // areas
         }
     }else if(text =="Total cost"){
-        for(int i = CONTADORFILAS; i < row ; i++){
+        for(int i = CONTADORFILAS - AreaAglomerados.size(); i < row ; i++){
             ui->tablewidget->item(i,4)->setBackground(Qt::yellow); // areas
         }
     }
-    //Plot_Costos_vs_Min_Divera plot1(TS,TE,WCP,H,Calentamiento,Enfriamento,CapitalCost,OperationCost,k,DTmin,punto1,punto2,SI,SIS);
     Plot_Costos_vs_Min_Divera plot1(TS,TE,WCP,H,Calentamiento,Enfriamento,CapitalCost,OperationCost,k,DTmin,punto1,punto2,SI,SIS);
     MOpeCosC = plot1.getOpeCosC();
     MOpeCosH = plot1.getOpeCosH();
@@ -2174,36 +2172,36 @@ void Summary::costos_estatico_both(double DTmin, double k, QString text, float p
     MQR = plot1.getQR();
     MAC = plot1.getAC();
     MQC = plot1.getQC();
-    K1 = plot1.getK();
-    AreaAglomerados.resize(3),EnergiaAglomerados.resize(3), VECCapitalCost.resize(3),VECOperationCost.resize(3),TotalCost.resize(3);
+    double valuek = plot1.getK();
+    AreaAglomerados.resize(3),EnergiaAglomerados.resize(3), VecCapitalCost.resize(3),VecOperationCost.resize(3),TotalCost.resize(3);
     AreaAglomerados[0] = MAC;
     AreaAglomerados[1] = MAR;
     AreaAglomerados[2] = MAH;
     EnergiaAglomerados[0] = MQC;
     EnergiaAglomerados[1] = MQR;
     EnergiaAglomerados[2] = MQH;
-    VECCapitalCost[0] = MCapCos1;
-    VECCapitalCost[1] = MCapCos2;
-    VECCapitalCost[2] = MCapCos3;
-    VECOperationCost[0] = MOpeCosC;
-    VECOperationCost[1] = 0;
-    VECOperationCost[2] = MOpeCosH;
-    TotalCost[0] = VECCapitalCost[0] + VECOperationCost[0];
-    TotalCost[1] = VECCapitalCost[1];
-    TotalCost[2] = VECCapitalCost[2] + VECOperationCost[2];
+    VecCapitalCost[0] = MCapCos1;
+    VecCapitalCost[1] = MCapCos2;
+    VecCapitalCost[2] = MCapCos3;
+    VecOperationCost[0] = MOpeCosC;
+    VecOperationCost[1] = 0;
+    VecOperationCost[2] = MOpeCosH;
+    TotalCost[0] = VecCapitalCost[0] + VecOperationCost[0];
+    TotalCost[1] = VecCapitalCost[1];
+    TotalCost[2] = VecCapitalCost[2] + VecOperationCost[2];
     CONTADORFILAS = CONTADORFILAS + AreaAglomerados.size();
     ui->tablewidget->setRowCount(CONTADORFILAS);
     row = ui->tablewidget->rowCount();
-    for(int i = CONTADORFILAS; i < row; i++){
-        Rows << "DTmin:  " + QString::number(DTmin) + "& K:" + QString::number(K1) ;
+    for(int i = CONTADORFILAS - AreaAglomerados.size() ; i < row; i++){
+        CONTADORROWS << "DTmin:  " + QString::number(DTmin) + "& K:" + QString::number(valuek) ;
     }
-    ui->tablewidget->setVerticalHeaderLabels(Rows);
+    ui->tablewidget->setVerticalHeaderLabels(CONTADORROWS);
     j=0;
-    for(int i = CONTADORFILAS; i < row ; i++){
+    for(int i = CONTADORFILAS - AreaAglomerados.size(); i < row ; i++){
         val1 = AreaAglomerados[j];
         val2 = EnergiaAglomerados[j];
-        val3 = VECCapitalCost[j];
-        val4 = VECOperationCost[j];
+        val3 = VecCapitalCost[j];
+        val4 = VecOperationCost[j];
         val5 = TotalCost[j];
         ui->tablewidget->setItem(i,0, new QTableWidgetItem(QString::number(val1)));
         ui->tablewidget->setItem(i,1, new QTableWidgetItem(QString::number(val2)));
@@ -2213,16 +2211,16 @@ void Summary::costos_estatico_both(double DTmin, double k, QString text, float p
         j=j+1;
     }
     if(text == "Agglomerates"){
-        for(int i = CONTADORFILAS; i < row ; i++){
+        for(int i = CONTADORFILAS - AreaAglomerados.size(); i < row ; i++){
             ui->tablewidget->item(i,0)->setBackground(Qt::red); // areas
             ui->tablewidget->item(i,1)->setBackground(Qt::red); // areas
         }
     }else if(text == "Capital cost"){
-        for(int i = CONTADORFILAS; i < row ; i++){
+        for(int i = CONTADORFILAS - AreaAglomerados.size(); i < row ; i++){
             ui->tablewidget->item(i,2)->setBackground(Qt::blue); // areas
         }
     }else if(text == "Operational cost"){
-        for(int i = CONTADORFILAS; i < row ; i++){
+        for(int i = CONTADORFILAS - AreaAglomerados.size(); i < row ; i++){
             ui->tablewidget->item(i,3)->setBackground(Qt::yellow); // areas
         }
     }else if(text =="Total cost"){
@@ -2246,61 +2244,60 @@ void Summary::costos_incremento_both(double DTmin, double k, QString text, float
     double MQR = plot.getQR();
     double MAC = plot.getAC();
     double MQC = plot.getQC();
-    QVector<double> AreaAglomerados, EnergiaAglomerados,VECCapitalCost,VECOperationCost,TotalCost;
-    AreaAglomerados.resize(3),EnergiaAglomerados.resize(3), VECCapitalCost.resize(3),VECOperationCost.resize(3),TotalCost.resize(3);
+    QVector<double> AreaAglomerados, EnergiaAglomerados,VecCapitalCost,VecOperationCost,TotalCost;
+    AreaAglomerados.resize(3),EnergiaAglomerados.resize(3), VecCapitalCost.resize(3),VecOperationCost.resize(3),TotalCost.resize(3);
     AreaAglomerados[0] = MAC;
     AreaAglomerados[1] = MAR;
     AreaAglomerados[2] = MAH;
     EnergiaAglomerados[0] = MQC;
     EnergiaAglomerados[1] = MQR;
     EnergiaAglomerados[2] = MQH;
-    VECCapitalCost[0] = MCapCos1;
-    VECCapitalCost[1] = MCapCos2;
-    VECCapitalCost[2] = MCapCos3;
-    VECOperationCost[0] = MOpeCosC;
-    VECOperationCost[1] = 0;
-    VECOperationCost[2] = MOpeCosH;
-    TotalCost[0] = VECCapitalCost[0] + VECOperationCost[0];
-    TotalCost[1] = VECCapitalCost[1];
-    TotalCost[2] = VECCapitalCost[2] + VECOperationCost[2];
+    VecCapitalCost[0] = MCapCos1;
+    VecCapitalCost[1] = MCapCos2;
+    VecCapitalCost[2] = MCapCos3;
+    VecOperationCost[0] = MOpeCosC;
+    VecOperationCost[1] = 0;
+    VecOperationCost[2] = MOpeCosH;
+    TotalCost[0] = VecCapitalCost[0] + VecOperationCost[0];
+    TotalCost[1] = VecCapitalCost[1];
+    TotalCost[2] = VecCapitalCost[2] + VecOperationCost[2];
     CONTADORFILAS = CONTADORFILAS + AreaAglomerados.size();
     ui->tablewidget->setRowCount(CONTADORFILAS);
     int row = ui->tablewidget->rowCount();
-    QStringList Rows;
-    for(int i = CONTADORFILAS; i < row; i++){
-        Rows << "DTmin:  " + QString::number(DTmin);
+    for(int i = CONTADORFILAS - AreaAglomerados.size(); i < row; i++){
+        CONTADORROWS << "DTmin:  " + QString::number(DTmin);
     }
-    ui->tablewidget->setVerticalHeaderLabels(Rows);
+    ui->tablewidget->setVerticalHeaderLabels(CONTADORROWS);
     double val1, val2, val3,val4,val5;
     int j=0;
-    for(int i = CONTADORFILAS; i < row ; i++){
+    for(int i = CONTADORFILAS - AreaAglomerados.size(); i < row ; i++){
         val1 = AreaAglomerados[j];
         val2 = EnergiaAglomerados[j];
-        val3 = VECCapitalCost[j];
-        val4 = VECOperationCost[j];
+        val3 = VecCapitalCost[j];
+        val4 = VecOperationCost[j];
         val5 = TotalCost[j];
         ui->tablewidget->setItem(i,0, new QTableWidgetItem(QString::number(val1)));
         ui->tablewidget->setItem(i,1, new QTableWidgetItem(QString::number(val2)));
         ui->tablewidget->setItem(i,2, new QTableWidgetItem(QString::number(val3)));
         ui->tablewidget->setItem(i,3, new QTableWidgetItem(QString::number(val4)));
         ui->tablewidget->setItem(i,4, new QTableWidgetItem(QString::number(val5)));
-        j=j+1;
+        j++;
     }
     if(text == "Agglomerates"){
-        for(int i = CONTADORFILAS; i < row ; i++){
+        for(int i = CONTADORFILAS- AreaAglomerados.size(); i < row ; i++){
             ui->tablewidget->item(i,0)->setBackground(Qt::red); // areas
             ui->tablewidget->item(i,1)->setBackground(Qt::red); // areas
         }
     }else if(text == "Capital cost"){
-        for(int i = CONTADORFILAS; i < row ; i++){
+        for(int i = CONTADORFILAS- AreaAglomerados.size(); i < row ; i++){
             ui->tablewidget->item(i,2)->setBackground(Qt::blue); // areas
         }
     }else if(text == "Operational cost"){
-        for(int i = CONTADORFILAS; i < row ; i++){
+        for(int i = CONTADORFILAS- AreaAglomerados.size(); i < row ; i++){
             ui->tablewidget->item(i,3)->setBackground(Qt::yellow); // areas
         }
     }else if(text =="Total cost"){
-        for(int i = CONTADORFILAS; i < row ; i++){
+        for(int i = CONTADORFILAS- AreaAglomerados.size(); i < row ; i++){
             ui->tablewidget->item(i,4)->setBackground(Qt::yellow); // areas
         }
     }
@@ -2316,59 +2313,59 @@ void Summary::costos_incremento_both(double DTmin, double k, QString text, float
     MQR = plot1.getQR();
     MAC = plot1.getAC();
     MQC = plot1.getQC();
-    K1 = plot1.getK();
-    AreaAglomerados.resize(3),EnergiaAglomerados.resize(3), VECCapitalCost.resize(3),VECOperationCost.resize(3),TotalCost.resize(3);
+    double valuek = plot1.getK();
+    AreaAglomerados.resize(3),EnergiaAglomerados.resize(3), VecCapitalCost.resize(3),VecOperationCost.resize(3),TotalCost.resize(3);
     AreaAglomerados[0] = MAC;
     AreaAglomerados[1] = MAR;
     AreaAglomerados[2] = MAH;
     EnergiaAglomerados[0] = MQC;
     EnergiaAglomerados[1] = MQR;
     EnergiaAglomerados[2] = MQH;
-    VECCapitalCost[0] = MCapCos1;
-    VECCapitalCost[1] = MCapCos2;
-    VECCapitalCost[2] = MCapCos3;
-    VECOperationCost[0] = MOpeCosC;
-    VECOperationCost[1] = 0;
-    VECOperationCost[2] = MOpeCosH;
-    TotalCost[0] = VECCapitalCost[0] + VECOperationCost[0];
-    TotalCost[1] = VECCapitalCost[1];
-    TotalCost[2] = VECCapitalCost[2] + VECOperationCost[2];
+    VecCapitalCost[0] = MCapCos1;
+    VecCapitalCost[1] = MCapCos2;
+    VecCapitalCost[2] = MCapCos3;
+    VecOperationCost[0] = MOpeCosC;
+    VecOperationCost[1] = 0;
+    VecOperationCost[2] = MOpeCosH;
+    TotalCost[0] = VecCapitalCost[0] + VecOperationCost[0];
+    TotalCost[1] = VecCapitalCost[1];
+    TotalCost[2] = VecCapitalCost[2] + VecOperationCost[2];
     CONTADORFILAS = CONTADORFILAS + AreaAglomerados.size();
     ui->tablewidget->setRowCount(CONTADORFILAS);
     row = ui->tablewidget->rowCount();
-    for(int i = CONTADORFILAS; i < row; i++){
-        Rows << "DTmin:  " + QString::number(DTmin) + "& K:" + QString::number(K1) ;
+    for(int i = CONTADORFILAS- AreaAglomerados.size(); i < row; i++){
+        CONTADORROWS << "DTmin:  " + QString::number(DTmin) + "& K:" + QString::number(valuek) ;
     }
-    ui->tablewidget->setVerticalHeaderLabels(Rows);
+    ui->tablewidget->setVerticalHeaderLabels(CONTADORROWS);
     j=0;
-    for(int i = CONTADORFILAS; i < row ; i++){
+    for(int i = CONTADORFILAS- AreaAglomerados.size(); i < row ; i++){
         val1 = AreaAglomerados[j];
         val2 = EnergiaAglomerados[j];
-        val3 = VECCapitalCost[j];
-        val4 = VECOperationCost[j];
+        val3 = VecCapitalCost[j];
+        val4 = VecOperationCost[j];
         val5 = TotalCost[j];
         ui->tablewidget->setItem(i,0, new QTableWidgetItem(QString::number(val1)));
         ui->tablewidget->setItem(i,1, new QTableWidgetItem(QString::number(val2)));
         ui->tablewidget->setItem(i,2, new QTableWidgetItem(QString::number(val3)));
         ui->tablewidget->setItem(i,3, new QTableWidgetItem(QString::number(val4)));
         ui->tablewidget->setItem(i,4, new QTableWidgetItem(QString::number(val5)));
-        j=j+1;
+        j++;
     }
     if(text == "Agglomerates"){
-        for(int i = CONTADORFILAS; i < row ; i++){
+        for(int i = CONTADORFILAS- AreaAglomerados.size(); i < row ; i++){
             ui->tablewidget->item(i,0)->setBackground(Qt::red); // areas
             ui->tablewidget->item(i,1)->setBackground(Qt::red); // areas
         }
     }else if(text == "Capital cost"){
-        for(int i = CONTADORFILAS; i < row ; i++){
+        for(int i = CONTADORFILAS- AreaAglomerados.size(); i < row ; i++){
             ui->tablewidget->item(i,2)->setBackground(Qt::blue); // areas
         }
     }else if(text == "Operational cost"){
-        for(int i = CONTADORFILAS; i < row ; i++){
+        for(int i = CONTADORFILAS- AreaAglomerados.size(); i < row ; i++){
             ui->tablewidget->item(i,3)->setBackground(Qt::yellow); // areas
         }
     }else if(text =="Total cost"){
-        for(int i = CONTADORFILAS; i < row ; i++){
+        for(int i = CONTADORFILAS- AreaAglomerados.size(); i < row ; i++){
             ui->tablewidget->item(i,4)->setBackground(Qt::yellow); // areas
         }
     }
@@ -2468,8 +2465,6 @@ void Summary::grafico_HCC_estatico_both(double DTmin, double k, float punto1, fl
     ui->qcustomplot->graph(0)->setPen(QPen(Qt::red));
     ui->qcustomplot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
     ui->qcustomplot->graph(0)->setData(UCCENTALPIA,UCCTEMPERATURAS);
-    ui->qcustomplot->graph(0)->rescaleAxes();
-    ui->qcustomplot->graph(0)->rescaleAxes(true);
     Plot_curvascompuestas_diversa plot1(TS,TE,WCP,H,DTmin,k,punto1,punto2);
     QVector<double> DCCENTALPIA = plot1.getCCENTALPIA();
     QVector<double> DCCTEMPERATURAS = plot1.getCCTEMPERATURAS();
@@ -2499,8 +2494,6 @@ void Summary::grafico_CCC_estatico_both(double DTmin, double k, float punto1, fl
     ui->qcustomplot->graph(0)->setPen(QPen(Qt::blue));
     ui->qcustomplot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
     ui->qcustomplot->graph(0)->setData(UCFENTALPIA,UCFTEMPERATURAS);
-    ui->qcustomplot->graph(0)->rescaleAxes();
-    ui->qcustomplot->graph(0)->rescaleAxes(true);
     Plot_curvascompuestas_diversa plot1(TS,TE,WCP,H,DTmin,k,punto1,punto2);
     QVector<double> DCFENTALPIA = plot1.getCFENTALPIA();
     QVector<double> DCFTEMPERATURAS = plot1.getCFTEMPERATURAS();
@@ -2530,7 +2523,6 @@ void Summary::grafico_CurvasCompuestas_estatico_uniforme()
     ui->qcustomplot->graph(0)->setPen(QPen(Qt::red));
     ui->qcustomplot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
     ui->qcustomplot->graph(0)->setData(CCENTALPIA,CCTEMPERATURAS);
-    ui->qcustomplot->replot();
     QVector<double> CFENTALPIA = plot.getCFENTALPIA();
     QVector<double> CFTEMPERATURAS = plot.getCFTEMPERATURAS();
     ui->qcustomplot->addGraph();
@@ -2588,7 +2580,6 @@ void Summary::grafico_CurvasCompuestas_estatico_both(double DTmin, double k, flo
     ui->qcustomplot->graph(0)->setPen(QPen(Qt::red));
     ui->qcustomplot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
     ui->qcustomplot->graph(0)->setData(CCENTALPIA,CCTEMPERATURAS);
-    ui->qcustomplot->replot();
     QVector<double> CFENTALPIA = plot.getCFENTALPIA();
     QVector<double> CFTEMPERATURAS = plot.getCFTEMPERATURAS();
     ui->qcustomplot->addGraph();
@@ -2604,7 +2595,6 @@ void Summary::grafico_CurvasCompuestas_estatico_both(double DTmin, double k, flo
     ui->qcustomplot->graph(2)->setPen(QPen(Qt::red));
     ui->qcustomplot->graph(2)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDiamond));
     ui->qcustomplot->graph(2)->setData(CCENTALPIA,CCTEMPERATURAS);
-    ui->qcustomplot->replot();
     CFENTALPIA = plot1.getCFENTALPIA();
     CFTEMPERATURAS = plot1.getCFTEMPERATURAS();
     ui->qcustomplot->addGraph();
@@ -2631,15 +2621,14 @@ void Summary::grafico_CurvasCompuestasAjustadas_estatico_uniforme(double DTmin)
     ui->qcustomplot->addGraph();
     ui->qcustomplot->graph(0)->setPen(QPen(Qt::red));
     ui->qcustomplot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
-    ui->qcustomplot->graph(0)->setName("Hot curve");
+    ui->qcustomplot->graph(0)->setName("Uniform hot curve");
     ui->qcustomplot->graph(0)->setData(CCENTALPIA,CCTEMPERATURAS);
-    ui->qcustomplot->replot();
     QVector<double> CFENTALPIAAJUSTADAS = plot.getCFENTALPIAAJUSTADAS();
     QVector<double> CFTEMPERATURASAJUSTADAS = plot.getCFTEMPERATURASAJUSTADAS();
     ui->qcustomplot->addGraph();
     ui->qcustomplot->graph(1)->setPen(QPen(Qt::blue));
     ui->qcustomplot->graph(1)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
-    ui->qcustomplot->graph(1)->setName("Cold curve");
+    ui->qcustomplot->graph(1)->setName("Uniform cold curve");
     ui->qcustomplot->graph(1)->setData(CFENTALPIAAJUSTADAS,CFTEMPERATURASAJUSTADAS);
     ui->qcustomplot->graph(0)->rescaleAxes();
     ui->qcustomplot->graph(1)->rescaleAxes(true);
@@ -2666,7 +2655,7 @@ void Summary::grafico_CurvasCompuestasAjustadas_incremento_uniforme(double MAX, 
     ui->qcustomplot->graph(j)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
     ui->qcustomplot->graph(j)->setData(CCENTALPIA,CCTEMPERATURAS);
     ui->qcustomplot->graph(j)->rescaleAxes();
-    ui->qcustomplot->graph(j)->setName("Hot curve");
+    ui->qcustomplot->graph(j)->setName("Uniform hot curve");
     for(int i = 0; i <= Iteraciones ; i++){
         j++;
         Plot_curvascompuestasajustadas plot(TS,TE,WCP,DTmin);
@@ -2674,16 +2663,16 @@ void Summary::grafico_CurvasCompuestasAjustadas_incremento_uniforme(double MAX, 
         QVector<double> CFTEMPERATURASAJUSTADAS = plot.getCFTEMPERATURASAJUSTADAS();
         ui->qcustomplot->addGraph();
         if(j == 1){
-            ui->qcustomplot->graph(j)->setName("Cold curve");
+            ui->qcustomplot->graph(j)->setName("Uniform cold curve");
         }else if(j >= 2){
             ui->qcustomplot->legend->removeItem(ui->qcustomplot->legend->itemCount()-1);
         }
         ui->qcustomplot->graph(j)->setPen(QPen(Qt::blue));
         ui->qcustomplot->graph(j)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
         ui->qcustomplot->graph(j)->setData(CFENTALPIAAJUSTADAS,CFTEMPERATURASAJUSTADAS);
-        ui->qcustomplot->graph(j)->rescaleAxes(true);
         DTmin = DTmin + INC;
     }
+    ui->qcustomplot->rescaleAxes(true);
     if(SI == true){
         ui->qcustomplot->xAxis->setLabel("ENTHALPY BTU/HR");
         ui->qcustomplot->yAxis->setLabel("TEMPERATURE ªF");
@@ -2700,7 +2689,7 @@ void Summary::grafico_CurvasCompuestasAjustadas_estatico_diverso(double DTmin, d
     QVector<double> CCENTALPIA = plot2.getCCENTALPIA();
     QVector<double> CCTEMPERATURAS = plot2.getCCTEMPERATURAS();
     ui->qcustomplot->addGraph();
-    ui->qcustomplot->graph(0)->setName("Hot curve");
+    ui->qcustomplot->graph(0)->setName("Diverse hot curve");
     ui->qcustomplot->graph(0)->setPen(QPen(Qt::red));
     ui->qcustomplot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
     ui->qcustomplot->graph(0)->setData(CCENTALPIA,CCTEMPERATURAS);
@@ -2709,11 +2698,10 @@ void Summary::grafico_CurvasCompuestasAjustadas_estatico_diverso(double DTmin, d
     QVector<double> CFTEMPERATURASAJUSTADAS = plot2.getCFTEMPERATURASAJUSTADAS();
     ui->qcustomplot->addGraph();
     ui->qcustomplot->graph(1)->setPen(QPen(Qt::blue));
-    ui->qcustomplot->graph(1)->setName("Cold curve");
+    ui->qcustomplot->graph(1)->setName("Diverse cold curve");
     ui->qcustomplot->graph(1)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
     ui->qcustomplot->graph(1)->setData(CFENTALPIAAJUSTADAS,CFTEMPERATURASAJUSTADAS);
-    ui->qcustomplot->graph(0)->rescaleAxes();
-    ui->qcustomplot->graph(1)->rescaleAxes(true);
+    ui->qcustomplot->rescaleAxes(true);
     if(SI == true){
         ui->qcustomplot->xAxis->setLabel("ENTHALPY BTU/HR");
         ui->qcustomplot->yAxis->setLabel("TEMPERATURE ªF");
@@ -2735,32 +2723,31 @@ void Summary::grafico_CurvasCompuestasAjustadas_incremento_diverso(double MIN, d
         QVector<double> CCTEMPERATURAS = plot2.getCCTEMPERATURAS();
         ui->qcustomplot->addGraph();
         if(i == 0){
-            ui->qcustomplot->graph(j)->setName("Hot curve");
+            ui->qcustomplot->graph(j)->setName("Diverse hot curve");
         }else if( i >= 1){
             ui->qcustomplot->legend->removeItem(ui->qcustomplot->legend->itemCount()-1);
         }
         ui->qcustomplot->graph(j)->setPen(QPen(Qt::red));
         ui->qcustomplot->graph(j)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
         ui->qcustomplot->graph(j)->setData(CCENTALPIA,CCTEMPERATURAS);
-        ui->qcustomplot->graph(j)->rescaleAxes();
         j++;
         QVector<double> CFENTALPIAAJUSTADAS = plot2.getCFENTALPIAAJUSTADAS();
         QVector<double> CFTEMPERATURASAJUSTADAS = plot2.getCFTEMPERATURASAJUSTADAS();
         ui->qcustomplot->addGraph();
         if(i == 0){
-            ui->qcustomplot->graph(j)->setName("Cold curve");
+            ui->qcustomplot->graph(j)->setName("Diverse cold curve");
         }else if( i >= 1){
             ui->qcustomplot->legend->removeItem(ui->qcustomplot->legend->itemCount()-1);
         }
         ui->qcustomplot->graph(j)->setPen(QPen(Qt::blue));
         ui->qcustomplot->graph(j)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
         ui->qcustomplot->graph(j)->setData(CFENTALPIAAJUSTADAS,CFTEMPERATURASAJUSTADAS);
-        ui->qcustomplot->graph(j)->rescaleAxes(true);
         j++;
         punto1 = float (plot2.getK());
         punto2 = 10.0;
         DTmin = DTmin + INC;
     }
+    ui->qcustomplot->rescaleAxes(true);
     if(SI == true){
         ui->qcustomplot->xAxis->setLabel("ENTHALPY BTU/HR");
         ui->qcustomplot->yAxis->setLabel("TEMPERATURE ªF");
@@ -2826,7 +2813,6 @@ void Summary::grafico_CurvasCompuestasAjustadaas_incremento_both(double MIN, dou
     ui->qcustomplot->graph(j)->setPen(QPen(Qt::red));
     ui->qcustomplot->graph(j)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
     ui->qcustomplot->graph(j)->setData(CCENTALPIA,CCTEMPERATURAS);
-    ui->qcustomplot->graph(j)->rescaleAxes();
     ui->qcustomplot->graph(j)->setName("Uniform hot curve");
     j++;
     for(int i = 0; i <= Iteraciones ; i++){
@@ -2842,7 +2828,6 @@ void Summary::grafico_CurvasCompuestasAjustadaas_incremento_both(double MIN, dou
         ui->qcustomplot->graph(j)->setPen(QPen(Qt::blue));
         ui->qcustomplot->graph(j)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
         ui->qcustomplot->graph(j)->setData(CFENTALPIAAJUSTADAS,CFTEMPERATURASAJUSTADAS);
-        ui->qcustomplot->graph(j)->rescaleAxes(true);
         j++;
         Plot_CCAJUSTADA_DIVERSA plot2(TS,TE,WCP,H,DTmin,k,punto1,punto2);
         QVector<double> DCCENTALPIA = plot2.getCCENTALPIA();
@@ -2856,7 +2841,6 @@ void Summary::grafico_CurvasCompuestasAjustadaas_incremento_both(double MIN, dou
         ui->qcustomplot->graph(j)->setPen(QPen(Qt::red));
         ui->qcustomplot->graph(j)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDiamond));
         ui->qcustomplot->graph(j)->setData(DCCENTALPIA,DCCTEMPERATURAS);
-        ui->qcustomplot->graph(j)->rescaleAxes();
         j++;
         CFENTALPIAAJUSTADAS = plot2.getCFENTALPIAAJUSTADAS();
         CFTEMPERATURASAJUSTADAS = plot2.getCFTEMPERATURASAJUSTADAS();
@@ -2869,12 +2853,20 @@ void Summary::grafico_CurvasCompuestasAjustadaas_incremento_both(double MIN, dou
         ui->qcustomplot->graph(j)->setPen(QPen(Qt::blue));
         ui->qcustomplot->graph(j)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDiamond));
         ui->qcustomplot->graph(j)->setData(CFENTALPIAAJUSTADAS,CFTEMPERATURASAJUSTADAS);
-        ui->qcustomplot->graph(j)->rescaleAxes(true);
         j++;
         punto1 = float (plot2.getK());
         punto2 = 10.0;
         DTmin = DTmin + INC;
     }
+    ui->qcustomplot->rescaleAxes(true);
+    if(SI == true){
+        ui->qcustomplot->xAxis->setLabel("ENTHALPY BTU/HR");
+        ui->qcustomplot->yAxis->setLabel("TEMPERATURE ªF");
+    }else if(SIS == true){
+        ui->qcustomplot->xAxis->setLabel("ENTHALPY W");
+        ui->qcustomplot->yAxis->setLabel("TEMPERATURE  ªC");
+    }
+    ui->qcustomplot->replot();
 }
 
 void Summary::grafico_GranCurvaCompuesta_estatico_uniforme(double DTmin)
@@ -2886,8 +2878,9 @@ void Summary::grafico_GranCurvaCompuesta_estatico_uniforme(double DTmin)
     ui->qcustomplot->graph(0)->setPen(QPen(Qt::blue));
     ui->qcustomplot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
     ui->qcustomplot->graph(0)->setLineStyle(QCPGraph::lsLine);
-    ui->qcustomplot->graph(0)->setName("Grand composite curve");
+    ui->qcustomplot->graph(0)->setName("Uniform grand composite curve");
     ui->qcustomplot->graph(0)->setData(GCENTALPIA,GCTEMPERATURAS);
+    ui->qcustomplot->rescaleAxes(true);
     if(SI == true){
         ui->qcustomplot->xAxis->setLabel("ENTHALPY BTU/HR");
         ui->qcustomplot->yAxis->setLabel("TEMPERATURE ªF");
@@ -2910,7 +2903,7 @@ void Summary::grafico_GranCurvaCompuesta_incremento_uniforme(double MAX, double 
          QVector<double> GCTEMPERATURAS = plot.getGCTEMPERATURAS();
          ui->qcustomplot->addGraph();
          if(i == 0){
-             ui->qcustomplot->graph(i)->setName("Grand composite curve");
+             ui->qcustomplot->graph(i)->setName("Uniform grand composite curve");
          }else if( i >= 1){
              ui->qcustomplot->legend->removeItem(ui->qcustomplot->legend->itemCount()-1);
          }
@@ -2918,10 +2911,9 @@ void Summary::grafico_GranCurvaCompuesta_incremento_uniforme(double MAX, double 
          ui->qcustomplot->graph(i)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
          ui->qcustomplot->graph(i)->setLineStyle(QCPGraph::lsLine);
          ui->qcustomplot->graph(i)->setData(GCENTALPIA,GCTEMPERATURAS);
-         ui->qcustomplot->graph(i)->rescaleAxes();
-         ui->qcustomplot->graph(i)->rescaleAxes(true);
          DTmin = DTmin + INC;
     }
+    ui->qcustomplot->rescaleAxes(true);
     if(SI == true){
         ui->qcustomplot->xAxis->setLabel("ENTHALPY BTU/HR");
         ui->qcustomplot->yAxis->setLabel("TEMPERATURE ªF");
@@ -2941,10 +2933,9 @@ void Summary::grafico_GranCurvaCompuesta_estatico_diverso(double DTmin, double k
     ui->qcustomplot->graph(0)->setPen(QPen(Qt::blue));
     ui->qcustomplot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
     ui->qcustomplot->graph(0)->setLineStyle(QCPGraph::lsLine);
-    ui->qcustomplot->graph(0)->setName("Grand composite curve");
+    ui->qcustomplot->graph(0)->setName("Diverse grand composite curve");
     ui->qcustomplot->graph(0)->setData(GCENTALPIA,GCTEMPERATURAS);
-    ui->qcustomplot->graph(0)->rescaleAxes();
-    ui->qcustomplot->graph(0)->rescaleAxes(true);
+    ui->qcustomplot->rescaleAxes(true);
     if(SI == true){
         ui->qcustomplot->xAxis->setLabel("ENTHALPY BTU/HR");
         ui->qcustomplot->yAxis->setLabel("TEMPERATURE ªF");
@@ -2965,7 +2956,7 @@ void Summary::grafico_GranCurvaCompuestas_incremento_diverso(double MIN, double 
         QVector<double> GCTEMPERATURAS = plotGCCD.getGCTEMPERATURAS();
         ui->qcustomplot->addGraph();
         if(i == 0){
-            ui->qcustomplot->graph(i)->setName("Grand composite curve");
+            ui->qcustomplot->graph(i)->setName("Diverse grand composite curve");
         }else if( i >= 1){
             ui->qcustomplot->legend->removeItem(ui->qcustomplot->legend->itemCount()-1);
         }
@@ -2973,12 +2964,11 @@ void Summary::grafico_GranCurvaCompuestas_incremento_diverso(double MIN, double 
         ui->qcustomplot->graph(i)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
         ui->qcustomplot->graph(i)->setLineStyle(QCPGraph::lsLine);
         ui->qcustomplot->graph(i)->setData(GCENTALPIA,GCTEMPERATURAS);
-        ui->qcustomplot->graph(i)->rescaleAxes();
-        ui->qcustomplot->graph(i)->rescaleAxes(true);
         DTmin = DTmin + INC;
         punto1 = float (plotGCCD.getK());
         punto2 = 10.0;
     }
+    ui->qcustomplot->rescaleAxes(true);
     if(SI == true){
         ui->qcustomplot->xAxis->setLabel("ENTHALPY BTU/HR");
         ui->qcustomplot->yAxis->setLabel("TEMPERATURE ªF");
@@ -3009,8 +2999,7 @@ void Summary::grafico_GranCurvaCompuesta_estatico_both(double DTmin, double k, f
     ui->qcustomplot->graph(1)->setLineStyle(QCPGraph::lsLine);
     ui->qcustomplot->graph(1)->setName("Diverse grand composite curve");
     ui->qcustomplot->graph(1)->setData(GCENTALPIA,GCTEMPERATURAS);
-    ui->qcustomplot->graph(1)->rescaleAxes();
-    ui->qcustomplot->graph(1)->rescaleAxes(true);
+    ui->qcustomplot->rescaleAxes(true);
     if(SI == true){
         ui->qcustomplot->xAxis->setLabel("ENTHALPY BTU/HR");
         ui->qcustomplot->yAxis->setLabel("TEMPERATURE ªF");
@@ -3040,8 +3029,6 @@ void Summary::grafico_GranCurvaCompuesta_incremento_both(double MIN, double MAX,
          ui->qcustomplot->graph(j)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
          ui->qcustomplot->graph(j)->setLineStyle(QCPGraph::lsLine);
          ui->qcustomplot->graph(j)->setData(GCENTALPIA,GCTEMPERATURAS);
-         ui->qcustomplot->graph(j)->rescaleAxes();
-         ui->qcustomplot->graph(j)->rescaleAxes(true);
          j++;
          PlotGCC_DIVERSA plotGCCD(TS,TE,WCP,H,DTmin,k,punto1,punto2);
          GCENTALPIA = plotGCCD.getGCENTALPIA();
@@ -3056,13 +3043,12 @@ void Summary::grafico_GranCurvaCompuesta_incremento_both(double MIN, double MAX,
          ui->qcustomplot->graph(j)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDiamond));
          ui->qcustomplot->graph(j)->setLineStyle(QCPGraph::lsLine);
          ui->qcustomplot->graph(j)->setData(GCENTALPIA,GCTEMPERATURAS);
-         ui->qcustomplot->graph(j)->rescaleAxes();
-         ui->qcustomplot->graph(j)->rescaleAxes(true);
          j++;
          punto1 = float (plotGCCD.getK());
          punto2 = 10.0;
          DTmin = DTmin + INC;
     }
+    ui->qcustomplot->rescaleAxes(true);
     if(SI == true){
         ui->qcustomplot->xAxis->setLabel("ENTHALPY BTU/HR");
         ui->qcustomplot->yAxis->setLabel("TEMPERATURE ªF");
@@ -3097,10 +3083,9 @@ void Summary::grafico_Areas_uniforme(double MIN, double MAX, double INC)
     ui->qcustomplot->graph(0)->setPen(QPen(Qt::red));
     ui->qcustomplot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
     ui->qcustomplot->graph(0)->setLineStyle(QCPGraph::lsLine);
-    ui->qcustomplot->graph(0)->setName("Total area");
+    ui->qcustomplot->graph(0)->setName("Unifom total area");
     ui->qcustomplot->graph(0)->setData(DTMIN,AREAS);
-    ui->qcustomplot->graph(0)->rescaleAxes();
-    ui->qcustomplot->graph(0)->rescaleAxes(true);
+    ui->qcustomplot->rescaleAxes(true);
     if(SI == true){
         ui->qcustomplot->xAxis->setLabel("DTMIN ªF");
         ui->qcustomplot->yAxis->setLabel("AREAS ft^2");
@@ -3138,10 +3123,9 @@ void Summary::grafico_Areas_diverso(double MIN, double MAX, double INC, double k
     ui->qcustomplot->graph(0)->setPen(QPen(Qt::red));
     ui->qcustomplot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
     ui->qcustomplot->graph(0)->setLineStyle(QCPGraph::lsLine);
-    ui->qcustomplot->graph(0)->setName("Total area");
+    ui->qcustomplot->graph(0)->setName("Diverse total area");
     ui->qcustomplot->graph(0)->setData(DTMIN,AREAS);
-    ui->qcustomplot->graph(0)->rescaleAxes();
-    ui->qcustomplot->graph(0)->rescaleAxes(true);
+    ui->qcustomplot->rescaleAxes(true);
     if(SI == true){
         ui->qcustomplot->xAxis->setLabel("DTMIN ªF");
         ui->qcustomplot->yAxis->setLabel("AREAS ft^2");
@@ -3193,14 +3177,13 @@ void Summary::grafico_Areas_both(double MIN, double MAX, double INC, double k, f
     ui->qcustomplot->graph(0)->setLineStyle(QCPGraph::lsLine);
     ui->qcustomplot->graph(0)->setName("Uniform total area");
     ui->qcustomplot->graph(0)->setData(UDTMIN,UAREAS);
-    ui->qcustomplot->graph(0)->rescaleAxes();
-    ui->qcustomplot->graph(0)->rescaleAxes(true);
     ui->qcustomplot->addGraph();
     ui->qcustomplot->graph(1)->setPen(QPen(Qt::red));
     ui->qcustomplot->graph(1)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDiamond));
     ui->qcustomplot->graph(1)->setLineStyle(QCPGraph::lsLine);
     ui->qcustomplot->graph(1)->setName("Diverse total area");
     ui->qcustomplot->graph(1)->setData(DDTMIN,DAREAS);
+    ui->qcustomplot->rescaleAxes(true);
     if(SI == true){
         ui->qcustomplot->xAxis->setLabel("DTMIN ªF");
         ui->qcustomplot->yAxis->setLabel("AREAS ft^2");
@@ -3208,7 +3191,6 @@ void Summary::grafico_Areas_both(double MIN, double MAX, double INC, double k, f
         ui->qcustomplot->xAxis->setLabel("DTMIN ªC");
         ui->qcustomplot->yAxis->setLabel("AREAS mt^2");
     }
-    ui->qcustomplot->rescaleAxes(true);
     ui->qcustomplot->replot();
 }
 
@@ -3240,29 +3222,24 @@ void Summary::grafico_Costos_uniforme(double MIN, double MAX, double INC)
         DTmin = DTmin + INC;
     }
     ui->qcustomplot->addGraph();
-    ui->qcustomplot->graph(0)->setName("Total cost");
+    ui->qcustomplot->graph(0)->setName("Unifom total cost");
     ui->qcustomplot->graph(0)->setPen(QPen(Qt::red));
     ui->qcustomplot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
     ui->qcustomplot->graph(0)->setLineStyle(QCPGraph::lsLine);
     ui->qcustomplot->graph(0)->setData(VECDTMIN,VECCOSTOTOTAL);
-    ui->qcustomplot->graph(0)->rescaleAxes();
-    ui->qcustomplot->graph(0)->rescaleAxes(true);
     ui->qcustomplot->addGraph();
-    ui->qcustomplot->graph(1)->setName("Total operation cost");
+    ui->qcustomplot->graph(1)->setName("Uniform total operation cost");
     ui->qcustomplot->graph(1)->setPen(QPen(Qt::blue));
     ui->qcustomplot->graph(1)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
     ui->qcustomplot->graph(1)->setLineStyle(QCPGraph::lsLine);
     ui->qcustomplot->graph(1)->setData(VECDTMIN,VECCOSTOOPERACIONTOTAL);
-    ui->qcustomplot->graph(1)->rescaleAxes();
-    ui->qcustomplot->graph(1)->rescaleAxes(true);
     ui->qcustomplot->addGraph();
-    ui->qcustomplot->graph(2)->setName("Total capital cost");
+    ui->qcustomplot->graph(2)->setName("Uniform total capital cost");
     ui->qcustomplot->graph(2)->setPen(QPen(Qt::darkCyan));
     ui->qcustomplot->graph(2)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
     ui->qcustomplot->graph(2)->setLineStyle(QCPGraph::lsLine);
     ui->qcustomplot->graph(2)->setData(VECDTMIN,VECCOSTOCAPITALTOTAL);
-    ui->qcustomplot->graph(2)->rescaleAxes();
-    ui->qcustomplot->graph(2)->rescaleAxes(true);
+    ui->qcustomplot->rescaleAxes(true);
     if(SI == true){
         ui->qcustomplot->xAxis->setLabel("DTMIN ªF");
         ui->qcustomplot->yAxis->setLabel("COSTOS US $ / YEAR");
@@ -3302,29 +3279,24 @@ void Summary::grafico_Costos_diverso(double MIN, double MAX, double INC, double 
        punto2 = 10.0;
     }
     ui->qcustomplot->addGraph();
-    ui->qcustomplot->graph(0)->setName("Total cost");
+    ui->qcustomplot->graph(0)->setName("Diverse total cost");
     ui->qcustomplot->graph(0)->setPen(QPen(Qt::red));
     ui->qcustomplot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
     ui->qcustomplot->graph(0)->setLineStyle(QCPGraph::lsLine);
     ui->qcustomplot->graph(0)->setData(VECDTMIN,VECCOSTOTOTAL);
-    ui->qcustomplot->graph(0)->rescaleAxes();
-    ui->qcustomplot->graph(0)->rescaleAxes(true);
     ui->qcustomplot->addGraph();
-    ui->qcustomplot->graph(1)->setName("Total operation cost");
+    ui->qcustomplot->graph(1)->setName("Diverse total operation cost");
     ui->qcustomplot->graph(1)->setPen(QPen(Qt::blue));
     ui->qcustomplot->graph(1)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
     ui->qcustomplot->graph(1)->setLineStyle(QCPGraph::lsLine);
     ui->qcustomplot->graph(1)->setData(VECDTMIN,VECCOSTOOPERACIONTOTAL);
-    ui->qcustomplot->graph(1)->rescaleAxes();
-    ui->qcustomplot->graph(1)->rescaleAxes(true);
     ui->qcustomplot->addGraph();
-    ui->qcustomplot->graph(2)->setName("Total capital cost");
+    ui->qcustomplot->graph(2)->setName("Diverse total capital cost");
     ui->qcustomplot->graph(2)->setPen(QPen(Qt::darkCyan));
     ui->qcustomplot->graph(2)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
     ui->qcustomplot->graph(2)->setLineStyle(QCPGraph::lsLine);
     ui->qcustomplot->graph(2)->setData(VECDTMIN,VECCOSTOCAPITALTOTAL);
-    ui->qcustomplot->graph(2)->rescaleAxes();
-    ui->qcustomplot->graph(2)->rescaleAxes(true);
+    ui->qcustomplot->rescaleAxes(true);
     if(SI == true){
         ui->qcustomplot->xAxis->setLabel("DTMIN ªF");
         ui->qcustomplot->yAxis->setLabel("COSTOS US $ / YEAR");
@@ -3559,7 +3531,6 @@ void Summary::datapoints_HCC_estatico_both(double DTmin, double k, float punto1,
     Plot_curvascompuestas_diversa plot1(TS,TE,WCP,H,DTmin,k,punto1,punto2);
     CCENTALPIA = plot1.getCCENTALPIA();
     CCTEMPERATURAS = plot1.getCCTEMPERATURAS();
-//    double valuek = plot1.getK();
     CONTADORFILAS = CONTADORFILAS + CCENTALPIA.size();
     ui->tablewidget->setRowCount(CONTADORFILAS);
     for(int i = CONTADORFILAS - CCENTALPIA.size(); i < CONTADORFILAS; i++){
@@ -3803,7 +3774,7 @@ void Summary::datapoints_CurvasCompuestasAjustadas_estatico_uniforme(double DTmi
     ui->tablewidget->setRowCount(CONTADORFILAS);
     int row = ui->tablewidget->rowCount();
     for(int i = CONTADORFILAS - CCENTALPIA.size(); i < CONTADORFILAS; i++){
-        CONTADORROWS << "Hot curve with DTmin:" + QString::number(DTmin);
+        CONTADORROWS << "Uniform hot curve with DTmin:" + QString::number(DTmin);
     }
     ui->tablewidget->setVerticalHeaderLabels(CONTADORROWS);
     int j = 0;
@@ -3820,7 +3791,7 @@ void Summary::datapoints_CurvasCompuestasAjustadas_estatico_uniforme(double DTmi
     ui->tablewidget->setRowCount(CONTADORFILAS);
     row = ui->tablewidget->rowCount();
     for(int i = CONTADORFILAS - CFENTALPIAAJUSTADAS.size(); i < CONTADORFILAS; i++){
-        CONTADORROWS << "Cold curve with DTmin:" + QString::number(DTmin);
+        CONTADORROWS << "Uniform cold curve with DTmin:" + QString::number(DTmin);
     }
     ui->tablewidget->setVerticalHeaderLabels(CONTADORROWS);
     j = 0;
@@ -3850,7 +3821,7 @@ void Summary::datapoints_CurvasCompuestasAjustadas_incremento_uniforme(double MA
         ui->tablewidget->setRowCount(CONTADORFILAS);
         int row = ui->tablewidget->rowCount();
         for(int i = CONTADORFILAS - CCENTALPIA.size(); i < CONTADORFILAS; i++){
-            CONTADORROWS << "Hot curve with DTmin:" + QString::number(DTmin);
+            CONTADORROWS << "Uniform hot curve with DTmin:" + QString::number(DTmin);
         }
         ui->tablewidget->setVerticalHeaderLabels(CONTADORROWS);
         int j = 0;
@@ -3867,7 +3838,7 @@ void Summary::datapoints_CurvasCompuestasAjustadas_incremento_uniforme(double MA
         ui->tablewidget->setRowCount(CONTADORFILAS);
         row = ui->tablewidget->rowCount();
         for(int i = CONTADORFILAS - CFENTALPIAAJUSTADAS.size(); i < CONTADORFILAS; i++){
-            CONTADORROWS << "Cold curve with DTmin:" + QString::number(DTmin);
+            CONTADORROWS << "Uniform cold curve with DTmin:" + QString::number(DTmin);
         }
         ui->tablewidget->setVerticalHeaderLabels(CONTADORROWS);
         j = 0;
@@ -3897,7 +3868,7 @@ void Summary::datapoints_CurvasCompuestasAjustadas_estatico_diverso(double DTmin
     ui->tablewidget->setRowCount(CONTADORFILAS);
     int row = ui->tablewidget->rowCount();
     for(int i = CONTADORFILAS - CCENTALPIA.size(); i < CONTADORFILAS; i++){
-        CONTADORROWS << "Hot curve with DTmin" + QString::number(DTmin) + "& K:" + QString::number(valuek);
+        CONTADORROWS << "Diverse hot curve with DTmin" + QString::number(DTmin) + "& K:" + QString::number(valuek);
     }
     ui->tablewidget->setVerticalHeaderLabels(CONTADORROWS);
     int j = 0;
@@ -3914,7 +3885,7 @@ void Summary::datapoints_CurvasCompuestasAjustadas_estatico_diverso(double DTmin
     ui->tablewidget->setRowCount(CONTADORFILAS);
     row = ui->tablewidget->rowCount();
     for(int i = CONTADORFILAS - CFENTALPIAAJUSTADAS.size(); i < CONTADORFILAS; i++){
-        CONTADORROWS << "Cold curve with DTmin:" + QString::number(DTmin) + "& K:" + QString::number(valuek);
+        CONTADORROWS << "Diverse cold curve with DTmin:" + QString::number(DTmin) + "& K:" + QString::number(valuek);
     }
     ui->tablewidget->setVerticalHeaderLabels(CONTADORROWS);
     j = 0;
@@ -3945,7 +3916,7 @@ void Summary::datapoints_CurvasCompuestasAjustadas_incremento_diverso(double MIN
         ui->tablewidget->setRowCount(CONTADORFILAS);
         int row = ui->tablewidget->rowCount();
         for(int i = CONTADORFILAS - CCENTALPIA.size(); i < CONTADORFILAS; i++){
-            CONTADORROWS << "Hot curve with DTmin" + QString::number(DTmin) + "& K:" + QString::number(valuek);
+            CONTADORROWS << "Diverse hot curve with DTmin" + QString::number(DTmin) + "& K:" + QString::number(valuek);
         }
         ui->tablewidget->setVerticalHeaderLabels(CONTADORROWS);
         int j = 0;
@@ -3962,7 +3933,7 @@ void Summary::datapoints_CurvasCompuestasAjustadas_incremento_diverso(double MIN
         ui->tablewidget->setRowCount(CONTADORFILAS);
         row = ui->tablewidget->rowCount();
         for(int i = CONTADORFILAS - CFENTALPIAAJUSTADAS.size(); i < CONTADORFILAS; i++){
-            CONTADORROWS << "Cold curve with DTmin:" + QString::number(DTmin) + "& K:" + QString::number(valuek);
+            CONTADORROWS << "Diverse cold curve with DTmin:" + QString::number(DTmin) + "& K:" + QString::number(valuek);
         }
         ui->tablewidget->setVerticalHeaderLabels(CONTADORROWS);
         j = 0;
@@ -4159,7 +4130,7 @@ void Summary::datapoints_GranCurvaCompuesta_estatico_uniforme(double DTmin)
     ui->tablewidget->setRowCount(CONTADORFILAS);
     int row = ui->tablewidget->rowCount();
     for(int i = CONTADORFILAS - GCENTALPIA.size(); i < CONTADORFILAS; i++){
-        CONTADORROWS << "Grand compositive curve with DTmin:" + QString::number(DTmin);
+        CONTADORROWS << "Uniform grand compositive curve with DTmin:" + QString::number(DTmin);
     }
     ui->tablewidget->setVerticalHeaderLabels(CONTADORROWS);
     int j = 0;
@@ -4189,7 +4160,7 @@ void Summary::datapoints_GranCurvaCompuesta_incremento_uniforme(double MAX, doub
         ui->tablewidget->setRowCount(CONTADORFILAS);
         int row = ui->tablewidget->rowCount();
         for(int i = CONTADORFILAS - GCENTALPIA.size(); i < CONTADORFILAS; i++){
-            CONTADORROWS << "Grand compositive curve with DTmin:" + QString::number(DTmin);
+            CONTADORROWS << "Uniform grand compositive curve with DTmin:" + QString::number(DTmin);
         }
         ui->tablewidget->setVerticalHeaderLabels(CONTADORROWS);
         int j = 0;
@@ -4219,7 +4190,7 @@ void Summary::datapoints_GranCurvaCompuesta_estatico_diverso(double DTmin, doubl
     ui->tablewidget->setRowCount(CONTADORFILAS);
     int row = ui->tablewidget->rowCount();
     for(int i = CONTADORFILAS - GCENTALPIA.size(); i < CONTADORFILAS; i++){
-        CONTADORROWS << "Grand compositive curve with DTmin:" + QString::number(DTmin) + "& K:" + QString::number(valuek);
+        CONTADORROWS << "Diverse grand compositive curve with DTmin:" + QString::number(DTmin) + "& K:" + QString::number(valuek);
     }
     ui->tablewidget->setVerticalHeaderLabels(CONTADORROWS);
     int j = 0;
@@ -4250,7 +4221,7 @@ void Summary::datapoints_GranCurvaCompuestas_incremento_diverso(double MIN, doub
         ui->tablewidget->setRowCount(CONTADORFILAS);
         int row = ui->tablewidget->rowCount();
         for(int i = CONTADORFILAS - GCENTALPIA.size(); i < CONTADORFILAS; i++){
-            CONTADORROWS << "Grand compositive curve with DTmin:" + QString::number(DTmin) + "& K:" + QString::number(valuek);
+            CONTADORROWS << "Diverse grand compositive curve with DTmin:" + QString::number(DTmin) + "& K:" + QString::number(valuek);
         }
         ui->tablewidget->setVerticalHeaderLabels(CONTADORROWS);
         int j = 0;
@@ -4370,7 +4341,7 @@ void Summary::datapoints_GranCurvaCompuesta_incremento_both(double MIN, double M
 void Summary::datapoints_Areas_uniforme(double MIN, double MAX, double INC)
 {
     QStringList Headers;
-    Headers << "Total area" << "DTmin" ;
+    Headers << "Uniform total area" << "DTmin" ;
     ui->tablewidget->setColumnCount(2);
     ui->tablewidget->setHorizontalHeaderLabels(Headers);
     double Iteraciones =(MAX-MIN)/INC;
@@ -4393,6 +4364,10 @@ void Summary::datapoints_Areas_uniforme(double MIN, double MAX, double INC)
     }
     CONTADORFILAS = CONTADORFILAS +  AREAS.size();
     ui->tablewidget->setRowCount(CONTADORFILAS);
+    for(int i = CONTADORFILAS - AREAS.size(); i < CONTADORFILAS; i++){
+        CONTADORROWS << "Uniform area vs DTmin";
+    }
+    ui->tablewidget->setVerticalHeaderLabels(CONTADORROWS);
     int j = 0;
     int row = ui->tablewidget->rowCount();
     double val1,val2;
@@ -4403,22 +4378,20 @@ void Summary::datapoints_Areas_uniforme(double MIN, double MAX, double INC)
         ui->tablewidget->setItem(i,1, new QTableWidgetItem(QString::number(val2)));
         j++;
     }
-
-
-
 }
 
 void Summary::datapoints_Areas_diverso(double MIN, double MAX, double INC, double k, float punto1, float punto2)
 {
     QStringList Headers;
-    Headers << "Total area" << "DTmin" ;
-    ui->tablewidget->setColumnCount(2);
+    Headers << "Diverse total area" << "K" << "DTmin" ;
+    ui->tablewidget->setColumnCount(3);
     ui->tablewidget->setHorizontalHeaderLabels(Headers);
     double Iteraciones =(MAX-MIN)/INC;
     double DTmin = MIN;
-    QVector<double> AREAS,DTMIN;
+    QVector<double> AREAS,DTMIN,DVECK;
     AREAS.resize(Iteraciones+1);
     DTMIN.resize(Iteraciones+1);
+    DVECK.resize(Iteraciones+1);
     int l = 0;
     for(int i = 0; i < (Iteraciones+1) ; i++){
         Plot_Dtmin_vs_Areas_DIVERSO plot3(TS,TE,WCP,H,Calentamiento,Enfriamento,
@@ -4429,6 +4402,7 @@ void Summary::datapoints_Areas_diverso(double MIN, double MAX, double INC, doubl
         }else{
             AREAS[l] = AREA;
             DTMIN[l] = DTmin;
+            DVECK[l] = plot3.getK();
             l++;
         }
         DTmin = DTmin + INC;
@@ -4437,14 +4411,20 @@ void Summary::datapoints_Areas_diverso(double MIN, double MAX, double INC, doubl
     }
     CONTADORFILAS = CONTADORFILAS +  AREAS.size();
     ui->tablewidget->setRowCount(CONTADORFILAS);
+    for(int i = CONTADORFILAS - AREAS.size(); i < CONTADORFILAS; i++){
+        CONTADORROWS << "Diverse area vs DTmin";
+    }
+    ui->tablewidget->setVerticalHeaderLabels(CONTADORROWS);
     int j = 0;
     int row = ui->tablewidget->rowCount();
-    double val1,val2;
+    double val1,val2,val3;
     for(int i = CONTADORFILAS - AREAS.size() ; i < row ; i++){
         val1 = AREAS[j];
-        val2 = DTMIN[j];
+        val2 = DVECK[j];
+        val3 = DTMIN[j];
         ui->tablewidget->setItem(i,0, new QTableWidgetItem(QString::number(val1)));
         ui->tablewidget->setItem(i,1, new QTableWidgetItem(QString::number(val2)));
+        ui->tablewidget->setItem(i,2, new QTableWidgetItem(QString::number(val3)));
         j++;
     }
 }
@@ -4452,16 +4432,17 @@ void Summary::datapoints_Areas_diverso(double MIN, double MAX, double INC, doubl
 void Summary::datapoints_Areas_both(double MIN, double MAX, double INC, double k, float punto1, float punto2)
 {
     QStringList Headers;
-    Headers << "Uniform total area" << "Diverse total area" << "DTmin" ;
-    ui->tablewidget->setColumnCount(3);
+    Headers << "Uniform total area" << "Diverse total area" << "K" << "DTmin" ;
+    ui->tablewidget->setColumnCount(4);
     ui->tablewidget->setHorizontalHeaderLabels(Headers);
     double Iteraciones =(MAX-MIN)/INC;
     QVector<double> UAREAS,DAREAS;
-    QVector<double> UDTMIN,DDTMIN;
+    QVector<double> UDTMIN,DDTMIN,DVECK;
     UAREAS.resize(Iteraciones+1);
     DAREAS.resize(Iteraciones+1);
     UDTMIN.resize(Iteraciones+1);
     DDTMIN.resize(Iteraciones+1);
+    DVECK.resize(Iteraciones+1);
     double DTmin = MIN;
     int u = 0 , d = 0;
     for(int i = 0; i < (Iteraciones+1) ; i++){
@@ -4482,6 +4463,7 @@ void Summary::datapoints_Areas_both(double MIN, double MAX, double INC, double k
         }else{
             DAREAS[d] = DAREA;
             DDTMIN[d] = DTmin;
+            DVECK[d] = plot4.getK();
             d++;
         }
         DTmin = DTmin + INC;
@@ -4490,16 +4472,22 @@ void Summary::datapoints_Areas_both(double MIN, double MAX, double INC, double k
     }
     CONTADORFILAS = CONTADORFILAS +  UAREAS.size();
     ui->tablewidget->setRowCount(CONTADORFILAS);
+    for(int i = CONTADORFILAS - UAREAS.size(); i < CONTADORFILAS; i++){
+        CONTADORROWS << "Uniform and diverse area vs DTmin";
+    }
+    ui->tablewidget->setVerticalHeaderLabels(CONTADORROWS);
     int j = 0;
     int row = ui->tablewidget->rowCount();
-    double val1,val2,val3;
+    double val1,val2,val3,val4;
     for(int i = CONTADORFILAS - UAREAS.size() ; i < row ; i++){
         val1 = UAREAS[j];
         val2 = DAREAS[j];
-        val3 = UDTMIN[j];
+        val3 = DVECK[j];
+        val4 = UDTMIN[j];
         ui->tablewidget->setItem(i,0, new QTableWidgetItem(QString::number(val1)));
         ui->tablewidget->setItem(i,1, new QTableWidgetItem(QString::number(val2)));
         ui->tablewidget->setItem(i,2, new QTableWidgetItem(QString::number(val3)));
+        ui->tablewidget->setItem(i,3, new QTableWidgetItem(QString::number(val4)));
         j++;
     }
 }
@@ -4507,8 +4495,8 @@ void Summary::datapoints_Areas_both(double MIN, double MAX, double INC, double k
 void Summary::datapoints_Costos_uniforme(double MIN, double MAX, double INC)
 {
     QStringList Headers;
-    Headers << "Total capital cost" << "Total operation cost" << "Total cost " << "DTmin" ;
-    ui->tablewidget->setColumnCount(2);
+    Headers << "Unifom total capital cost" << "Unifom total operation cost" << "Unifom total cost " << "DTmin" ;
+    ui->tablewidget->setColumnCount(4);
     ui->tablewidget->setHorizontalHeaderLabels(Headers);
     double Iteraciones =(MAX-MIN)/INC;
     double DTmin = MIN;
@@ -4537,6 +4525,10 @@ void Summary::datapoints_Costos_uniforme(double MIN, double MAX, double INC)
     }
     CONTADORFILAS = CONTADORFILAS +  VECCOSTOTOTAL.size();
     ui->tablewidget->setRowCount(CONTADORFILAS);
+    for(int i = CONTADORFILAS - VECCOSTOTOTAL.size(); i < CONTADORFILAS; i++){
+        CONTADORROWS << "Uniform cost vs DTmin";
+    }
+    ui->tablewidget->setVerticalHeaderLabels(CONTADORROWS);
     int j = 0;
     int row = ui->tablewidget->rowCount();
     double val1,val2,val3,val4;
@@ -4556,8 +4548,8 @@ void Summary::datapoints_Costos_uniforme(double MIN, double MAX, double INC)
 void Summary::datapoints_Costos_diverso(double MIN, double MAX, double INC, double k, float punto1, float punto2)
 {
     QStringList Headers;
-    Headers << "Total capital cost" << "Total operation cost" << "Total cost " << "DTmin" ;
-    ui->tablewidget->setColumnCount(2);
+    Headers << "Diverse total capital cost" << "Diverse total operation cost" << "Diverse total cost "<< "K" << "DTmin" ;
+    ui->tablewidget->setColumnCount(5);
     ui->tablewidget->setHorizontalHeaderLabels(Headers);
     double Iteraciones =(MAX-MIN)/INC;
     double DTmin = MIN;
@@ -4591,6 +4583,10 @@ void Summary::datapoints_Costos_diverso(double MIN, double MAX, double INC, doub
     }
     CONTADORFILAS = CONTADORFILAS +  VECCOSTOTOTAL.size();
     ui->tablewidget->setRowCount(CONTADORFILAS);
+    for(int i = CONTADORFILAS - VECCOSTOTOTAL.size(); i < CONTADORFILAS; i++){
+        CONTADORROWS << "Diverse cost vs DTmin";
+    }
+    ui->tablewidget->setVerticalHeaderLabels(CONTADORROWS);
     int j = 0;
     int row = ui->tablewidget->rowCount();
     double val1,val2,val3,val4,val5;
@@ -4598,8 +4594,8 @@ void Summary::datapoints_Costos_diverso(double MIN, double MAX, double INC, doub
         val1 = VECCOSTOCAPITALTOTAL[j];
         val2 = VECCOSTOOPERACIONTOTAL[j];
         val3 = VECCOSTOTOTAL[j];
-        val4 = VECDTMIN[j];
-        val5 = VECK[j];
+        val4 = VECK[j];
+        val5 = VECDTMIN[j];
         ui->tablewidget->setItem(i,0, new QTableWidgetItem(QString::number(val1)));
         ui->tablewidget->setItem(i,1, new QTableWidgetItem(QString::number(val2)));
         ui->tablewidget->setItem(i,2, new QTableWidgetItem(QString::number(val3)));
@@ -4612,8 +4608,9 @@ void Summary::datapoints_Costos_diverso(double MIN, double MAX, double INC, doub
 void Summary::datapoints_Costos_both(double MIN, double MAX, double INC, double k, float punto1, float punto2)
 {
     QStringList Headers;
-    Headers << "Total capital cost" << "Total operation cost" << "Total cost " << "DTmin" ;
-    ui->tablewidget->setColumnCount(2);
+    Headers << "Unifom total capital cost" << "Unifom total operation cost" << "Unifom total cost "
+            << "Diverse total capital cost" << "Diverse total operation cost" << "Diverse total cost " << " K "<< "DTmin" ;
+    ui->tablewidget->setColumnCount(8);
     ui->tablewidget->setHorizontalHeaderLabels(Headers);
     double Iteraciones =(MAX-MIN)/INC;
     double DTmin = MIN;
@@ -4666,6 +4663,10 @@ void Summary::datapoints_Costos_both(double MIN, double MAX, double INC, double 
     }
     CONTADORFILAS = CONTADORFILAS +  UVECCOSTOTOTAL.size();
     ui->tablewidget->setRowCount(CONTADORFILAS);
+    for(int i = CONTADORFILAS - UVECCOSTOTOTAL.size(); i < CONTADORFILAS; i++){
+        CONTADORROWS << "Uniform and diverse cost vs DTmin";
+    }
+    ui->tablewidget->setVerticalHeaderLabels(CONTADORROWS);
     int j = 0;
     int row = ui->tablewidget->rowCount();
     double val1,val2,val3,val4,val5,val6,val7,val8;
@@ -5355,18 +5356,179 @@ void Summary::on_pushButton_clicked()
                         text.append("</body></html>");
                     }
                 }
-            }else if(item_select == "Agglomerates" || item_select == "Capital cost" || item_select == "Operational cost" || item_select =="Total cost"){
+            }else if(item_select == "Cost prediction" || item_select == "Agglomerates" || item_select == "Capital cost" || item_select == "Operational cost" || item_select =="Total cost"){
                 if(TabAnali == 0 || TabAnali == 1){
                     if(estatico == true){
-
+                        CONTADORBOTH = 0;
+                        QString  row    = ui->tablewidget->verticalHeaderItem(0)->text();
+                        QString  titulo = espaceadorcalculos(item_select,row,CONTADORBOTH);
+                        text.append("<p>").append( titulo ).append("</p>");
+                        text.append("<p>").append(" ").append("</p>");
+                        text.append("<table><tbody>");
+                        text.append("<tr>");
+                        for (int i = 0; i < ui->tablewidget->columnCount(); i++) {
+                            text.append("<td>").append("        " + ui->tablewidget->horizontalHeaderItem(i)->data(Qt::DisplayRole).toString() + "        ").append("</td>");
+                        }
+                        text.append("</tr>");
+                        for (int i = 0; i < ui->tablewidget->rowCount(); i++) {
+                            text.append("<tr>");
+                            for (int j = 0; j < ui->tablewidget->columnCount(); j++) {
+                                QTableWidgetItem *item = ui->tablewidget->item(i, j);
+                                if (!item || item->text().isEmpty()) {
+                                    ui->tablewidget->setItem(i, j, new QTableWidgetItem("0"));
+                                }
+                                text.append("<td>").append("        "+ui->tablewidget->item(i, j)->text()+"        ").append("</td>");
+                            }
+                            text.append("</tr>");
+                        }
+                        QStringList Unidades;
+                        Unidades = unidadestablas(item_select);
+                        text.append("<tr>");
+                        for( int i = 0; i < ui->tablewidget->columnCount(); i++){
+                            text.append("<td>").append("        "+ Unidades[i]  +"        ").append("</td>");
+                        }
+                        text.append("</tr>");
+                        text.append("</tbody></table>");
+                        text.append("</body></html>");
                     }else if(incremento == true){
-
+                        int Iteraciones = (Max-Min)/Inc;
+                        CONTADORFILAS = 0;
+                        CONTADORBOTH = 0;
+                        QString row1,row2,row,titulo;
+                        for(int j = 0 ; j <  Iteraciones+1 ;j++){
+                            row    = ui->tablewidget->verticalHeaderItem(CONTADORFILAS)->text();
+                            titulo = espaceadorcalculos(item_select,row,CONTADORBOTH);
+                            text.append("<p>").append(titulo).append("</p>");
+                            text.append("<p>").append(" ").append("</p>");
+                            text.append("<table><tbody>");
+                            text.append("<tr>"); //abre
+                            for (int i = 0; i < ui->tablewidget->columnCount(); i++) {
+                                text.append("<td>").append("        " + ui->tablewidget->horizontalHeaderItem(i)->data(Qt::DisplayRole).toString() + "        ").append("</td>");
+                            }
+                            text.append("</tr>"); // ciertta
+                            for (int i = CONTADORFILAS; i < ui->tablewidget->rowCount(); i++) {
+                                text.append("<tr>");
+                                CONTADORFILAS = CONTADORFILAS + 1;
+                                for (int j = 0; j < ui->tablewidget->columnCount(); j++) {
+                                    QTableWidgetItem *item = ui->tablewidget->item(i, j);
+                                    if (!item || item->text().isEmpty()) {
+                                        ui->tablewidget->setItem(i, j, new QTableWidgetItem("0"));
+                                    }
+                                    text.append("<td>").append("        "+ui->tablewidget->item(i, j)->text()+"        ").append("</td>");
+                                }
+                                text.append("</tr>");
+                                if(i < ui->tablewidget->rowCount() - 2){
+                                    row1 = ui->tablewidget->verticalHeaderItem(i)->text();
+                                    row2 = ui->tablewidget->verticalHeaderItem(i+1)->text();
+                                    if(compararrows(row1,row2) == true){ // son diferentes
+                                        break;
+                                    }
+                                }
+                            }
+                            QStringList Unidades;
+                            Unidades = unidadestablas(item_select);
+                            text.append("<tr>");
+                            for( int i = 0; i < ui->tablewidget->columnCount(); i++){
+                                text.append("<td>").append("        "+ Unidades[i]  +"        ").append("</td>");
+                            }
+                            text.append("</tr>");
+                            text.append("</tbody></table>");
+                        }
+                        text.append("</body></html>");
                     }
                 }else if(TabAnali == 2){
                     if(estatico == true){
-
+                        int Iteraciones = 2;
+                        CONTADORFILAS = 0;
+                        CONTADORBOTH = 0;
+                        QString row1,row2,row,titulo;
+                        for(int j = 0 ; j <  Iteraciones ;j++){
+                            row    = ui->tablewidget->verticalHeaderItem(CONTADORFILAS)->text();
+                            titulo = espaceadorcalculos(item_select,row,CONTADORBOTH);
+                            text.append("<p>").append(titulo).append("</p>");
+                            text.append("<p>").append(" ").append("</p>");
+                            text.append("<table><tbody>");
+                            text.append("<tr>"); //abre
+                            for (int i = 0; i < ui->tablewidget->columnCount(); i++) {
+                                text.append("<td>").append("        " + ui->tablewidget->horizontalHeaderItem(i)->data(Qt::DisplayRole).toString() + "        ").append("</td>");
+                            }
+                            text.append("</tr>"); // ciertta
+                            for (int i = CONTADORFILAS; i < ui->tablewidget->rowCount(); i++) {
+                                text.append("<tr>");
+                                CONTADORFILAS = CONTADORFILAS + 1;
+                                for (int j = 0; j < ui->tablewidget->columnCount(); j++) {
+                                    QTableWidgetItem *item = ui->tablewidget->item(i, j);
+                                    if (!item || item->text().isEmpty()) {
+                                        ui->tablewidget->setItem(i, j, new QTableWidgetItem("0"));
+                                    }
+                                    text.append("<td>").append("        "+ui->tablewidget->item(i, j)->text()+"        ").append("</td>");
+                                }
+                                text.append("</tr>");
+                                if(i < ui->tablewidget->rowCount() - 2){
+                                    row1 = ui->tablewidget->verticalHeaderItem(i)->text();
+                                    row2 = ui->tablewidget->verticalHeaderItem(i+1)->text();
+                                    if(compararrows(row1,row2) == true){ // son diferentes
+                                        CONTADORBOTH = CONTADORBOTH + 1;
+                                        break;
+                                    }
+                                }
+                            }
+                            QStringList Unidades;
+                            Unidades = unidadestablas(item_select);
+                            text.append("<tr>");
+                            for( int i = 0; i < ui->tablewidget->columnCount(); i++){
+                                text.append("<td>").append("        "+ Unidades[i]  +"        ").append("</td>");
+                            }
+                            text.append("</tr>");
+                            text.append("</tbody></table>");
+                        }
+                        text.append("</body></html>");
                     }else if(incremento == true){
-
+                        int Iteraciones = (((Max-Min)/Inc)  + 1)*2;
+                        CONTADORFILAS = 0;
+                        CONTADORBOTH = 0;
+                        QString row1,row2,row,titulo;
+                        for(int j = 0 ; j <  Iteraciones ;j++){
+                            row    = ui->tablewidget->verticalHeaderItem(CONTADORFILAS)->text();
+                            titulo = espaceadorcalculos(item_select,row,CONTADORBOTH);
+                            text.append("<p>").append(titulo).append("</p>");
+                            text.append("<p>").append(" ").append("</p>");
+                            text.append("<table><tbody>");
+                            text.append("<tr>"); //abre
+                            for (int i = 0; i < ui->tablewidget->columnCount(); i++) {
+                                text.append("<td>").append("        " + ui->tablewidget->horizontalHeaderItem(i)->data(Qt::DisplayRole).toString() + "        ").append("</td>");
+                            }
+                            text.append("</tr>"); // ciertta
+                            for (int i = CONTADORFILAS; i < ui->tablewidget->rowCount(); i++) {
+                                text.append("<tr>");
+                                CONTADORFILAS = CONTADORFILAS + 1;
+                                for (int j = 0; j < ui->tablewidget->columnCount(); j++) {
+                                    QTableWidgetItem *item = ui->tablewidget->item(i, j);
+                                    if (!item || item->text().isEmpty()) {
+                                        ui->tablewidget->setItem(i, j, new QTableWidgetItem("0"));
+                                    }
+                                    text.append("<td>").append("        "+ui->tablewidget->item(i, j)->text()+"        ").append("</td>");
+                                }
+                                text.append("</tr>");
+                                if(i < ui->tablewidget->rowCount() - 2){
+                                    row1 = ui->tablewidget->verticalHeaderItem(i)->text();
+                                    row2 = ui->tablewidget->verticalHeaderItem(i+1)->text();
+                                    if(compararrows(row1,row2) == true){ // son diferentes
+                                        CONTADORBOTH = CONTADORBOTH + 1;
+                                        break;
+                                    }
+                                }
+                            }
+                            QStringList Unidades;
+                            Unidades = unidadestablas(item_select);
+                            text.append("<tr>");
+                            for( int i = 0; i < ui->tablewidget->columnCount(); i++){
+                                text.append("<td>").append("        "+ Unidades[i]  +"        ").append("</td>");
+                            }
+                            text.append("</tr>");
+                            text.append("</tbody></table>");
+                        }
+                        text.append("</body></html>");
                     }
                 }
             }else if(item_select == "Data points"){
@@ -5991,9 +6153,241 @@ void Summary::on_pushButton_clicked()
                         }
                     }
                 }else if(item_select_datapoint == "Areas vs DTmin"){
-
+                    if(TabAnali == 0 || TabAnali == 1 ){
+                        int Iteraciones = 1;
+                        CONTADORFILAS = 0;
+                        CONTADORBOTH = 0;
+                        QString row1,row2,row,titulo;
+                        for(int j = 0 ; j <  Iteraciones;j++){
+                            row    = ui->tablewidget->verticalHeaderItem(CONTADORFILAS)->text();
+                            titulo = espaceadorcalculos(item_select,row,CONTADORBOTH);
+                            text.append("<p>").append(titulo).append("</p>");
+                            text.append("<p>").append(" ").append("</p>");
+                            text.append("<table><tbody>");
+                            text.append("<tr>"); //abre
+                            for (int i = 0; i < ui->tablewidget->columnCount(); i++) {
+                                text.append("<td>").append("        " + ui->tablewidget->horizontalHeaderItem(i)->data(Qt::DisplayRole).toString() + "        ").append("</td>");
+                            }
+                            text.append("</tr>"); // ciertta
+                            for (int i = CONTADORFILAS; i < ui->tablewidget->rowCount(); i++) {
+                                text.append("<tr>");
+                                CONTADORFILAS = CONTADORFILAS + 1;
+                                for (int j = 0; j < ui->tablewidget->columnCount(); j++) {
+                                    QTableWidgetItem *item = ui->tablewidget->item(i, j);
+                                    if (!item || item->text().isEmpty()) {
+                                        ui->tablewidget->setItem(i, j, new QTableWidgetItem("0"));
+                                    }
+                                    text.append("<td>").append("        "+ui->tablewidget->item(i, j)->text()+"        ").append("</td>");
+                                }
+                                text.append("</tr>");
+                                if(i < ui->tablewidget->rowCount() - 2){
+                                    row1 = ui->tablewidget->verticalHeaderItem(i)->text();
+                                    row2 = ui->tablewidget->verticalHeaderItem(i+1)->text();
+                                    if(compararrows(row1,row2) == true){ // son diferentes
+                                        CONTADORBOTH = CONTADORBOTH + 1;
+                                        break;
+                                    }
+                                }
+                            }
+                            QStringList Unidades;
+                            Unidades = unidadestablas(item_select);
+                            text.append("<tr>");
+                            for( int i = 0; i < ui->tablewidget->columnCount(); i++){
+                                text.append("<td>").append("        "+ Unidades[i]  +"        ").append("</td>");
+                            }
+                            text.append("</tr>");
+                            text.append("</tbody></table>");
+                        }
+                        text.append("</body></html>");
+                    }else if(TabAnali == 2){
+                        int Iteraciones = 1 ; //( ( (Max-Min)/Inc)  + 1 )*2;
+                        CONTADORFILAS = 0;
+                        CONTADORBOTH = 0;
+                        QString row1,row2,row,titulo;
+                        for(int j = 0 ; j <  Iteraciones;j++){
+                            row    = ui->tablewidget->verticalHeaderItem(CONTADORFILAS)->text();
+                            titulo = espaceadorcalculos(item_select,row,CONTADORBOTH);
+                            text.append("<p>").append(titulo).append("</p>");
+                            text.append("<p>").append(" ").append("</p>");
+                            text.append("<table><tbody>");
+                            text.append("<tr>"); //abre
+                            for (int i = 0; i < ui->tablewidget->columnCount(); i++) {
+                                text.append("<td>").append("        " + ui->tablewidget->horizontalHeaderItem(i)->data(Qt::DisplayRole).toString() + "        ").append("</td>");
+                            }
+                            text.append("</tr>"); // ciertta
+                            for (int i = CONTADORFILAS; i < ui->tablewidget->rowCount(); i++) {
+                                text.append("<tr>");
+                                CONTADORFILAS = CONTADORFILAS + 1;
+                                for (int j = 0; j < ui->tablewidget->columnCount(); j++) {
+                                    QTableWidgetItem *item = ui->tablewidget->item(i, j);
+                                    if (!item || item->text().isEmpty()) {
+                                        ui->tablewidget->setItem(i, j, new QTableWidgetItem("0"));
+                                    }
+                                    text.append("<td>").append("        "+ui->tablewidget->item(i, j)->text()+"        ").append("</td>");
+                                }
+                                text.append("</tr>");
+                                if(i < ui->tablewidget->rowCount() - 2){
+                                    row1 = ui->tablewidget->verticalHeaderItem(i)->text();
+                                    row2 = ui->tablewidget->verticalHeaderItem(i+1)->text();
+                                    if(compararrows(row1,row2) == true){ // son diferentes
+                                        CONTADORBOTH = CONTADORBOTH + 1;
+                                        break;
+                                    }
+                                }
+                            }
+                            QStringList Unidades;
+                            Unidades = unidadestablas(item_select);
+                            text.append("<tr>");
+                            for( int i = 0; i < ui->tablewidget->columnCount(); i++){
+                                text.append("<td>").append("        "+ Unidades[i]  +"        ").append("</td>");
+                            }
+                            text.append("</tr>");
+                            text.append("</tbody></table>");
+                        }
+                        text.append("</body></html>");
+                    }
                 }else if(item_select_datapoint == "Cost vs DTmin"){
-
+                    if(TabAnali == 0 || TabAnali == 1 ){
+                        int Iteraciones = 1;
+                        CONTADORFILAS = 0;
+                        CONTADORBOTH = 0;
+                        QString row1,row2,row,titulo;
+                        for(int j = 0 ; j <  Iteraciones ;j++){
+                            row    = ui->tablewidget->verticalHeaderItem(CONTADORFILAS)->text();
+                            titulo = espaceadorcalculos(item_select,row,CONTADORBOTH);
+                            text.append("<p>").append(titulo).append("</p>");
+                            text.append("<p>").append(" ").append("</p>");
+                            text.append("<table><tbody>");
+                            text.append("<tr>"); //abre
+                            for (int i = 0; i < ui->tablewidget->columnCount(); i++) {
+                                text.append("<td>").append("        " + ui->tablewidget->horizontalHeaderItem(i)->data(Qt::DisplayRole).toString() + "        ").append("</td>");
+                            }
+                            text.append("</tr>"); // ciertta
+                            for (int i = CONTADORFILAS; i < ui->tablewidget->rowCount(); i++) {
+                                text.append("<tr>");
+                                CONTADORFILAS = CONTADORFILAS + 1;
+                                for (int j = 0; j < ui->tablewidget->columnCount(); j++) {
+                                    QTableWidgetItem *item = ui->tablewidget->item(i, j);
+                                    if (!item || item->text().isEmpty()) {
+                                        ui->tablewidget->setItem(i, j, new QTableWidgetItem("0"));
+                                    }
+                                    text.append("<td>").append("        "+ui->tablewidget->item(i, j)->text()+"        ").append("</td>");
+                                }
+                                text.append("</tr>");
+                                if(i < ui->tablewidget->rowCount() - 2){
+                                    row1 = ui->tablewidget->verticalHeaderItem(i)->text();
+                                    row2 = ui->tablewidget->verticalHeaderItem(i+1)->text();
+                                    if(compararrows(row1,row2) == true){ // son diferentes
+                                        CONTADORBOTH = CONTADORBOTH + 1;
+                                        break;
+                                    }
+                                }
+                            }
+                            QStringList Unidades;
+                            Unidades = unidadestablas(item_select);
+                            text.append("<tr>");
+                            for( int i = 0; i < ui->tablewidget->columnCount(); i++){
+                                text.append("<td>").append("        "+ Unidades[i]  +"        ").append("</td>");
+                            }
+                            text.append("</tr>");
+                            text.append("</tbody></table>");
+                        }
+                        text.append("</body></html>");
+                    }else if(TabAnali == 2){
+                        if(estatico == true){
+                            int Iteraciones = 1 ; //( ( (Max-Min)/Inc)  + 1 )*2;
+                            CONTADORFILAS = 0;
+                            CONTADORBOTH = 0;
+                            QString row1,row2,row,titulo;
+                            for(int j = 0 ; j <  Iteraciones;j++){
+                                row    = ui->tablewidget->verticalHeaderItem(CONTADORFILAS)->text();
+                                titulo = espaceadorcalculos(item_select,row,CONTADORBOTH);
+                                text.append("<p>").append(titulo).append("</p>");
+                                text.append("<p>").append(" ").append("</p>");
+                                text.append("<table><tbody>");
+                                text.append("<tr>"); //abre
+                                for (int i = 0; i < ui->tablewidget->columnCount(); i++) {
+                                    text.append("<td>").append("        " + ui->tablewidget->horizontalHeaderItem(i)->data(Qt::DisplayRole).toString() + "        ").append("</td>");
+                                }
+                                text.append("</tr>"); // ciertta
+                                for (int i = CONTADORFILAS; i < ui->tablewidget->rowCount(); i++) {
+                                    text.append("<tr>");
+                                    CONTADORFILAS = CONTADORFILAS + 1;
+                                    for (int j = 0; j < ui->tablewidget->columnCount(); j++) {
+                                        QTableWidgetItem *item = ui->tablewidget->item(i, j);
+                                        if (!item || item->text().isEmpty()) {
+                                            ui->tablewidget->setItem(i, j, new QTableWidgetItem("0"));
+                                        }
+                                        text.append("<td>").append("        "+ui->tablewidget->item(i, j)->text()+"        ").append("</td>");
+                                    }
+                                    text.append("</tr>");
+                                    if(i < ui->tablewidget->rowCount() - 2){
+                                        row1 = ui->tablewidget->verticalHeaderItem(i)->text();
+                                        row2 = ui->tablewidget->verticalHeaderItem(i+1)->text();
+                                        if(compararrows(row1,row2) == true){ // son diferentes
+                                            CONTADORBOTH = CONTADORBOTH + 1;
+                                            break;
+                                        }
+                                    }
+                                }
+                                QStringList Unidades;
+                                Unidades = unidadestablas(item_select);
+                                text.append("<tr>");
+                                for( int i = 0; i < ui->tablewidget->columnCount(); i++){
+                                    text.append("<td>").append("        "+ Unidades[i]  +"        ").append("</td>");
+                                }
+                                text.append("</tr>");
+                                text.append("</tbody></table>");
+                            }
+                            text.append("</body></html>");
+                        }else if(incremento == true){
+                            int Iteraciones = 1;
+                            CONTADORFILAS = 0;
+                            CONTADORBOTH = 0;
+                            QString row1,row2,row,titulo;
+                            for(int j = 0 ; j <  Iteraciones;j++){
+                                row    = ui->tablewidget->verticalHeaderItem(CONTADORFILAS)->text();
+                                titulo = espaceadorcalculos(item_select,row,CONTADORBOTH);
+                                text.append("<p>").append(titulo).append("</p>");
+                                text.append("<p>").append(" ").append("</p>");
+                                text.append("<table><tbody>");
+                                text.append("<tr>"); //abre
+                                for (int i = 0; i < ui->tablewidget->columnCount(); i++) {
+                                    text.append("<td>").append("        " + ui->tablewidget->horizontalHeaderItem(i)->data(Qt::DisplayRole).toString() + "        ").append("</td>");
+                                }
+                                text.append("</tr>"); // ciertta
+                                for (int i = CONTADORFILAS; i < ui->tablewidget->rowCount(); i++) {
+                                    text.append("<tr>");
+                                    CONTADORFILAS = CONTADORFILAS + 1;
+                                    for (int j = 0; j < ui->tablewidget->columnCount(); j++) {
+                                        QTableWidgetItem *item = ui->tablewidget->item(i, j);
+                                        if (!item || item->text().isEmpty()) {
+                                            ui->tablewidget->setItem(i, j, new QTableWidgetItem("0"));
+                                        }
+                                        text.append("<td>").append("        "+ui->tablewidget->item(i, j)->text()+"        ").append("</td>");
+                                    }
+                                    text.append("</tr>");
+                                    if(i < ui->tablewidget->rowCount() - 2){
+                                        row1 = ui->tablewidget->verticalHeaderItem(i)->text();
+                                        row2 = ui->tablewidget->verticalHeaderItem(i+1)->text();
+                                        if(compararrows(row1,row2) == true){ // son diferentes
+                                            CONTADORBOTH = CONTADORBOTH + 1;
+                                            break;
+                                        }
+                                    }
+                                }
+                                QStringList Unidades;
+                                Unidades = unidadestablas(item_select);
+                                text.append("<tr>");
+                                for( int i = 0; i < ui->tablewidget->columnCount(); i++){
+                                    text.append("<td>").append("        "+ Unidades[i]  +"        ").append("</td>");
+                                }
+                                text.append("</tr>");
+                                text.append("</tbody></table>");
+                            }
+                            text.append("</body></html>");
+                        }
+                    }
                 }
             }
         }
@@ -6037,7 +6431,7 @@ QString Summary::espaceadorcalculos(QString text,QString row,int j )
                     }
                 }
             }
-        }else if(text == "Agglomerates" || text == "Capital cost" || text == "Operational cost" || text =="Total cost"){
+        }else if(text == "Cost prediction"|| text == "Agglomerates" || text == "Capital cost" || text == "Operational cost" || text =="Total cost"){
             if(TabAnali == 0 || TabAnali == 1 || TabAnali == 2){ // todas las metodologias
                 if(estatico == true  || incremento == true ){
                     QString inicio = "Cost prediction with ";
@@ -6182,13 +6576,13 @@ QStringList Summary::unidadestablas(QString item_select)
                     }
                 }
             }
-        }else if(item_select == "Agglomerates" || item_select == "Capital cost" || item_select == "Operational cost" || item_select =="Total cost"){
+        }else if(item_select == "Cost prediction" || item_select == "Agglomerates" || item_select == "Capital cost" || item_select == "Operational cost" || item_select =="Total cost"){
             if(TabAnali == 0 || TabAnali == 1 || TabAnali == 2){ // todas las metodologias
                 if(estatico == true  || incremento == true ){
                     if(SI == true ){
-
+                        lista << "ft^2" << "BTU/HR" << "US $ / YEAR" << "US $ / YEAR" << "US $ / YEAR" ;
                     }else if(SIS == true){
-
+                        lista << "mt^2" << "Watts"  << "US $ / YEAR" << "US $ / YEAR" << "US $ / YEAR";
                     }
                 }
             }
@@ -6234,19 +6628,45 @@ QStringList Summary::unidadestablas(QString item_select)
                     }
                 }
             }else if(item_select_datapoint == "Areas vs DTmin"){
-                if(TabAnali == 0 || TabAnali == 1 || TabAnali == 2){
+                if(TabAnali == 0  ){
                     if(SI == true ){
-                        lista << "BTU/HR" << "ªF";
+                        lista <<  "ft^2" << "ªF";
                     }else if(SIS == true){
-                        lista << "Watts"  << "ªC";
+                        lista  << "mt^2" <<  "ªC";
+                    }
+                }else if(TabAnali == 1){
+                    if(SI == true ){
+                        lista <<  "ft^2" << " " <<  "ªF";
+                    }else if(SIS == true){
+                        lista  << "mt^2" << " " <<  "ªC";
+                    }
+                }else if(TabAnali == 2){
+                    if(SI == true ){
+                        lista <<  "ft^2" <<  "ft^2" << " " << "ªF";
+                    }else if(SIS == true){
+                        lista  << "mt^2" << "mt^2" << " " <<  "ªC";
                     }
                 }
             }else if(item_select_datapoint == "Cost vs DTmin"){
-                if(TabAnali == 0 || TabAnali == 1 || TabAnali == 2){
+                if(TabAnali == 0){
                     if(SI == true ){
-                        lista << "BTU/HR" << "ªF";
+                        lista <<  "US $ / YEAR" <<  "US $ / YEAR" <<  "US $ / YEAR" << "ªF";
                     }else if(SIS == true){
-                        lista << "Watts"  << "ªC";
+                        lista <<  "US $ / YEAR" <<  "US $ / YEAR" <<  "US $ / YEAR" << "ªC";
+                    }
+                }else if(TabAnali == 1){
+                    if(SI == true ){
+                        lista <<  "US $ / YEAR" <<  "US $ / YEAR" <<  "US $ / YEAR" << " " << "ªF";
+                    }else if(SIS == true){
+                        lista <<  "US $ / YEAR" <<  "US $ / YEAR" <<  "US $ / YEAR" << " " << "ªC";
+                    }
+                }else if(TabAnali == 2){
+                    if(SI == true ){
+                        lista  <<  "US $ / YEAR" <<  "US $ / YEAR" <<  "US $ / YEAR"
+                                <<  "US $ / YEAR" <<  "US $ / YEAR" <<  "US $ / YEAR" << " " << "ªF";
+                    }else if(SIS == true){
+                        lista  <<  "US $ / YEAR" <<  "US $ / YEAR" <<  "US $ / YEAR"
+                                <<  "US $ / YEAR" <<  "US $ / YEAR" <<  "US $ / YEAR" << " " <<  "ªC";
                     }
                 }
             }

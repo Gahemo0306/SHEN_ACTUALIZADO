@@ -758,7 +758,7 @@ void plotter::plot(int ventanaplot, bool uniforme, bool diverso, bool estatico, 
             QVector<double> CCENTALPIA = plot.getCCENTALPIA();
             QVector<double> CCTEMPERATURAS = plot.getCCTEMPERATURAS();
             ui->qcustomplot->addGraph();
-            ui->qcustomplot->graph(0)->setName("Hot curve");
+            ui->qcustomplot->graph(0)->setName("Uniform hot curve");
             ui->qcustomplot->graph(0)->setPen(QPen(Qt::red));
             ui->qcustomplot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
             ui->qcustomplot->graph(0)->setData(CCENTALPIA,CCTEMPERATURAS);
@@ -766,12 +766,11 @@ void plotter::plot(int ventanaplot, bool uniforme, bool diverso, bool estatico, 
             QVector<double> CFENTALPIA = plot.getCFENTALPIA();
             QVector<double> CFTEMPERATURAS = plot.getCFTEMPERATURAS();
             ui->qcustomplot->addGraph();
-            ui->qcustomplot->graph(1)->setName("Cold curve");
+            ui->qcustomplot->graph(1)->setName("Uniform cold curve");
             ui->qcustomplot->graph(1)->setPen(QPen(Qt::blue));
             ui->qcustomplot->graph(1)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
             ui->qcustomplot->graph(1)->setData(CFENTALPIA,CFTEMPERATURAS);
-            ui->qcustomplot->graph(0)->rescaleAxes();
-            ui->qcustomplot->graph(1)->rescaleAxes(true);
+            ui->qcustomplot->rescaleAxes(true);
             if(SI == true){
                 ui->qcustomplot->xAxis->setLabel("ENTHALPY BTU/HR");
                 ui->qcustomplot->yAxis->setLabel("TEMPERATURE ªF");
@@ -790,7 +789,7 @@ void plotter::plot(int ventanaplot, bool uniforme, bool diverso, bool estatico, 
             QVector<double> CCENTALPIA = plot1.getCCENTALPIA();
             QVector<double> CCTEMPERATURAS = plot1.getCCTEMPERATURAS();
             ui->qcustomplot->addGraph();
-            ui->qcustomplot->graph(0)->setName("Hot curve");
+            ui->qcustomplot->graph(0)->setName("Diverse hot curve");
             ui->qcustomplot->graph(0)->setPen(QPen(Qt::red));
             ui->qcustomplot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
             ui->qcustomplot->graph(0)->setData(CCENTALPIA,CCTEMPERATURAS);
@@ -798,12 +797,11 @@ void plotter::plot(int ventanaplot, bool uniforme, bool diverso, bool estatico, 
             QVector<double> CFENTALPIA = plot1.getCFENTALPIA();
             QVector<double> CFTEMPERATURAS = plot1.getCFTEMPERATURAS();
             ui->qcustomplot->addGraph();
-            ui->qcustomplot->graph(1)->setName("Cold curve");
+            ui->qcustomplot->graph(1)->setName("Diverse cold curve");
             ui->qcustomplot->graph(1)->setPen(QPen(Qt::blue));
             ui->qcustomplot->graph(1)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
             ui->qcustomplot->graph(1)->setData(CFENTALPIA,CFTEMPERATURAS);
-            ui->qcustomplot->graph(0)->rescaleAxes();
-            ui->qcustomplot->graph(1)->rescaleAxes(true);
+            ui->qcustomplot->rescaleAxes(true);
             if(SI == true){
                 ui->qcustomplot->xAxis->setLabel("ENTHALPY BTU/HR");
                 ui->qcustomplot->yAxis->setLabel("TEMPERATURE ªF");
@@ -830,7 +828,7 @@ void plotter::plot(int ventanaplot, bool uniforme, bool diverso, bool estatico, 
             ui->qcustomplot->addGraph();
             ui->qcustomplot->graph(0)->setPen(QPen(Qt::red));
             ui->qcustomplot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
-            ui->qcustomplot->graph(0)->setName("Hot curve");
+            ui->qcustomplot->graph(0)->setName("Uniform hot curve");
             ui->qcustomplot->graph(0)->setData(CCENTALPIA,CCTEMPERATURAS);
             ui->qcustomplot->replot();
             QVector<double> CFENTALPIAAJUSTADAS = plot.getCFENTALPIAAJUSTADAS();
@@ -838,10 +836,9 @@ void plotter::plot(int ventanaplot, bool uniforme, bool diverso, bool estatico, 
             ui->qcustomplot->addGraph();
             ui->qcustomplot->graph(1)->setPen(QPen(Qt::blue));
             ui->qcustomplot->graph(1)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
-            ui->qcustomplot->graph(1)->setName("Cold curve");
+            ui->qcustomplot->graph(1)->setName("Uniform cold curve");
             ui->qcustomplot->graph(1)->setData(CFENTALPIAAJUSTADAS,CFTEMPERATURASAJUSTADAS);
-            ui->qcustomplot->graph(0)->rescaleAxes();
-            ui->qcustomplot->graph(1)->rescaleAxes(true);
+            ui->qcustomplot->rescaleAxes(true);
             ui->qcustomplot->plotLayout()->insertRow(0);
             ui->qcustomplot->plotLayout()->addElement(0, 0, new QCPTextElement(ui->qcustomplot, "Uniform composite curves adjusted", QFont("sans", 12, QFont::Bold)));
             if(SI == true){
@@ -866,8 +863,7 @@ void plotter::plot(int ventanaplot, bool uniforme, bool diverso, bool estatico, 
             ui->qcustomplot->graph(j)->setPen(QPen(Qt::red));
             ui->qcustomplot->graph(j)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
             ui->qcustomplot->graph(j)->setData(CCENTALPIA,CCTEMPERATURAS);
-            ui->qcustomplot->graph(j)->rescaleAxes();
-            ui->qcustomplot->graph(j)->setName("Hot curve");
+            ui->qcustomplot->graph(j)->setName("Uniform hot curve");
             for(int i = 0; i <= Iteraciones ; i++){
                 j++;
                 Plot_curvascompuestasajustadas plot(TS,TE,Wcp,DTmin);
@@ -875,16 +871,16 @@ void plotter::plot(int ventanaplot, bool uniforme, bool diverso, bool estatico, 
                 QVector<double> CFTEMPERATURASAJUSTADAS = plot.getCFTEMPERATURASAJUSTADAS();
                 ui->qcustomplot->addGraph();
                 if(j == 1){
-                    ui->qcustomplot->graph(j)->setName("Cold curve");
+                    ui->qcustomplot->graph(j)->setName("Uniform cold curve");
                 }else if(j >= 2){
                     ui->qcustomplot->legend->removeItem(ui->qcustomplot->legend->itemCount()-1);
                 }
                 ui->qcustomplot->graph(j)->setPen(QPen(Qt::blue));
                 ui->qcustomplot->graph(j)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
                 ui->qcustomplot->graph(j)->setData(CFENTALPIAAJUSTADAS,CFTEMPERATURASAJUSTADAS);
-                ui->qcustomplot->graph(j)->rescaleAxes(true);
                 DTmin = DTmin + Incremento;
             }
+            ui->qcustomplot->rescaleAxes(true);
             if(SI == true){
                 ui->qcustomplot->xAxis->setLabel("ENTHALPY BTU/HR");
                 ui->qcustomplot->yAxis->setLabel("TEMPERATURE ªF");
@@ -903,7 +899,7 @@ void plotter::plot(int ventanaplot, bool uniforme, bool diverso, bool estatico, 
             QVector<double> CCENTALPIA = plot2.getCCENTALPIA();
             QVector<double> CCTEMPERATURAS = plot2.getCCTEMPERATURAS();
             ui->qcustomplot->addGraph();
-            ui->qcustomplot->graph(0)->setName("Hot curve");
+            ui->qcustomplot->graph(0)->setName("Diverse hot curve");
             ui->qcustomplot->graph(0)->setPen(QPen(Qt::red));
             ui->qcustomplot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
             ui->qcustomplot->graph(0)->setData(CCENTALPIA,CCTEMPERATURAS);
@@ -919,11 +915,10 @@ void plotter::plot(int ventanaplot, bool uniforme, bool diverso, bool estatico, 
             QVector<double> CFTEMPERATURASAJUSTADAS = plot2.getCFTEMPERATURASAJUSTADAS();
             ui->qcustomplot->addGraph();
             ui->qcustomplot->graph(1)->setPen(QPen(Qt::blue));
-            ui->qcustomplot->graph(1)->setName("Cold curve");
+            ui->qcustomplot->graph(1)->setName("Diverse cold curve");
             ui->qcustomplot->graph(1)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
             ui->qcustomplot->graph(1)->setData(CFENTALPIAAJUSTADAS,CFTEMPERATURASAJUSTADAS);
-            ui->qcustomplot->graph(0)->rescaleAxes();
-            ui->qcustomplot->graph(1)->rescaleAxes(true);
+            ui->qcustomplot->rescaleAxes(true);
             ui->qcustomplot->plotLayout()->insertRow(0);
             ui->qcustomplot->plotLayout()->addElement(0, 0, new QCPTextElement(ui->qcustomplot, "Diverse composite curves adjusted", QFont("sans", 12, QFont::Bold)));
             ui->qcustomplot->replot();
@@ -942,32 +937,31 @@ void plotter::plot(int ventanaplot, bool uniforme, bool diverso, bool estatico, 
                     QVector<double> CCTEMPERATURAS = plot2.getCCTEMPERATURAS();
                     ui->qcustomplot->addGraph();
                     if(i == 0){
-                        ui->qcustomplot->graph(j)->setName("Hot curve");
+                        ui->qcustomplot->graph(j)->setName("Diverse hot curve");
                     }else if( i >= 1){
                         ui->qcustomplot->legend->removeItem(ui->qcustomplot->legend->itemCount()-1);
                     }
                     ui->qcustomplot->graph(j)->setPen(QPen(Qt::red));
                     ui->qcustomplot->graph(j)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
                     ui->qcustomplot->graph(j)->setData(CCENTALPIA,CCTEMPERATURAS);
-                    ui->qcustomplot->graph(j)->rescaleAxes();
                     j++;
                     QVector<double> CFENTALPIAAJUSTADAS = plot2.getCFENTALPIAAJUSTADAS();
                     QVector<double> CFTEMPERATURASAJUSTADAS = plot2.getCFTEMPERATURASAJUSTADAS();
                     ui->qcustomplot->addGraph();
                     if(i == 0){
-                        ui->qcustomplot->graph(j)->setName("Cold curve");
+                        ui->qcustomplot->graph(j)->setName("Diverse cold curve");
                     }else if( i >= 1){
                         ui->qcustomplot->legend->removeItem(ui->qcustomplot->legend->itemCount()-1);
                     }
                     ui->qcustomplot->graph(j)->setPen(QPen(Qt::blue));
                     ui->qcustomplot->graph(j)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
                     ui->qcustomplot->graph(j)->setData(CFENTALPIAAJUSTADAS,CFTEMPERATURASAJUSTADAS);
-                    ui->qcustomplot->graph(j)->rescaleAxes(true);
                     j++;
                     punto1 = float (plot2.getK());
                     punto2 = 10.0;
                     DTmin = DTmin + Incremento;
                 }
+                ui->qcustomplot->rescaleAxes(true);
                 if(SI == true){
                     ui->qcustomplot->xAxis->setLabel("ENTHALPY BTU/HR");
                     ui->qcustomplot->yAxis->setLabel("TEMPERATURE ªF");
@@ -995,7 +989,7 @@ void plotter::plot(int ventanaplot, bool uniforme, bool diverso, bool estatico, 
             ui->qcustomplot->graph(0)->setPen(QPen(Qt::blue));
             ui->qcustomplot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
             ui->qcustomplot->graph(0)->setLineStyle(QCPGraph::lsLine);
-            ui->qcustomplot->graph(0)->setName("Grand composite curve");
+            ui->qcustomplot->graph(0)->setName("Uniform grand composite curve");
             ui->qcustomplot->graph(0)->setData(GCENTALPIA,GCTEMPERATURAS);
             if(SI == true){
                 ui->qcustomplot->xAxis->setLabel("ENTHALPY BTU/HR");
@@ -1004,8 +998,7 @@ void plotter::plot(int ventanaplot, bool uniforme, bool diverso, bool estatico, 
                 ui->qcustomplot->xAxis->setLabel("ENTHALPY W");
                 ui->qcustomplot->yAxis->setLabel("TEMPERATURE  ªC");
             }
-            ui->qcustomplot->graph(0)->rescaleAxes();
-            ui->qcustomplot->graph(0)->rescaleAxes(true);
+            ui->qcustomplot->rescaleAxes(true);
             ui->qcustomplot->plotLayout()->insertRow(0);
             ui->qcustomplot->plotLayout()->addElement(0, 0, new QCPTextElement(ui->qcustomplot, "Uniform grand compositive curve", QFont("sans", 12, QFont::Bold)));
             ui->qcustomplot->replot();
@@ -1021,7 +1014,7 @@ void plotter::plot(int ventanaplot, bool uniforme, bool diverso, bool estatico, 
                  QVector<double> GCTEMPERATURAS = plot.getGCTEMPERATURAS();
                  ui->qcustomplot->addGraph();
                  if(i == 0){
-                     ui->qcustomplot->graph(i)->setName("Grand composite curve");
+                     ui->qcustomplot->graph(i)->setName("Uniform grand composite curve");
                  }else if( i >= 1){
                      ui->qcustomplot->legend->removeItem(ui->qcustomplot->legend->itemCount()-1);
                  }
@@ -1029,10 +1022,9 @@ void plotter::plot(int ventanaplot, bool uniforme, bool diverso, bool estatico, 
                  ui->qcustomplot->graph(i)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
                  ui->qcustomplot->graph(i)->setLineStyle(QCPGraph::lsLine);
                  ui->qcustomplot->graph(i)->setData(GCENTALPIA,GCTEMPERATURAS);
-                 ui->qcustomplot->graph(i)->rescaleAxes();
-                 ui->qcustomplot->graph(i)->rescaleAxes(true);
                  DTmin = DTmin + Incremento;
             }
+            ui->qcustomplot->rescaleAxes(true);
             if(SI == true){
                 ui->qcustomplot->xAxis->setLabel("ENTHALPY BTU/HR");
                 ui->qcustomplot->yAxis->setLabel("TEMPERATURE ªF");
@@ -1054,10 +1046,9 @@ void plotter::plot(int ventanaplot, bool uniforme, bool diverso, bool estatico, 
             ui->qcustomplot->graph(0)->setPen(QPen(Qt::blue));
             ui->qcustomplot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
             ui->qcustomplot->graph(0)->setLineStyle(QCPGraph::lsLine);
-            ui->qcustomplot->graph(0)->setName("Grand composite curve");
+            ui->qcustomplot->graph(0)->setName("Diverse grand composite curve");
             ui->qcustomplot->graph(0)->setData(GCENTALPIA,GCTEMPERATURAS);
-            ui->qcustomplot->graph(0)->rescaleAxes();
-            ui->qcustomplot->graph(0)->rescaleAxes(true);
+            ui->qcustomplot->rescaleAxes(true);
             if(SI == true){
                 ui->qcustomplot->xAxis->setLabel("ENTHALPY BTU/HR");
                 ui->qcustomplot->yAxis->setLabel("TEMPERATURE ªF");
@@ -1076,14 +1067,13 @@ void plotter::plot(int ventanaplot, bool uniforme, bool diverso, bool estatico, 
             double DTmin = Minimo;
             float punto1 = 0.05;
             float punto2 = 10.0;
-
             for( int i = 0; i <= Iteraciones ; i++){
                  PlotGCC_DIVERSA plotGCCD(TS,TE,Wcp,h,DTmin,K,punto1,punto2);
                  QVector<double> GCENTALPIA = plotGCCD.getGCENTALPIA();
                  QVector<double> GCTEMPERATURAS = plotGCCD.getGCTEMPERATURAS();
                  ui->qcustomplot->addGraph();
                  if(i == 0){
-                     ui->qcustomplot->graph(i)->setName("Grand composite curve");
+                     ui->qcustomplot->graph(i)->setName("Diverse grand composite curve");
                  }else if( i >= 1){
                      ui->qcustomplot->legend->removeItem(ui->qcustomplot->legend->itemCount()-1);
                  }
@@ -1091,12 +1081,11 @@ void plotter::plot(int ventanaplot, bool uniforme, bool diverso, bool estatico, 
                  ui->qcustomplot->graph(i)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
                  ui->qcustomplot->graph(i)->setLineStyle(QCPGraph::lsLine);
                  ui->qcustomplot->graph(i)->setData(GCENTALPIA,GCTEMPERATURAS);
-                 ui->qcustomplot->graph(i)->rescaleAxes();
-                 ui->qcustomplot->graph(i)->rescaleAxes(true);
                  DTmin = DTmin + Incremento;
                  punto1 = float (plotGCCD.getK());
                  punto2 = 10.0;
             }
+            ui->qcustomplot->rescaleAxes(true);
             if(SI == true){
                 ui->qcustomplot->xAxis->setLabel("ENTHALPY BTU/HR");
                 ui->qcustomplot->yAxis->setLabel("TEMPERATURE ªF");
@@ -1148,10 +1137,9 @@ void plotter::plot(int ventanaplot, bool uniforme, bool diverso, bool estatico, 
             ui->qcustomplot->graph(0)->setPen(QPen(Qt::red));
             ui->qcustomplot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
             ui->qcustomplot->graph(0)->setLineStyle(QCPGraph::lsLine);
-            ui->qcustomplot->graph(0)->setName("Total area");
+            ui->qcustomplot->graph(0)->setName("Uniform total area");
             ui->qcustomplot->graph(0)->setData(DTMIN,AREAS);
-            ui->qcustomplot->graph(0)->rescaleAxes();
-            ui->qcustomplot->graph(0)->rescaleAxes(true);
+            ui->qcustomplot->rescaleAxes(true);
             ui->qcustomplot->plotLayout()->insertRow(0);
             ui->qcustomplot->plotLayout()->addElement(0, 0, new QCPTextElement(ui->qcustomplot, "Area vs Delta T min", QFont("sans", 12, QFont::Bold)));
             ui->qcustomplot->replot();
@@ -1194,10 +1182,9 @@ void plotter::plot(int ventanaplot, bool uniforme, bool diverso, bool estatico, 
             ui->qcustomplot->graph(0)->setPen(QPen(Qt::red));
             ui->qcustomplot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
             ui->qcustomplot->graph(0)->setLineStyle(QCPGraph::lsLine);
-            ui->qcustomplot->graph(0)->setName("Total area");
+            ui->qcustomplot->graph(0)->setName("Diverse total area");
             ui->qcustomplot->graph(0)->setData(DTMIN,AREAS);
-            ui->qcustomplot->graph(0)->rescaleAxes();
-            ui->qcustomplot->graph(0)->rescaleAxes(true);
+            ui->qcustomplot->rescaleAxes(true);;
             ui->qcustomplot->plotLayout()->insertRow(0);
             ui->qcustomplot->plotLayout()->addElement(0, 0, new QCPTextElement(ui->qcustomplot, "Area vs Delta T min", QFont("sans", 12, QFont::Bold)));
             ui->qcustomplot->replot();
@@ -1239,29 +1226,24 @@ void plotter::plot(int ventanaplot, bool uniforme, bool diverso, bool estatico, 
                 DTmin = DTmin + Incremento;
             }
             ui->qcustomplot->addGraph();
-            ui->qcustomplot->graph(0)->setName("Total cost");
+            ui->qcustomplot->graph(0)->setName("Uniform total cost");
             ui->qcustomplot->graph(0)->setPen(QPen(Qt::red));
             ui->qcustomplot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
             ui->qcustomplot->graph(0)->setLineStyle(QCPGraph::lsLine);
             ui->qcustomplot->graph(0)->setData(VECDTMIN,VECCOSTOTOTAL);
-            ui->qcustomplot->graph(0)->rescaleAxes();
-            ui->qcustomplot->graph(0)->rescaleAxes(true);
             ui->qcustomplot->addGraph();
-            ui->qcustomplot->graph(1)->setName("Total operation cost");
+            ui->qcustomplot->graph(1)->setName("Uniform total operation cost");
             ui->qcustomplot->graph(1)->setPen(QPen(Qt::blue));
             ui->qcustomplot->graph(1)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
             ui->qcustomplot->graph(1)->setLineStyle(QCPGraph::lsLine);
             ui->qcustomplot->graph(1)->setData(VECDTMIN,VECCOSTOOPERACIONTOTAL);
-            ui->qcustomplot->graph(1)->rescaleAxes();
-            ui->qcustomplot->graph(1)->rescaleAxes(true);
             ui->qcustomplot->addGraph();
-            ui->qcustomplot->graph(2)->setName("Total capital cost");
+            ui->qcustomplot->graph(2)->setName("Uniform total capital cost");
             ui->qcustomplot->graph(2)->setPen(QPen(Qt::darkCyan));
             ui->qcustomplot->graph(2)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
             ui->qcustomplot->graph(2)->setLineStyle(QCPGraph::lsLine);
             ui->qcustomplot->graph(2)->setData(VECDTMIN,VECCOSTOCAPITALTOTAL);
-            ui->qcustomplot->graph(2)->rescaleAxes();
-            ui->qcustomplot->graph(2)->rescaleAxes(true);
+            ui->qcustomplot->rescaleAxes(true);
             if(SI == true){
                 ui->qcustomplot->xAxis->setLabel("DTMIN ªF");
                 ui->qcustomplot->yAxis->setLabel("COSTOS US $ / YEAR");
@@ -1305,29 +1287,24 @@ void plotter::plot(int ventanaplot, bool uniforme, bool diverso, bool estatico, 
                 punto2 = 10.0;
             }
             ui->qcustomplot->addGraph();
-            ui->qcustomplot->graph(0)->setName("Total cost");
+            ui->qcustomplot->graph(0)->setName("Diverse total cost");
             ui->qcustomplot->graph(0)->setPen(QPen(Qt::red));
             ui->qcustomplot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
             ui->qcustomplot->graph(0)->setLineStyle(QCPGraph::lsLine);
             ui->qcustomplot->graph(0)->setData(VECDTMIN,VECCOSTOTOTAL);
-            ui->qcustomplot->graph(0)->rescaleAxes();
-            ui->qcustomplot->graph(0)->rescaleAxes(true);
             ui->qcustomplot->addGraph();
-            ui->qcustomplot->graph(1)->setName("Total operation cost");
+            ui->qcustomplot->graph(1)->setName("Diverse operation cost");
             ui->qcustomplot->graph(1)->setPen(QPen(Qt::blue));
             ui->qcustomplot->graph(1)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
             ui->qcustomplot->graph(1)->setLineStyle(QCPGraph::lsLine);
             ui->qcustomplot->graph(1)->setData(VECDTMIN,VECCOSTOOPERACIONTOTAL);
-            ui->qcustomplot->graph(1)->rescaleAxes();
-            ui->qcustomplot->graph(1)->rescaleAxes(true);
             ui->qcustomplot->addGraph();
-            ui->qcustomplot->graph(2)->setName("Total capital cost");
+            ui->qcustomplot->graph(2)->setName("Diverse total capital cost");
             ui->qcustomplot->graph(2)->setPen(QPen(Qt::darkCyan));
             ui->qcustomplot->graph(2)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
             ui->qcustomplot->graph(2)->setLineStyle(QCPGraph::lsLine);
             ui->qcustomplot->graph(2)->setData(VECDTMIN,VECCOSTOCAPITALTOTAL);
-            ui->qcustomplot->graph(2)->rescaleAxes();
-            ui->qcustomplot->graph(2)->rescaleAxes(true);
+            ui->qcustomplot->rescaleAxes(true);
             if(SI == true){
                 ui->qcustomplot->xAxis->setLabel("DTMIN ªF");
                 ui->qcustomplot->yAxis->setLabel("COSTOS US $ / YEAR");

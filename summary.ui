@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>604</width>
-    <height>395</height>
+    <width>691</width>
+    <height>406</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -77,20 +77,6 @@
        </property>
       </spacer>
      </item>
-     <item row="1" column="0" colspan="3">
-      <layout class="QHBoxLayout" name="horizontalLayout">
-       <item>
-        <widget class="QTreeWidget" name="treeWidget">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
      <item row="2" column="3">
       <widget class="QLabel" name="label">
        <property name="text">
@@ -98,7 +84,22 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="3" colspan="4">
+     <item row="1" column="0">
+      <widget class="QTreeWidget" name="treeWidget">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <column>
+        <property name="text">
+         <string notr="true">1</string>
+        </property>
+       </column>
+      </widget>
+     </item>
+     <item row="1" column="1" colspan="6">
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="1" column="0">
         <widget class="QTableWidget" name="tablewidget"/>

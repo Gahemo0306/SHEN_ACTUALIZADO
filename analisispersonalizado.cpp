@@ -1767,6 +1767,32 @@ void AnalisisPersonalizado::Info_Uniforme(bool UPT, bool UAP, bool UCP,
             CCo = 0;
         }
         if(UCP == true){
+            if(metodoservicios_uniformes() == false){
+                QMessageBox::warning(this,tr("Error"),tr("Missing information"));
+                return;
+            }
+            int ncols;
+            ncols = ui->services->columnCount();
+            Enfriamento.resize(ncols);
+            Calentamiento.resize(ncols);
+            Enf.resize(ncols);
+            Cal.resize(ncols);
+            for (int j = 0; j < ncols ; j++){
+                Cal[j] = ui->services->item(0,j)->text().toDouble();
+                Enf[j] = ui->services->item(1,j)->text().toDouble();
+            }
+            UnidadesSerAux units2(SI,SIS,0);
+            int A = ui->Uunits_temp->currentIndex(); //corregido
+            units2.ConvertirUnidades(Cal,Enf,SI,SIS,A);
+            Enfriamento = units2.getEnfriamento();
+            Calentamiento = units2.getCalentamiento();
+            if (ui->UTodcomboBox->currentIndex() == 1){
+                CTo = 1;
+                CCo = 0;
+            }else if(ui->UTodcomboBox->currentIndex() == 2){
+                CTo = 0;
+                CCo = 1;
+            }
             if(metodocapital_uniformes() == false && metodooperacional_uniformes() == false){
                 QMessageBox::warning(this,tr("Error"),tr("Missing information"));
                 return;
@@ -1926,6 +1952,32 @@ void AnalisisPersonalizado::Info_Uniforme(bool UPT, bool UAP, bool UCP,
             CCo = 0;
         }
         if(UCP == true || UCDTM == true){ //GUARDADOR DE INFO
+            if(metodoservicios_uniformes() == false){
+                QMessageBox::warning(this,tr("Error"),tr("Missing information"));
+                return;
+            }
+            int ncols;
+            ncols = ui->services->columnCount();
+            Enfriamento.resize(ncols);
+            Calentamiento.resize(ncols);
+            Enf.resize(ncols);
+            Cal.resize(ncols);
+            for (int j = 0; j < ncols ; j++){
+                Cal[j] = ui->services->item(0,j)->text().toDouble();
+                Enf[j] = ui->services->item(1,j)->text().toDouble();
+            }
+            UnidadesSerAux units2(SI,SIS,0);
+            int A = ui->Uunits_temp->currentIndex(); //corregido
+            units2.ConvertirUnidades(Cal,Enf,SI,SIS,A);
+            Enfriamento = units2.getEnfriamento();
+            Calentamiento = units2.getCalentamiento();
+            if (ui->UTodcomboBox->currentIndex() == 1){
+                CTo = 1;
+                CCo = 0;
+            }else if(ui->UTodcomboBox->currentIndex() == 2){
+                CTo = 0;
+                CCo = 1;
+            }
             if(metodocapital_uniformes() == false && metodooperacional_uniformes() == false){
                 QMessageBox::warning(this,tr("Error"),tr("Missing information"));
                 return;
@@ -1969,6 +2021,7 @@ void AnalisisPersonalizado::Info_Uniforme(bool UPT, bool UAP, bool UCP,
             OperationCost.resize(rcsize);
         }
     }
+    qDebug() << Enfriamento  << Calentamiento << CapitalCost << OperationCost;
     infoapuniforme info(Checkboxes,estatico,incremento,SI,SIS,Min,Max,Inc,TS,TE,WCP,H,Enfriamento,
                         Calentamiento,CTo,CCo,CapitalCost,OperationCost);
     out25 << info;
@@ -2088,6 +2141,32 @@ void AnalisisPersonalizado::Info_Diversa(bool DPT, bool DAP, bool DCP,
             CCo = 0;
         }
         if(DCP == true){
+            if(metodoservicios_diverso() == false){
+                QMessageBox::warning(this,tr("Error"),tr("Missing information"));
+                return;
+            }
+            int ncols;
+            ncols = ui->Dservices->columnCount();
+            Enfriamento.resize(ncols);
+            Calentamiento.resize(ncols);
+            Enf.resize(ncols);
+            Cal.resize(ncols);
+            for (int j = 0; j < ncols ; j++){
+                Cal[j] = ui->Dservices->item(0,j)->text().toDouble();
+                Enf[j] = ui->Dservices->item(1,j)->text().toDouble();
+            }
+            UnidadesSerAux units2(SI,SIS,0);
+            int A = ui->Dunits_temp->currentIndex(); //corregido
+            units2.ConvertirUnidades(Cal,Enf,SI,SIS,A);
+            Enfriamento = units2.getEnfriamento();
+            Calentamiento = units2.getCalentamiento();
+            if (ui->DTodcomboBox->currentIndex() == 1){
+                CTo = 1;
+                CCo = 0;
+            }else if(ui->DTodcomboBox->currentIndex() == 2){
+                CTo = 0;
+                CCo = 1;
+            }
             if(metodocapital_uniformes() == false && metodooperacional_uniformes() == false){
                 QMessageBox::warning(this,tr("Error"),tr("Missing information"));
                 return;
@@ -2248,6 +2327,32 @@ void AnalisisPersonalizado::Info_Diversa(bool DPT, bool DAP, bool DCP,
             CCo = 0;
         }
         if(DCP == true || DCDTM == true){ //GUARDADOR DE INFO
+            if(metodoservicios_diverso() == false){
+                QMessageBox::warning(this,tr("Error"),tr("Missing information"));
+                return;
+            }
+            int ncols;
+            ncols = ui->Dservices->columnCount();
+            Enfriamento.resize(ncols);
+            Calentamiento.resize(ncols);
+            Enf.resize(ncols);
+            Cal.resize(ncols);
+            for (int j = 0; j < ncols ; j++){
+                Cal[j] = ui->Dservices->item(0,j)->text().toDouble();
+                Enf[j] = ui->Dservices->item(1,j)->text().toDouble();
+            }
+            UnidadesSerAux units2(SI,SIS,0);
+            int A = ui->Dunits_temp->currentIndex(); //corregido
+            units2.ConvertirUnidades(Cal,Enf,SI,SIS,A);
+            Enfriamento = units2.getEnfriamento();
+            Calentamiento = units2.getCalentamiento();
+            if (ui->DTodcomboBox->currentIndex() == 1){
+                CTo = 1;
+                CCo = 0;
+            }else if(ui->DTodcomboBox->currentIndex() == 2){
+                CTo = 0;
+                CCo = 1;
+            }
             if(metodocapital_diverso() == false && metodooperacional_diverso() == false){
                 QMessageBox::warning(this,tr("Error"),tr("Missing information"));
                 return;
@@ -2409,6 +2514,32 @@ void AnalisisPersonalizado::Info_Both(bool BPT, bool BAP, bool BCP,
             CCo = 0;
         }
         if(BCP == true){
+            if(metodoservicios_both() == false){
+                QMessageBox::warning(this,tr("Error"),tr("Missing information"));
+                return;
+            }
+            int ncols;
+            ncols = ui->Bservices->columnCount();
+            Enfriamento.resize(ncols);
+            Calentamiento.resize(ncols);
+            Enf.resize(ncols);
+            Cal.resize(ncols);
+            for (int j = 0; j < ncols ; j++){
+                Cal[j] = ui->Bservices->item(0,j)->text().toDouble();
+                Enf[j] = ui->Bservices->item(1,j)->text().toDouble();
+            }
+            UnidadesSerAux units2(SI,SIS,0);
+            int A = ui->Bunits_temp->currentIndex(); //corregido
+            units2.ConvertirUnidades(Cal,Enf,SI,SIS,A);
+            Enfriamento = units2.getEnfriamento();
+            Calentamiento = units2.getCalentamiento();
+            if (ui->BTodcomboBox->currentIndex() == 1){
+                CTo = 1;
+                CCo = 0;
+            }else if(ui->BTodcomboBox->currentIndex() == 2){
+                CTo = 0;
+                CCo = 1;
+            }
             if(metodocapital_both() == false && metodooperacional_both() == false){
                 QMessageBox::warning(this,tr("Error"),tr("Missing information"));
                 return;
@@ -2569,6 +2700,32 @@ void AnalisisPersonalizado::Info_Both(bool BPT, bool BAP, bool BCP,
             CCo = 0;
         }
         if(BCP == true || BCDTM == true){
+            if(metodoservicios_both() == false){
+                QMessageBox::warning(this,tr("Error"),tr("Missing information"));
+                return;
+            }
+            int ncols;
+            ncols = ui->Bservices->columnCount();
+            Enfriamento.resize(ncols);
+            Calentamiento.resize(ncols);
+            Enf.resize(ncols);
+            Cal.resize(ncols);
+            for (int j = 0; j < ncols ; j++){
+                Cal[j] = ui->Bservices->item(0,j)->text().toDouble();
+                Enf[j] = ui->Bservices->item(1,j)->text().toDouble();
+            }
+            UnidadesSerAux units2(SI,SIS,0);
+            int A = ui->Bunits_temp->currentIndex(); //corregido
+            units2.ConvertirUnidades(Cal,Enf,SI,SIS,A);
+            Enfriamento = units2.getEnfriamento();
+            Calentamiento = units2.getCalentamiento();
+            if (ui->BTodcomboBox->currentIndex() == 1){
+                CTo = 1;
+                CCo = 0;
+            }else if(ui->BTodcomboBox->currentIndex() == 2){
+                CTo = 0;
+                CCo = 1;
+            }
             if(metodocapital_both() == false && metodooperacional_both() == false){
                 QMessageBox::warning(this,tr("Error"),tr("Missing information"));
                 return;
