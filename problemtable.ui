@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_8">
+  <layout class="QGridLayout" name="gridLayout_5">
    <item row="0" column="0" colspan="2">
     <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="0">
@@ -71,6 +71,61 @@
        </layout>
       </widget>
      </item>
+     <item row="0" column="1">
+      <widget class="QGroupBox" name="groupBox_2">
+       <property name="title">
+        <string>Delta T min:</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_3">
+        <item row="0" column="0">
+         <spacer name="horizontalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Ignored</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>83</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="0" column="1">
+         <widget class="QRadioButton" name="estatico">
+          <property name="text">
+           <string>Static</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QRadioButton" name="incremento">
+          <property name="text">
+           <string>Increment</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <spacer name="horizontalSpacer_4">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Ignored</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>83</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+     </item>
     </layout>
    </item>
    <item row="1" column="0">
@@ -85,14 +140,25 @@
          <widget class="QDoubleSpinBox" name="Min"/>
         </item>
         <item row="1" column="0">
-         <widget class="QLabel" name="label2">
+         <widget class="QLabel" name="Minimo">
           <property name="text">
            <string>Value:</string>
           </property>
          </widget>
         </item>
+        <item row="0" column="2">
+         <widget class="QPushButton" name="help_tableproblem">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="resources.qrc">
+            <normaloff>:/resources/Resources/ayuda.png</normaloff>:/resources/Resources/ayuda.png</iconset>
+          </property>
+         </widget>
+        </item>
         <item row="0" column="0">
-         <widget class="QLabel" name="label1">
+         <widget class="QLabel" name="valork">
           <property name="text">
            <string>K:</string>
           </property>
@@ -117,16 +183,25 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="2">
-         <widget class="QPushButton" name="pushButton_4">
+        <item row="2" column="0">
+         <widget class="QLabel" name="Maximo">
           <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset resource="resources.qrc">
-            <normaloff>:/resources/Resources/ayuda.png</normaloff>:/resources/Resources/ayuda.png</iconset>
+           <string>Maximun:</string>
           </property>
          </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="Incremento">
+          <property name="text">
+           <string>Increment:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QDoubleSpinBox" name="Max"/>
+        </item>
+        <item row="3" column="1">
+         <widget class="QDoubleSpinBox" name="Inc"/>
         </item>
        </layout>
       </widget>
@@ -149,9 +224,9 @@
       </spacer>
      </item>
      <item row="1" column="0">
-      <widget class="QPushButton" name="pushButton_2">
+      <widget class="QPushButton" name="Export">
        <property name="text">
-        <string>Export</string>
+        <string>Export PDF</string>
        </property>
       </widget>
      </item>
@@ -172,47 +247,24 @@
     </layout>
    </item>
    <item row="2" column="0" colspan="2">
-    <layout class="QGridLayout" name="gridLayout_5">
-     <item row="0" column="0">
-      <widget class="QTableWidget" name="Tabla">
-       <column>
-        <property name="text">
-         <string>Temperature</string>
-        </property>
-       </column>
-       <column>
-        <property name="text">
-         <string>Temperature</string>
-        </property>
-       </column>
-       <column>
-        <property name="text">
-         <string>Deficit</string>
-        </property>
-       </column>
-       <column>
-        <property name="text">
-         <string>Heat flow in</string>
-        </property>
-       </column>
-       <column>
-        <property name="text">
-         <string>Heat flow out</string>
-        </property>
-       </column>
-       <column>
-        <property name="text">
-         <string>Heat flow in adjusted</string>
-        </property>
-       </column>
-       <column>
-        <property name="text">
-         <string>Heat flow out adjusted</string>
-        </property>
-       </column>
-      </widget>
-     </item>
-    </layout>
+    <widget class="QTableWidget" name="Tabla">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="2">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
    </item>
   </layout>
  </widget>

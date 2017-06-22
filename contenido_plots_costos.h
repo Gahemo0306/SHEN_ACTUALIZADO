@@ -31,6 +31,7 @@ private slots:
     bool confirmartablas();
     void on_comboBoxUOP_currentIndexChanged(int index);
     QVector<double> ConvertirOperationCost(QVector<double> OperationCost,bool SI,bool SIS,int A);
+    void on_TypeDesign_currentIndexChanged(int index);
 
 private:
     Ui::contenido_plots_costos *ui;

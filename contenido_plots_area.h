@@ -21,17 +21,15 @@ private slots:
     void RADIOBUTTONS();
     void accionguardar();
     void on_SBk_valueChanged();
-
     void on_SBmin_valueChanged();
-
     void on_SBmax_valueChanged();
-
     void on_SBinc_valueChanged();
-
     void on_Services_cellChanged();
+    void on_TypeDesign_currentIndexChanged(int index);
 
 private:
     Ui::contenido_plots_area *ui;
+    QStringList titulos;
     double K, Min,Max,Inc;
 };
 

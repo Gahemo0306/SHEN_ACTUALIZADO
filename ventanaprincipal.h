@@ -31,23 +31,20 @@ private slots:
     void loadSubWindowPrincipal(QWidget *widget);
     void on_actionSummary_triggered();
     void on_actionProblem_Table_triggered();
-//    void on_actionProblem_Table_2_triggered();
-//    void on_actionSave_triggered(bool checked);
-//    void on_actionSave_as_triggered(bool checked);
     void on_actionSave_triggered();
-
     void on_actionSave_as_triggered();
 
 
+    void on_actionArea_Targets_triggered();
+
+    void on_actionSuper_Targeting_triggered();
+
 private:
     Ui::VentanaPrincipal *ui;
-//    TablaDatos* _tabladatos;
-
 
 signals:
     void actionSave(const bool checked);
     void actionSaveas(const bool checked);
-    //    void actionNew(int ValorTabla);
 };
 
 #endif // VENTANAPRINCIPAL_H

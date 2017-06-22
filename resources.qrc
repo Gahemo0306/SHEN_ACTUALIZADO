@@ -23,5 +23,7 @@
         <file>Resources/241143.png</file>
         <file>Resources/help-flecha.png</file>
         <file>Resources/NuevaPresentacionBlanco.png</file>
+        <file>Resources/intercambiador.png</file>
+        <file>Resources/arrow.png</file>
     </qresource>
 </RCC>

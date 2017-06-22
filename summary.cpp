@@ -1,12 +1,11 @@
 #include "summary.h"
 #include "ui_summary.h"
-#include <QMessageBox>
 #include "duvaloraction.h"
 #include "graficos.h"
+#include "valoraction.h"
 #include <QDataStream>
 #include <QFile>
 #include <QMessageBox>
-#include "valoraction.h"
 #include <QDebug>
 #include <QPrinter>
 #include <QPdfWriter>
@@ -74,7 +73,7 @@ Summary::Summary(QWidget *parent) :
             CapitalCost = info.getCapitalCost();
             OperationCost = info.getOperationCost();
             ui->treeWidget->setColumnCount(1);
-            ui->treeWidget->setHeaderLabel("Information avaiable:");
+            ui->treeWidget->setHeaderLabel("Information available:");
             QString LISTA1;
             QStringList LISTA2;
             if(Checkboxes.size() == 8){ //
@@ -232,7 +231,7 @@ Summary::Summary(QWidget *parent) :
             CapitalCost = info.getCapitalCost();
             OperationCost = info.getOperationCost();
             ui->treeWidget->setColumnCount(1);
-            ui->treeWidget->setHeaderLabel("Information avaiable:");
+            ui->treeWidget->setHeaderLabel("Information available:");
             QString LISTA1;
             QStringList LISTA2;
             if(Checkboxes.size() == 8){ //
@@ -390,7 +389,7 @@ Summary::Summary(QWidget *parent) :
             CapitalCost = info.getCapitalCost();
             OperationCost = info.getOperationCost();
             ui->treeWidget->setColumnCount(1);
-            ui->treeWidget->setHeaderLabel("Information avaiable:");
+            ui->treeWidget->setHeaderLabel("Information available:");
             QString LISTA1;
             QStringList LISTA2;
             if(Checkboxes.size() == 8){ //
@@ -505,6 +504,249 @@ Summary::Summary(QWidget *parent) :
                 }
             }
             F.flush();
+        }
+    }else if(Ventanamadre == 2){
+        if(TabAnali == 0){
+            QFile F(INFO_AT_UNIFORME);
+            if (!F.open(QIODevice::ReadOnly)){
+                QMessageBox::warning(this,tr("Error"),tr("Error"));
+                return;
+            }
+            QDataStream in25(&F);
+            in25.setVersion(QDataStream::Qt_5_4);
+            QVector<double> Checkboxes1,TS1,TE1,WCP1,H1,Enfriamento1,Calentamiento1,OperationCost1;
+            QVector<QVector<double>> CapitalCost1;
+            Checkboxes1.resize(8),TS1.resize(1),TE1.resize(1),WCP1.resize(1),H1.resize(1);
+            Enfriamento1.resize(1),Calentamiento1.resize(1),OperationCost1.resize(1);
+            CapitalCost1.resize(1);
+            for(int i = 0; i < CapitalCost1.size(); i++){
+                CapitalCost1[i].resize(2);
+            }
+            double Min1 = 0, Max1 = 0, Inc1 = 0;
+            int CTo1 = 0, CCo1 = 0;
+            bool estatico1 = false, incremento1 = false,SI1 = false,SIS1 = false;
+            infoapuniforme info(Checkboxes1,estatico1,incremento1,SI1,SIS1,Min1,Max1,Inc1,TS1,TE1,WCP1,H1,Enfriamento1,
+                                Calentamiento1,CTo1,CCo1,CapitalCost1,OperationCost1);
+            in25 >> info;
+            QVector<double> Checkboxes = info.getCheckboxes();
+            Min = info.getMin();
+            Max = info.getMax();
+            Inc = info.getInc();
+            estatico = info.getestatico();
+            incremento = info.getincremento();
+            SI = info.getSI();
+            SIS = info.getSIS();
+            TS = info.getTS();
+            TE = info.getTE();
+            WCP = info.getWCP();
+            H = info.getH();
+            Enfriamento = info.getEnfriamento();
+            Calentamiento = info.getCalentamiento();
+            CTo = info.getCTo();
+            CCo = info.getCCo();
+            CapitalCost = info.getCapitalCost();
+            OperationCost = info.getOperationCost();
+            ui->treeWidget->setColumnCount(1);
+            ui->treeWidget->setHeaderLabel("Information available:");
+            QString LISTA1;
+            QStringList LISTA2;
+            if(Checkboxes.size() == 10){
+                if(Checkboxes[1] == 1){ // UNIFORME AREA PROBLEMA
+                    LISTA1 = "Area prediction";
+                    LISTA2 << "DTm log" << "Enthalpy" << "Areas" ;
+                    AddRoots(LISTA1,LISTA2);
+                    LISTA2.clear();
+                }
+                if(Checkboxes[8] == 1){ // Areas vs DTmin
+                    LISTA1 = "Areas vs DTmin";
+                    LISTA2 <<"Data points" ;
+                    AddRoots(LISTA1,LISTA2);
+                    LISTA2.clear();
+                }
+            }
+            F.flush();
+            F.close();
+            qDebug() << "abrio 1";
+        }else if(TabAnali == 1){
+            QFile F(INFO_AT_DIVERSO);
+            if (!F.open(QIODevice::ReadOnly)){
+                QMessageBox::warning(this,tr("Error"),tr("Error"));
+                return;
+            }
+            QDataStream in27(&F);
+            in27.setVersion(QDataStream::Qt_5_4);
+            QVector<double> Checkboxes1,TS1,TE1,WCP1,H1,Enfriamento1,Calentamiento1,OperationCost1;
+            QVector<QVector<double>> CapitalCost1;
+            Checkboxes1.resize(8),TS1.resize(1),TE1.resize(1),WCP1.resize(1),H1.resize(1);
+            Enfriamento1.resize(1),Calentamiento1.resize(1),OperationCost1.resize(1);
+            CapitalCost1.resize(1);
+            for(int i = 0; i < CapitalCost1.size(); i++){
+                CapitalCost1[i].resize(2);
+            }
+            double Min1 = 0, Max1 = 0, Inc1 = 0, K1 = 0;
+            int CTo1 = 0, CCo1 = 0;
+            bool estatico1 = false, incremento1 = false, SI1 = false, SIS1 = false;
+            infoapdiversa info(Checkboxes1,estatico1,incremento1,SI1,SIS1,K1,Min1,Max1,Inc1,TS1,TE1,WCP1,H1,Enfriamento1,
+                               Calentamiento1,CTo1,CCo1,CapitalCost1,OperationCost1);
+            in27 >> info;
+            QVector<double> Checkboxes = info.getCheckboxes();
+            K  = info.getK();
+            Min = info.getMin();
+            Max = info.getMax();
+            Inc = info.getInc();
+            estatico = info.getestatico();
+            incremento = info.getincremento();
+            SI = info.getSI();
+            SIS = info.getSIS();
+            TS = info.getTS();
+            TE = info.getTE();
+            WCP = info.getWCP();
+            H = info.getH();
+            Enfriamento = info.getEnfriamento();
+            Calentamiento = info.getCalentamiento();
+            CTo = info.getCTo();
+            CCo = info.getCCo();
+            CapitalCost = info.getCapitalCost();
+            OperationCost = info.getOperationCost();
+            ui->treeWidget->setColumnCount(1);
+            ui->treeWidget->setHeaderLabel("Information available:");
+            QString LISTA1;
+            QStringList LISTA2;//
+            if(Checkboxes.size() == 10){
+                if(Checkboxes[1] == 1){ // UNIFORME AREA PROBLEMA
+                    LISTA1 = "Area prediction";
+                    LISTA2 << "DTm log" << "Enthalpy" << "Areas" ;
+                    AddRoots(LISTA1,LISTA2);
+                    LISTA2.clear();
+                }
+                if(Checkboxes[8] == 1){ // Areas vs DTmin
+                    LISTA1 = "Areas vs DTmin";
+                    LISTA2 <<"Data points" ;
+                    AddRoots(LISTA1,LISTA2);
+                    LISTA2.clear();
+                }
+            }
+            F.flush();
+            F.close();
+        }
+    }else if(Ventanamadre == 3){
+        if(TabAnali == 0){
+            QFile F(INFO_CT_UNIFORME);
+            if (!F.open(QIODevice::ReadOnly)){
+                QMessageBox::warning(this,tr("Error"),tr("Error"));
+                return;
+            }
+            QDataStream in25(&F);
+            in25.setVersion(QDataStream::Qt_5_4);
+            QVector<double> Checkboxes1,TS1,TE1,WCP1,H1,Enfriamento1,Calentamiento1,OperationCost1;
+            QVector<QVector<double>> CapitalCost1;
+            Checkboxes1.resize(8),TS1.resize(1),TE1.resize(1),WCP1.resize(1),H1.resize(1);
+            Enfriamento1.resize(1),Calentamiento1.resize(1),OperationCost1.resize(1);
+            CapitalCost1.resize(1);
+            for(int i = 0; i < CapitalCost1.size(); i++){
+                CapitalCost1[i].resize(2);
+            }
+            double Min1 = 0, Max1 = 0, Inc1 = 0;
+            int CTo1 = 0, CCo1 = 0;
+            bool estatico1 = false, incremento1 = false,SI1 = false,SIS1 = false;
+            infoapuniforme info(Checkboxes1,estatico1,incremento1,SI1,SIS1,Min1,Max1,Inc1,TS1,TE1,WCP1,H1,Enfriamento1,
+                                Calentamiento1,CTo1,CCo1,CapitalCost1,OperationCost1);
+            in25 >> info;
+            QVector<double> Checkboxes = info.getCheckboxes();
+            Min = info.getMin();
+            Max = info.getMax();
+            Inc = info.getInc();
+            estatico = info.getestatico();
+            incremento = info.getincremento();
+            SI = info.getSI();
+            SIS = info.getSIS();
+            TS = info.getTS();
+            TE = info.getTE();
+            WCP = info.getWCP();
+            H = info.getH();
+            Enfriamento = info.getEnfriamento();
+            Calentamiento = info.getCalentamiento();
+            CTo = info.getCTo();
+            CCo = info.getCCo();
+            CapitalCost = info.getCapitalCost();
+            OperationCost = info.getOperationCost();
+            ui->treeWidget->setColumnCount(1);
+            ui->treeWidget->setHeaderLabel("Information available:");
+            QString LISTA1;
+            QStringList LISTA2;
+            if(Checkboxes[2] == 1){ // UNIFORME COSTO PROBLEMA
+                LISTA1 = "Cost prediction";
+                LISTA2 << "Agglomerates" << "Capital cost" << "Operational cost" << "Total cost" ;
+                AddRoots(LISTA1,LISTA2);
+                LISTA2.clear();
+            }
+            if(Checkboxes[9] == 1){ // Cost vs DTmin
+                LISTA1 = "Cost vs DTmin";
+                LISTA2 << "Data points";
+                AddRoots(LISTA1,LISTA2);
+                LISTA2.clear();
+            }
+            F.flush();
+            F.close();
+        }else if(TabAnali == 1){
+            QFile F(INFO_CT_DIVERSO);
+            if (!F.open(QIODevice::ReadOnly)){
+                QMessageBox::warning(this,tr("Error"),tr("Error"));
+                return;
+            }
+            QDataStream in27(&F);
+            in27.setVersion(QDataStream::Qt_5_4);
+            QVector<double> Checkboxes1,TS1,TE1,WCP1,H1,Enfriamento1,Calentamiento1,OperationCost1;
+            QVector<QVector<double>> CapitalCost1;
+            Checkboxes1.resize(8),TS1.resize(1),TE1.resize(1),WCP1.resize(1),H1.resize(1);
+            Enfriamento1.resize(1),Calentamiento1.resize(1),OperationCost1.resize(1);
+            CapitalCost1.resize(1);
+            for(int i = 0; i < CapitalCost1.size(); i++){
+                CapitalCost1[i].resize(2);
+            }
+            double Min1 = 0, Max1 = 0, Inc1 = 0, K1 = 0;
+            int CTo1 = 0, CCo1 = 0;
+            bool estatico1 = false, incremento1 = false, SI1 = false, SIS1 = false;
+            infoapdiversa info(Checkboxes1,estatico1,incremento1,SI1,SIS1,K1,Min1,Max1,Inc1,TS1,TE1,WCP1,H1,Enfriamento1,
+                               Calentamiento1,CTo1,CCo1,CapitalCost1,OperationCost1);
+            in27 >> info;
+            QVector<double> Checkboxes = info.getCheckboxes();
+            K  = info.getK();
+            Min = info.getMin();
+            Max = info.getMax();
+            Inc = info.getInc();
+            estatico = info.getestatico();
+            incremento = info.getincremento();
+            SI = info.getSI();
+            SIS = info.getSIS();
+            TS = info.getTS();
+            TE = info.getTE();
+            WCP = info.getWCP();
+            H = info.getH();
+            Enfriamento = info.getEnfriamento();
+            Calentamiento = info.getCalentamiento();
+            CTo = info.getCTo();
+            CCo = info.getCCo();
+            CapitalCost = info.getCapitalCost();
+            OperationCost = info.getOperationCost();
+            ui->treeWidget->setColumnCount(1);
+            ui->treeWidget->setHeaderLabel("Information available:");
+            QString LISTA1;
+            QStringList LISTA2;
+            if(Checkboxes[2] == 1){ // UNIFORME COSTO PROBLEMA
+                LISTA1 = "Cost prediction";
+                LISTA2 << "Agglomerates" << "Capital cost" << "Operational cost" << "Total cost" ;
+                AddRoots(LISTA1,LISTA2);
+                LISTA2.clear();
+            }
+            if(Checkboxes[9] == 1){ // Cost vs DTmin
+                LISTA1 = "Cost vs DTmin";
+                LISTA2 << "Data points";
+                AddRoots(LISTA1,LISTA2);
+                LISTA2.clear();
+            }
+            F.flush();
+            F.close();
         }
     }
     FileMadre.flush();
@@ -1079,7 +1321,178 @@ void Summary::desplegar_info(QString text)
             item_select_datapoint = ui->treeWidget->itemAbove(clicked)->text(column);
             DataPoints(item_select_datapoint);
         }
-    }//VENTANA MADRE ELSE IF
+    }else if(Ventanamadre == 2){//VENTANA AREA TARGETS
+        if(text == "Area prediction" || text == "DTm log" || text == "Areas" || text == "Enthalpy"){
+            if(TabAnali == 0){
+                if(estatico == true){
+                    ui->tablewidget->clear();
+                    ui->tablewidget->setVisible(true);
+                    QStringList Headers;
+                    Headers << "INT1" << "INT2" << "INT3" << "INT4" << "DeltaT1" << "DeltaT2"
+                            << "DTmlog" << "Enthalpy" << "Areas";
+                    ui->tablewidget->setColumnCount(9);
+                    ui->tablewidget->setHorizontalHeaderLabels(Headers);
+                    double DTmin = Min;
+                    areas_estatico_uniforme(DTmin,text);
+                }else if(incremento == true){
+                    ui->tablewidget->clear();
+                    ui->tablewidget->setVisible(true);
+                    QStringList Headers;
+                    Headers << "INT1" << "INT2" << "INT3" << "INT4" << "DeltaT1" << "DeltaT2"
+                            << "DTmlog" << "Enthalpy" << "Areas";
+                    ui->tablewidget->setColumnCount(9);
+                    ui->tablewidget->setHorizontalHeaderLabels(Headers);
+                    double Minimo = Min, Maximo = Max, Incremento = Inc;
+                    double Iteraciones =(Maximo-Minimo)/Incremento;
+                    double DTmin = Minimo;
+                    CONTADORFILAS = 0;
+                    for(int i = 0; i < (Iteraciones+1) ; i++){
+                        areas_incremento_uniforme(DTmin,text);
+                        DTmin = DTmin + Incremento;
+                    }
+                    CONTADORROWS.clear();
+                }
+            }else if(TabAnali == 1){
+                if(estatico == true){
+                    ui->tablewidget->clear();
+                    ui->tablewidget->setVisible(true);
+                    QStringList Headers;
+                    Headers << "INT1" << "INT2" << "INT3" << "INT4"  << "DTmlog" << "Enthalpy" << "Areas";
+                    ui->tablewidget->setColumnCount(7);
+                    ui->tablewidget->setHorizontalHeaderLabels(Headers);
+                    double k = K , DTmin = Min;
+                    float punto1 = .5, punto2 = 10;
+                    areas_estatico_diverso(DTmin,k,text,punto1,punto2);
+                }else if(incremento == true){
+                    ui->tablewidget->clear();
+                    ui->tablewidget->setVisible(true);
+                    QStringList Headers;
+                    Headers << "INT1" << "INT2" << "INT3" << "INT4"  << "DTmlog" << "Enthalpy" << "Areas";
+                    ui->tablewidget->setColumnCount(7);
+                    ui->tablewidget->setHorizontalHeaderLabels(Headers);
+                    double Minimo = Min, Maximo = Max, Incremento = Inc, k = K;
+                    double Iteraciones =(Maximo-Minimo)/Incremento;
+                    double DTmin = Minimo;
+                    float punto1 = .5, punto2 = 10;
+                    CONTADORFILAS = 0;
+                    for(int i = 0; i < (Iteraciones+1) ; i++){
+                        areas_incremento_diverso(DTmin, k, text, punto1, punto2);
+                        punto1 = K1;
+                        punto2 = 10;
+                        DTmin = DTmin + Incremento;
+                    }
+                    CONTADORROWS.clear();
+                }
+            }
+        }else if(text == "Areas vs DTmin"){
+            ui->qcustomplot->setVisible(true);
+            ui->qcustomplot->legend->setVisible(true);
+            ui->qcustomplot->legend->setFont(QFont("Helvetica",9));
+            ui->qcustomplot->setLocale(QLocale(QLocale::English, QLocale::UnitedKingdom));
+            if(TabAnali == 0 ){
+                    double Minimo = Min;
+                    double Maximo = Max;
+                    double Incremento = Inc;
+                    grafico_Areas_uniforme(Minimo,Maximo,Incremento);
+            }else if(TabAnali == 1){
+                    double Minimo = Min;
+                    double Maximo = Max;
+                    double Incremento = Inc;
+                    double k = K;
+                    float punto1 = .5, punto2 = 10;
+                    grafico_Areas_diverso(Minimo,Maximo,Incremento,k,punto1,punto2);
+            }
+        }else if(text == "Data points"){
+            int column = ui->treeWidget->currentColumn();
+            item_select_datapoint = ui->treeWidget->itemAbove(clicked)->text(column);
+            DataPoints(item_select_datapoint);
+        }
+    }else if(Ventanamadre == 3){
+        if(text == "Cost prediction" || text == "Agglomerates" || text == "Capital cost" ||
+                         text == "Operational cost" || text =="Total cost"){
+            if(TabAnali == 0){ // UNIFORME
+                if(estatico == true){
+                    ui->tablewidget->clear();
+                    ui->tablewidget->setVisible(true);
+                    QStringList Headers;
+                    Headers << "Area Agglomerate" << "Energy Agglomerate" << "Capital cost" << "Operational cost" << "Total cost" ;
+                    ui->tablewidget->setColumnCount(5);
+                    ui->tablewidget->setHorizontalHeaderLabels(Headers);
+                    double DTmin = Min;
+                    costos_estatico_uniforme(DTmin,text);
+                }else if(incremento == true){
+                    ui->tablewidget->clear();
+                    ui->tablewidget->setVisible(true);
+                    QStringList Headers;
+                    Headers << "Area Agglomerate" << "Energy Agglomerate" << "Capital cost" << "Operational cost" << "Total cost" ;
+                    ui->tablewidget->setColumnCount(5);
+                    ui->tablewidget->setHorizontalHeaderLabels(Headers);
+                    double Minimo = Min, Maximo = Max, Incremento = Inc;
+                    double Iteraciones =(Maximo-Minimo)/Incremento;
+                    double DTmin = Minimo;
+                    CONTADORFILAS = 0;
+                    for(int i = 0; i < (Iteraciones+1) ; i++){
+                        costos_incremento_uniforme(DTmin,text);
+                        DTmin = DTmin + Incremento;
+                    }
+                    CONTADORROWS.clear();
+                }
+            }else if(TabAnali == 1){ // DIVERSO
+                if(estatico == true){
+                    ui->tablewidget->clear();
+                    ui->tablewidget->setVisible(true);
+                    QStringList Headers;
+                    Headers << "Area Agglomerate" << "Energy Agglomerate" << "Capital cost" << "Operational cost" << "Total cost" ;
+                    ui->tablewidget->setColumnCount(5);
+                    ui->tablewidget->setHorizontalHeaderLabels(Headers);
+                    double k = K , DTmin = Min;
+                    float punto1 = .5, punto2 = 10;
+                    costos_estatico_diversa(DTmin,k,text,punto1,punto2);
+                }else if(incremento == true){
+                    ui->tablewidget->clear();
+                    ui->tablewidget->setVisible(true);
+                    QStringList Headers;
+                    Headers << "Area Agglomerate" << "Energy Agglomerate" << "Capital cost" << "Operational cost" << "Total cost" ;
+                    ui->tablewidget->setColumnCount(5);
+                    ui->tablewidget->setHorizontalHeaderLabels(Headers);
+                    double Minimo = Min, Maximo = Max, Incremento = Inc, k = K;
+                    double Iteraciones =(Maximo-Minimo)/Incremento;
+                    double DTmin = Minimo;
+                    float punto1 = .5, punto2 = 10;
+                    CONTADORFILAS = 0;
+                    for(int i = 0; i < (Iteraciones+1) ; i++){
+                        costos_incremento_diverso(DTmin,k,text,punto1,punto2);
+                        punto1 = K1;
+                        punto2 = 10;
+                        DTmin = DTmin + Incremento;
+                    }
+                    CONTADORROWS.clear();
+                }
+            }
+        }else if(text == "Cost vs DTmin"){
+            ui->qcustomplot->setVisible(true);
+            ui->qcustomplot->legend->setVisible(true);
+            ui->qcustomplot->legend->setFont(QFont("Helvetica",9));
+            ui->qcustomplot->setLocale(QLocale(QLocale::English, QLocale::UnitedKingdom));
+            if(TabAnali == 0 ){
+                double Minimo = Min;
+                double Maximo = Max;
+                double Incremento = Inc;
+                grafico_Costos_uniforme(Minimo,Maximo,Incremento);
+            }else if(TabAnali == 1){
+                double Minimo = Min;
+                double Maximo = Max;
+                double Incremento = Inc;
+                double k = K;
+                float punto1 = .5, punto2 = 10;
+                grafico_Costos_diverso(Minimo,Maximo,Incremento,k,punto1,punto2);
+            }
+        }else if(text == "Data points"){
+            int column = ui->treeWidget->currentColumn();
+            item_select_datapoint = ui->treeWidget->itemAbove(clicked)->text(column);
+            DataPoints(item_select_datapoint);
+        }
+    }
 }
 
 void Summary::tablaproblema_estatico_uniforme(double DTmin, QString text)
@@ -5004,7 +5417,7 @@ void Summary::on_pushButton_clicked()
         text.append("<p>").append("     Project directed by: Dr. Arturo Jimenez Gutierrez     ").append("</p>");
         text.append("<p>").append("     Contributors: Ing. Gabriel Hernàndez Morales     ").append("</p>");
         text.append("<p>").append("                                                      ").append("</p>");
-        if(Ventanamadre == 1){
+        if(Ventanamadre == 1 || Ventanamadre == 2 || Ventanamadre == 3){
             if(item_select =="Problem table" || item_select == "Minimal hot utility"
                     || item_select == "Minimal cold utility" || item_select == "Location of the pinch point"){
                 if(TabAnali == 0 || TabAnali == 1){ //uniforme y diversa
@@ -6401,7 +6814,7 @@ void Summary::on_pushButton_clicked()
 QString Summary::espaceadorcalculos(QString text,QString row,int j )
 {
     QString espace;
-    if(Ventanamadre == 1){ // VENTANA ANALISIS PERSONALIZADO
+    if(Ventanamadre == 1 || Ventanamadre == 2 || Ventanamadre == 3){ // VENTANA ANALISIS PERSONALIZADO
         if(text =="Problem table" || text == "Minimal hot utility"
                 || text == "Minimal cold utility" || text == "Location of the pinch point"){
             if(TabAnali == 0 || TabAnali == 1 || TabAnali == 2){ // todas las metodologias
@@ -6546,7 +6959,7 @@ QString Summary::espaceadorcalculos(QString text,QString row,int j )
 QStringList Summary::unidadestablas(QString item_select)
 {
     QStringList lista;
-    if(Ventanamadre == 1){ // VENTANA ANALISIS PERSONALIZADO
+    if(Ventanamadre == 1 || Ventanamadre == 2 || Ventanamadre == 3){ // VENTANA ANALISIS PERSONALIZADO
         if(item_select =="Problem table" || item_select == "Minimal hot utility"
                 || item_select == "Minimal cold utility" || item_select == "Location of the pinch point"){
             if(TabAnali == 0 || TabAnali == 1 || TabAnali == 2){ // todas las metodologias

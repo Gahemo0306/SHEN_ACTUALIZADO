@@ -57,7 +57,7 @@ private slots:
     void on_UFCapcomboBox_currentIndexChanged(int index);
     void on_Ucapital_units_currentIndexChanged(int index);
     void on_UTodcomboBox_currentIndexChanged(int index);
-    void on_DTodcomboBox_currentIndexChanged(int index);
+//    void on_DTodcomboBox_currentIndexChanged(int index);
     void on_DFCapcomboBox_currentIndexChanged(int index);
     void on_Dcapital_units_currentIndexChanged(int index);
     void on_BTodcomboBox_currentIndexChanged(int index);
@@ -75,7 +75,6 @@ private slots:
     bool metodoservicios_both();
     bool metodocapital_both();
     bool metodooperacional_both();
-
 private:
     Ui::AnalisisPersonalizado *ui;
     double Max,Min,Inc,K;

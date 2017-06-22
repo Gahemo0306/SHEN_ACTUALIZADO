@@ -521,6 +521,14 @@ void AnalisisPersonalizado::Ucheckboxes_seleccionadas()
             ui->Ucapital_units->setEnabled(false); // capital unidades
             ui->UText20->setEnabled(true); // label unidades temp
             ui->UText21->setEnabled(true); // label unidades film
+            ui->UtableCapital->setEnabled(false);
+            ui->UtableCapital->clear();
+            ui->UtableCapital->setRowCount(0);
+            ui->UtableCapital->setColumnCount(0);
+            ui->UtableOperation->setEnabled(false);
+            ui->UtableOperation->clear();
+            ui->UtableOperation->setRowCount(0);
+            ui->UtableOperation->setColumnCount(0);
         }
         else if(uap==false && ucp==true){
             ui->Utext4->setEnabled(true); //area
@@ -553,6 +561,18 @@ void AnalisisPersonalizado::Ucheckboxes_seleccionadas()
             ui->Ucapital_units->setEnabled(false); // capital unidades
             ui->UText20->setEnabled(false); // label unidades temp
             ui->UText21->setEnabled(false); // label unidades film
+            ui->UtableCapital->setEnabled(false);
+            ui->UtableCapital->clear();
+            ui->UtableCapital->setRowCount(0);
+            ui->UtableCapital->setColumnCount(0);
+            ui->UtableOperation->setEnabled(false);
+            ui->UtableOperation->clear();
+            ui->UtableOperation->setRowCount(0);
+            ui->UtableOperation->setColumnCount(0);
+            ui->services->setEnabled(false);
+            ui->services->clear();
+            ui->services->setRowCount(0);
+            ui->services->setColumnCount(0);
         }
     }
     else if (incremento == true){
@@ -651,6 +671,14 @@ void AnalisisPersonalizado::Ucheckboxes_seleccionadas()
             ui->Uunits_temp->setEnabled(true); // temperaturas
             ui->Uunits_film->setEnabled(true); // coeficiente de pelicula
             ui->Ucapital_units->setEnabled(false); // capital unidades
+            ui->UtableCapital->setEnabled(false);
+            ui->UtableCapital->clear();
+            ui->UtableCapital->setRowCount(0);
+            ui->UtableCapital->setColumnCount(0);
+            ui->UtableOperation->setEnabled(false);
+            ui->UtableOperation->clear();
+            ui->UtableOperation->setRowCount(0);
+            ui->UtableOperation->setColumnCount(0);
         }
         else if(uap==true && uadtm==true && ucp==true && ucdtm==false){
             ui->Utext4->setEnabled(true); //area
@@ -811,6 +839,18 @@ void AnalisisPersonalizado::Ucheckboxes_seleccionadas()
             ui->Uunits_temp->setEnabled(false); // temperaturas
             ui->Uunits_film->setEnabled(false); // coeficiente de pelicula
             ui->Ucapital_units->setEnabled(false); // capital unidades
+            ui->UtableCapital->setEnabled(false);
+            ui->UtableCapital->clear();
+            ui->UtableCapital->setRowCount(0);
+            ui->UtableCapital->setColumnCount(0);
+            ui->UtableOperation->setEnabled(false);
+            ui->UtableOperation->clear();
+            ui->UtableOperation->setRowCount(0);
+            ui->UtableOperation->setColumnCount(0);
+            ui->services->setEnabled(false);
+            ui->services->clear();
+            ui->services->setRowCount(0);
+            ui->services->setColumnCount(0);
         }
     }
 }
@@ -827,11 +867,9 @@ void AnalisisPersonalizado::Dcheckboxes_seleccionadas()
         // aqui se tiene solamente 2 opciones
         if(Dap==true && Dcp==true){
             ui->Dtext9->setEnabled(true); //areas
-            ui->Dtext11->setEnabled(true); // tpe design
             ui->Dtext8->setEnabled(true); // costrequirement
             ui->Dtext10->setEnabled(true); // cost capital
             ui->Dtext12->setEnabled(true); // cost opera
-            ui->DTodcomboBox->setEnabled(true);  // type of desing
             ui->DFCapcomboBox->setEnabled(true); // type costo de capital
             ui->DAVISO->setEnabled(true); // label aviso
             ui->D_unitsoperation->setEnabled(true); //label unidades costos
@@ -840,14 +878,28 @@ void AnalisisPersonalizado::Dcheckboxes_seleccionadas()
             ui->Dcapital_units->setEnabled(true); // capital unidades
             ui->Dtext20->setEnabled(true); // label unidades temp
             ui->Dtext21->setEnabled(true); // label unidades film
+            ui->Dservices->setEnabled(true);
+            ui->Dservices->setColumnCount(3);
+            ui->Dservices->setRowCount(2);
+            titulos.clear();
+            titulos << "Tsupply" << "Ttarget" << "h";
+            ui->Dservices->setHorizontalHeaderLabels(titulos);
+            titulos.clear();
+            titulos << "Heating service" << "Cooling service";
+            ui->Dservices->setVerticalHeaderLabels(titulos);
+            for(int i = 0 ; i < ui->Dservices->rowCount(); i++ )
+            {
+                for( int c = 0; c < ui->Dservices->columnCount(); ++c )
+                {
+                    ui->Dservices->setItem(i, c, new QTableWidgetItem("Empty"));
+                }
+            }
         }
         else if(Dap==true && Dcp==false){
             ui->Dtext9->setEnabled(true); //areas
-            ui->Dtext11->setEnabled(true); // tpe design
             ui->Dtext8->setEnabled(false); // costrequirement
             ui->Dtext10->setEnabled(false); // cost capital
             ui->Dtext12->setEnabled(false); // cost opera
-            ui->DTodcomboBox->setEnabled(true);  // type of desing
             ui->DFCapcomboBox->setEnabled(false); // type costo de capital
             ui->DAVISO->setEnabled(false); // label aviso
             ui->D_unitsoperation->setEnabled(false); //label unidades costos
@@ -856,14 +908,36 @@ void AnalisisPersonalizado::Dcheckboxes_seleccionadas()
             ui->Dcapital_units->setEnabled(false); // capital unidades
             ui->Dtext20->setEnabled(true); // label unidades temp
             ui->Dtext21->setEnabled(true); // label unidades film
+            ui->DtableCapital->setEnabled(false);
+            ui->DtableCapital->clear();
+            ui->DtableCapital->setRowCount(0);
+            ui->DtableCapital->setColumnCount(0);
+            ui->DtableOperation->setEnabled(false);
+            ui->DtableOperation->clear();
+            ui->DtableOperation->setRowCount(0);
+            ui->DtableOperation->setColumnCount(0);
+            ui->Dservices->setEnabled(true);
+            ui->Dservices->setColumnCount(3);
+            ui->Dservices->setRowCount(2);
+            titulos.clear();
+            titulos << "Tsupply" << "Ttarget" << "h";
+            ui->Dservices->setHorizontalHeaderLabels(titulos);
+            titulos.clear();
+            titulos << "Heating service" << "Cooling service";
+            ui->Dservices->setVerticalHeaderLabels(titulos);
+            for(int i = 0 ; i < ui->Dservices->rowCount(); i++ )
+            {
+                for( int c = 0; c < ui->Dservices->columnCount(); ++c )
+                {
+                    ui->Dservices->setItem(i, c, new QTableWidgetItem("Empty"));
+                }
+            }
         }
         else if(Dap==false && Dcp==true){
             ui->Dtext9->setEnabled(true); //areas
-            ui->Dtext11->setEnabled(true); // tpe design
             ui->Dtext8->setEnabled(true); // costrequirement
             ui->Dtext10->setEnabled(true); // cost capital
             ui->Dtext12->setEnabled(true); // cost opera
-            ui->DTodcomboBox->setEnabled(true);  // type of desing
             ui->DFCapcomboBox->setEnabled(true); // type costo de capital
             ui->DAVISO->setEnabled(false); // label aviso
             ui->D_unitsoperation->setEnabled(true); //label unidades costos
@@ -872,14 +946,28 @@ void AnalisisPersonalizado::Dcheckboxes_seleccionadas()
             ui->Dcapital_units->setEnabled(true); // capital unidades
             ui->Dtext20->setEnabled(true); // label unidades temp
             ui->Dtext21->setEnabled(true); // label unidades film
+            ui->Dservices->setEnabled(true);
+            ui->Dservices->setColumnCount(3);
+            ui->Dservices->setRowCount(2);
+            titulos.clear();
+            titulos << "Tsupply" << "Ttarget" << "h";
+            ui->Dservices->setHorizontalHeaderLabels(titulos);
+            titulos.clear();
+            titulos << "Heating service" << "Cooling service";
+            ui->Dservices->setVerticalHeaderLabels(titulos);
+            for(int i = 0 ; i < ui->Dservices->rowCount(); i++ )
+            {
+                for( int c = 0; c < ui->Dservices->columnCount(); ++c )
+                {
+                    ui->Dservices->setItem(i, c, new QTableWidgetItem("Empty"));
+                }
+            }
         }
         else if(Dap==false && Dcp==false){
             ui->Dtext9->setEnabled(false); //areas
-            ui->Dtext11->setEnabled(false); // tpe design
             ui->Dtext8->setEnabled(false); // costrequirement
             ui->Dtext10->setEnabled(false); // cost capital
             ui->Dtext12->setEnabled(false); // cost opera
-            ui->DTodcomboBox->setEnabled(false);  // type of desing
             ui->DFCapcomboBox->setEnabled(false); // type costo de capital
             ui->DAVISO->setEnabled(false); // label aviso
             ui->D_unitsoperation->setEnabled(false); //label unidades costos
@@ -888,12 +976,23 @@ void AnalisisPersonalizado::Dcheckboxes_seleccionadas()
             ui->Dcapital_units->setEnabled(false); // capital unidades
             ui->Dtext20->setEnabled(false); // label unidades temp
             ui->Dtext21->setEnabled(false); // label unidades film
+            ui->DtableCapital->setEnabled(false);
+            ui->DtableCapital->clear();
+            ui->DtableCapital->setRowCount(0);
+            ui->DtableCapital->setColumnCount(0);
+            ui->DtableOperation->setEnabled(false);
+            ui->DtableOperation->clear();
+            ui->DtableOperation->setRowCount(0);
+            ui->DtableOperation->setColumnCount(0);
+            ui->Dservices->setEnabled(false);
+            ui->Dservices->clear();
+            ui->Dservices->setRowCount(0);
+            ui->Dservices->setColumnCount(0);
         }
     }
     else if (Dincremento == true){
         if(Dap==true && Dadtm==true && Dcp==true && Dcdtm==true){
             ui->Dtext9->setEnabled(true); //areas
-            ui->Dtext11->setEnabled(true); // tpe design
             ui->Dtext8->setEnabled(true); // costrequirement
             ui->Dtext10->setEnabled(true); // cost capital
             ui->Dtext12->setEnabled(true); // cost opera
@@ -901,19 +1000,32 @@ void AnalisisPersonalizado::Dcheckboxes_seleccionadas()
             ui->Dunits_temp->setEnabled(true); // temperaturas
             ui->Dunits_film->setEnabled(true); // coeficiente de pelicula
             ui->Dcapital_units->setEnabled(true); // capital unidades
-            ui->DTodcomboBox->setEnabled(true);  // type of desing
             ui->DFCapcomboBox->setEnabled(true); // type costo de capital
             ui->Dtext20->setEnabled(true); // label unidades temp
             ui->Dtext21->setEnabled(true); // label unidades film
             ui->DAVISO->setEnabled(true); // label aviso
+            ui->Dservices->setEnabled(true);
+            ui->Dservices->setColumnCount(3);
+            ui->Dservices->setRowCount(2);
+            titulos.clear();
+            titulos << "Tsupply" << "Ttarget" << "h";
+            ui->Dservices->setHorizontalHeaderLabels(titulos);
+            titulos.clear();
+            titulos << "Heating service" << "Cooling service";
+            ui->Dservices->setVerticalHeaderLabels(titulos);
+            for(int i = 0 ; i < ui->Dservices->rowCount(); i++ )
+            {
+                for( int c = 0; c < ui->Dservices->columnCount(); ++c )
+                {
+                    ui->Dservices->setItem(i, c, new QTableWidgetItem("Empty"));
+                }
+            }
         }
         else if(Dap==false && Dadtm==true && Dcp==true && Dcdtm==true){
             ui->Dtext9->setEnabled(true); //areas
-            ui->Dtext11->setEnabled(true); // tpe design
             ui->Dtext8->setEnabled(true); // costrequirement
             ui->Dtext10->setEnabled(true); // cost capital
             ui->Dtext12->setEnabled(true); // cost opera
-            ui->DTodcomboBox->setEnabled(true);  // type of desing
             ui->DFCapcomboBox->setEnabled(true); // type costo de capital
             ui->Dtext20->setEnabled(true); // label unidades temp
             ui->Dtext21->setEnabled(true); // label unidades film
@@ -922,14 +1034,28 @@ void AnalisisPersonalizado::Dcheckboxes_seleccionadas()
             ui->Dunits_temp->setEnabled(true); // temperaturas
             ui->Dunits_film->setEnabled(true); // coeficiente de pelicula
             ui->Dcapital_units->setEnabled(true); // capital unidades
+            ui->Dservices->setEnabled(true);
+            ui->Dservices->setColumnCount(3);
+            ui->Dservices->setRowCount(2);
+            titulos.clear();
+            titulos << "Tsupply" << "Ttarget" << "h";
+            ui->Dservices->setHorizontalHeaderLabels(titulos);
+            titulos.clear();
+            titulos << "Heating service" << "Cooling service";
+            ui->Dservices->setVerticalHeaderLabels(titulos);
+            for(int i = 0 ; i < ui->Dservices->rowCount(); i++ )
+            {
+                for( int c = 0; c < ui->Dservices->columnCount(); ++c )
+                {
+                    ui->Dservices->setItem(i, c, new QTableWidgetItem("Empty"));
+                }
+            }
         }
         else if(Dap==false && Dadtm==false && Dcp==true  && Dcdtm==true){
             ui->Dtext9->setEnabled(true); //areas
-            ui->Dtext11->setEnabled(true); // tpe design
             ui->Dtext8->setEnabled(true); // costrequirement
             ui->Dtext10->setEnabled(true); // cost capital
             ui->Dtext12->setEnabled(true); // cost opera
-            ui->DTodcomboBox->setEnabled(true);  // type of desing
             ui->DFCapcomboBox->setEnabled(true); // type costo de capital
             ui->Dtext20->setEnabled(true); // label unidades temp
             ui->Dtext21->setEnabled(true); // label unidades film
@@ -938,14 +1064,28 @@ void AnalisisPersonalizado::Dcheckboxes_seleccionadas()
             ui->Dunits_temp->setEnabled(true); // temperaturas
             ui->Dunits_film->setEnabled(true); // coeficiente de pelicula
             ui->Dcapital_units->setEnabled(true); // capital unidades
+            ui->Dservices->setEnabled(true);
+            ui->Dservices->setColumnCount(3);
+            ui->Dservices->setRowCount(2);
+            titulos.clear();
+            titulos << "Tsupply" << "Ttarget" << "h";
+            ui->Dservices->setHorizontalHeaderLabels(titulos);
+            titulos.clear();
+            titulos << "Heating service" << "Cooling service";
+            ui->Dservices->setVerticalHeaderLabels(titulos);
+            for(int i = 0 ; i < ui->Dservices->rowCount(); i++ )
+            {
+                for( int c = 0; c < ui->Dservices->columnCount(); ++c )
+                {
+                    ui->Dservices->setItem(i, c, new QTableWidgetItem("Empty"));
+                }
+            }
         }
         else if(Dap==false && Dadtm==false && Dcp==false && Dcdtm==true){
             ui->Dtext9->setEnabled(true); //areas
-            ui->Dtext11->setEnabled(true); // tpe design
             ui->Dtext8->setEnabled(true); // costrequirement
             ui->Dtext10->setEnabled(true); // cost capital
             ui->Dtext12->setEnabled(true); // cost opera
-            ui->DTodcomboBox->setEnabled(true);  // type of desing
             ui->DFCapcomboBox->setEnabled(true); // type costo de capital
             ui->Dtext20->setEnabled(true); // label unidades temp
             ui->Dtext21->setEnabled(true); // label unidades film
@@ -954,10 +1094,25 @@ void AnalisisPersonalizado::Dcheckboxes_seleccionadas()
             ui->Dunits_temp->setEnabled(true); // temperaturas
             ui->Dunits_film->setEnabled(true); // coeficiente de pelicula
             ui->Dcapital_units->setEnabled(true); // capital unidades
+            ui->Dservices->setEnabled(true);
+            ui->Dservices->setColumnCount(3);
+            ui->Dservices->setRowCount(2);
+            titulos.clear();
+            titulos << "Tsupply" << "Ttarget" << "h";
+            ui->Dservices->setHorizontalHeaderLabels(titulos);
+            titulos.clear();
+            titulos << "Heating service" << "Cooling service";
+            ui->Dservices->setVerticalHeaderLabels(titulos);
+            for(int i = 0 ; i < ui->Dservices->rowCount(); i++ )
+            {
+                for( int c = 0; c < ui->Dservices->columnCount(); ++c )
+                {
+                    ui->Dservices->setItem(i, c, new QTableWidgetItem("Empty"));
+                }
+            }
         }
         else if(Dap==true  && Dadtm==false && Dcp==false && Dcdtm==false){
             ui->Dtext9->setEnabled(true); //areas
-            ui->Dtext11->setEnabled(true); // tpe design
             ui->Dtext8->setEnabled(false); // costrequirement
             ui->Dtext10->setEnabled(false); // cost capital
             ui->Dtext12->setEnabled(false); // cost opera
@@ -966,18 +1121,31 @@ void AnalisisPersonalizado::Dcheckboxes_seleccionadas()
             ui->Dcapital_units->setEnabled(false); // capital unidades
             ui->DAVISO->setEnabled(false); // label aviso
             ui->D_unitsoperation->setEnabled(false); //label unidades costos
-            ui->DTodcomboBox->setEnabled(true);  // type of desing
             ui->DFCapcomboBox->setEnabled(false); // type costo de capital
             ui->Dtext20->setEnabled(true); // label unidades temp
             ui->Dtext21->setEnabled(true); // label unidades film
+            ui->Dservices->setEnabled(true);
+            ui->Dservices->setColumnCount(3);
+            ui->Dservices->setRowCount(2);
+            titulos.clear();
+            titulos << "Tsupply" << "Ttarget" << "h";
+            ui->Dservices->setHorizontalHeaderLabels(titulos);
+            titulos.clear();
+            titulos << "Heating service" << "Cooling service";
+            ui->Dservices->setVerticalHeaderLabels(titulos);
+            for(int i = 0 ; i < ui->Dservices->rowCount(); i++ )
+            {
+                for( int c = 0; c < ui->Dservices->columnCount(); ++c )
+                {
+                    ui->Dservices->setItem(i, c, new QTableWidgetItem("Empty"));
+                }
+            }
         }
         else if(Dap==true  && Dadtm==true  && Dcp==false && Dcdtm==false){
             ui->Dtext9->setEnabled(true); //areas
-            ui->Dtext11->setEnabled(true); // tpe design
             ui->Dtext8->setEnabled(false); // costrequirement
             ui->Dtext10->setEnabled(false); // cost capital
             ui->Dtext12->setEnabled(false); // cost opera
-            ui->DTodcomboBox->setEnabled(true);  // type of desing
             ui->DFCapcomboBox->setEnabled(false); // type costo de capital
             ui->Dtext20->setEnabled(true); // label unidades temp
             ui->Dtext21->setEnabled(true); // label unidades film
@@ -986,14 +1154,36 @@ void AnalisisPersonalizado::Dcheckboxes_seleccionadas()
             ui->Dunits_temp->setEnabled(true); // temperaturas
             ui->Dunits_film->setEnabled(true); // coeficiente de pelicula
             ui->Dcapital_units->setEnabled(false); // capital unidades
+            ui->DtableCapital->setEnabled(false);
+            ui->DtableCapital->clear();
+            ui->DtableCapital->setRowCount(0);
+            ui->DtableCapital->setColumnCount(0);
+            ui->DtableOperation->setEnabled(false);
+            ui->DtableOperation->clear();
+            ui->DtableOperation->setRowCount(0);
+            ui->DtableOperation->setColumnCount(0);
+            ui->Dservices->setEnabled(true);
+            ui->Dservices->setColumnCount(3);
+            ui->Dservices->setRowCount(2);
+            titulos.clear();
+            titulos << "Tsupply" << "Ttarget" << "h";
+            ui->Dservices->setHorizontalHeaderLabels(titulos);
+            titulos.clear();
+            titulos << "Heating service" << "Cooling service";
+            ui->Dservices->setVerticalHeaderLabels(titulos);
+            for(int i = 0 ; i < ui->Dservices->rowCount(); i++ )
+            {
+                for( int c = 0; c < ui->Dservices->columnCount(); ++c )
+                {
+                    ui->Dservices->setItem(i, c, new QTableWidgetItem("Empty"));
+                }
+            }
         }
         else if(Dap==true && Dadtm==true && Dcp==true && Dcdtm==false){
             ui->Dtext9->setEnabled(true); //areas
-            ui->Dtext11->setEnabled(true); // tpe design
             ui->Dtext8->setEnabled(true); // costrequirement
             ui->Dtext10->setEnabled(true); // cost capital
             ui->Dtext12->setEnabled(true); // cost opera
-            ui->DTodcomboBox->setEnabled(true);  // type of desing
             ui->DFCapcomboBox->setEnabled(true); // type costo de capital
             ui->Dtext20->setEnabled(true); // label unidades temp
             ui->Dtext21->setEnabled(true); // label unidades film
@@ -1002,14 +1192,28 @@ void AnalisisPersonalizado::Dcheckboxes_seleccionadas()
             ui->Dunits_temp->setEnabled(true); // temperaturas
             ui->Dunits_film->setEnabled(true); // coeficiente de pelicula
             ui->Dcapital_units->setEnabled(true); // capital unidades
+            ui->Dservices->setEnabled(true);
+            ui->Dservices->setColumnCount(3);
+            ui->Dservices->setRowCount(2);
+            titulos.clear();
+            titulos << "Tsupply" << "Ttarget" << "h";
+            ui->Dservices->setHorizontalHeaderLabels(titulos);
+            titulos.clear();
+            titulos << "Heating service" << "Cooling service";
+            ui->Dservices->setVerticalHeaderLabels(titulos);
+            for(int i = 0 ; i < ui->Dservices->rowCount(); i++ )
+            {
+                for( int c = 0; c < ui->Dservices->columnCount(); ++c )
+                {
+                    ui->Dservices->setItem(i, c, new QTableWidgetItem("Empty"));
+                }
+            }
         }
         else if(Dap==true && Dadtm==false && Dcp==true && Dcdtm==false){
             ui->Dtext9->setEnabled(true); //areas
-            ui->Dtext11->setEnabled(true); // tpe design
             ui->Dtext8->setEnabled(true); // costrequirement
             ui->Dtext10->setEnabled(true); // cost capital
             ui->Dtext12->setEnabled(true); // cost opera
-            ui->DTodcomboBox->setEnabled(true);  // type of desing
             ui->DFCapcomboBox->setEnabled(true); // type costo de capital
             ui->Dtext20->setEnabled(true); // label unidades temp
             ui->Dtext21->setEnabled(true); // label unidades film
@@ -1018,14 +1222,28 @@ void AnalisisPersonalizado::Dcheckboxes_seleccionadas()
             ui->Dunits_temp->setEnabled(true); // temperaturas
             ui->Dunits_film->setEnabled(true); // coeficiente de pelicula
             ui->Dcapital_units->setEnabled(true); // capital unidades
+            ui->Dservices->setEnabled(true);
+            ui->Dservices->setColumnCount(3);
+            ui->Dservices->setRowCount(2);
+            titulos.clear();
+            titulos << "Tsupply" << "Ttarget" << "h";
+            ui->Dservices->setHorizontalHeaderLabels(titulos);
+            titulos.clear();
+            titulos << "Heating service" << "Cooling service";
+            ui->Dservices->setVerticalHeaderLabels(titulos);
+            for(int i = 0 ; i < ui->Dservices->rowCount(); i++ )
+            {
+                for( int c = 0; c < ui->Dservices->columnCount(); ++c )
+                {
+                    ui->Dservices->setItem(i, c, new QTableWidgetItem("Empty"));
+                }
+            }
         }
         else if(Dap==true && Dadtm==false && Dcp==false && Dcdtm==true){
             ui->Dtext9->setEnabled(true); //areas
-            ui->Dtext11->setEnabled(true); // tpe design
             ui->Dtext8->setEnabled(true); // costrequirement
             ui->Dtext10->setEnabled(true); // cost capital
             ui->Dtext12->setEnabled(true); // cost opera
-            ui->DTodcomboBox->setEnabled(true);  // type of desing
             ui->DFCapcomboBox->setEnabled(true); // type costo de capital
             ui->Dtext20->setEnabled(true); // label unidades temp
             ui->Dtext21->setEnabled(true); // label unidades film
@@ -1034,14 +1252,28 @@ void AnalisisPersonalizado::Dcheckboxes_seleccionadas()
             ui->Dunits_temp->setEnabled(true); // temperaturas
             ui->Dunits_film->setEnabled(true); // coeficiente de pelicula
             ui->Dcapital_units->setEnabled(true); // capital unidades
+            ui->Dservices->setEnabled(true);
+            ui->Dservices->setColumnCount(3);
+            ui->Dservices->setRowCount(2);
+            titulos.clear();
+            titulos << "Tsupply" << "Ttarget" << "h";
+            ui->Dservices->setHorizontalHeaderLabels(titulos);
+            titulos.clear();
+            titulos << "Heating service" << "Cooling service";
+            ui->Dservices->setVerticalHeaderLabels(titulos);
+            for(int i = 0 ; i < ui->Dservices->rowCount(); i++ )
+            {
+                for( int c = 0; c < ui->Dservices->columnCount(); ++c )
+                {
+                    ui->Dservices->setItem(i, c, new QTableWidgetItem("Empty"));
+                }
+            }
         }
         else if(Dap==false && Dadtm==true && Dcp==true && Dcdtm==false){
             ui->Dtext9->setEnabled(true); //areas
-            ui->Dtext11->setEnabled(true); // tpe design
             ui->Dtext8->setEnabled(true); // costrequirement
             ui->Dtext10->setEnabled(true); // cost capital
             ui->Dtext12->setEnabled(true); // cost opera
-            ui->DTodcomboBox->setEnabled(true);  // type of desing
             ui->DFCapcomboBox->setEnabled(true); // type costo de capital
             ui->Dtext20->setEnabled(true); // label unidades temp
             ui->Dtext21->setEnabled(true); // label unidades film
@@ -1050,14 +1282,28 @@ void AnalisisPersonalizado::Dcheckboxes_seleccionadas()
             ui->Dunits_temp->setEnabled(true); // temperaturas
             ui->Dunits_film->setEnabled(true); // coeficiente de pelicula
             ui->Dcapital_units->setEnabled(true); // capital unidades
+            ui->Dservices->setEnabled(true);
+            ui->Dservices->setColumnCount(3);
+            ui->Dservices->setRowCount(2);
+            titulos.clear();
+            titulos << "Tsupply" << "Ttarget" << "h";
+            ui->Dservices->setHorizontalHeaderLabels(titulos);
+            titulos.clear();
+            titulos << "Heating service" << "Cooling service";
+            ui->Dservices->setVerticalHeaderLabels(titulos);
+            for(int i = 0 ; i < ui->Dservices->rowCount(); i++ )
+            {
+                for( int c = 0; c < ui->Dservices->columnCount(); ++c )
+                {
+                    ui->Dservices->setItem(i, c, new QTableWidgetItem("Empty"));
+                }
+            }
         }
         else if(Dap==false && Dadtm==true && Dcp==false && Dcdtm==true){
             ui->Dtext9->setEnabled(true); //areas
-            ui->Dtext11->setEnabled(true); // tpe design
             ui->Dtext8->setEnabled(true); // costrequirement
             ui->Dtext10->setEnabled(true); // cost capital
             ui->Dtext12->setEnabled(true); // cost opera
-            ui->DTodcomboBox->setEnabled(true);  // type of desing
             ui->DFCapcomboBox->setEnabled(true); // type costo de capital
             ui->Dtext20->setEnabled(true); // label unidades temp
             ui->Dtext21->setEnabled(true); // label unidades film
@@ -1066,14 +1312,28 @@ void AnalisisPersonalizado::Dcheckboxes_seleccionadas()
             ui->Dunits_temp->setEnabled(true); // temperaturas
             ui->Dunits_film->setEnabled(true); // coeficiente de pelicula
             ui->Dcapital_units->setEnabled(true); // capital unidades
+            ui->Dservices->setEnabled(true);
+            ui->Dservices->setColumnCount(3);
+            ui->Dservices->setRowCount(2);
+            titulos.clear();
+            titulos << "Tsupply" << "Ttarget" << "h";
+            ui->Dservices->setHorizontalHeaderLabels(titulos);
+            titulos.clear();
+            titulos << "Heating service" << "Cooling service";
+            ui->Dservices->setVerticalHeaderLabels(titulos);
+            for(int i = 0 ; i < ui->Dservices->rowCount(); i++ )
+            {
+                for( int c = 0; c < ui->Dservices->columnCount(); ++c )
+                {
+                    ui->Dservices->setItem(i, c, new QTableWidgetItem("Empty"));
+                }
+            }
         }
         else if(Dap==false && Dadtm==true && Dcp==false && Dcdtm==false){
             ui->Dtext9->setEnabled(true); //areas
-            ui->Dtext11->setEnabled(true); // tpe design
             ui->Dtext8->setEnabled(false); // costrequirement
             ui->Dtext10->setEnabled(false); // cost capital
             ui->Dtext12->setEnabled(false); // cost opera
-            ui->DTodcomboBox->setEnabled(true);  // type of desing
             ui->DFCapcomboBox->setEnabled(false); // type costo de capital
             ui->Dtext20->setEnabled(true); // label unidades temp
             ui->Dtext21->setEnabled(true); // label unidades film
@@ -1082,14 +1342,28 @@ void AnalisisPersonalizado::Dcheckboxes_seleccionadas()
             ui->Dunits_temp->setEnabled(true); // temperaturas
             ui->Dunits_film->setEnabled(true); // coeficiente de pelicula
             ui->Dcapital_units->setEnabled(false); // capital unidades
+            ui->Dservices->setEnabled(true);
+            ui->Dservices->setColumnCount(3);
+            ui->Dservices->setRowCount(2);
+            titulos.clear();
+            titulos << "Tsupply" << "Ttarget" << "h";
+            ui->Dservices->setHorizontalHeaderLabels(titulos);
+            titulos.clear();
+            titulos << "Heating service" << "Cooling service";
+            ui->Dservices->setVerticalHeaderLabels(titulos);
+            for(int i = 0 ; i < ui->Dservices->rowCount(); i++ )
+            {
+                for( int c = 0; c < ui->Dservices->columnCount(); ++c )
+                {
+                    ui->Dservices->setItem(i, c, new QTableWidgetItem("Empty"));
+                }
+            }
         }
         else if(Dap==false && Dadtm==false && Dcp==true && Dcdtm==false){
             ui->Dtext9->setEnabled(true); //areas
-            ui->Dtext11->setEnabled(true); // tpe design
             ui->Dtext8->setEnabled(true); // costrequirement
             ui->Dtext10->setEnabled(true); // cost capital
             ui->Dtext12->setEnabled(true); // cost opera
-            ui->DTodcomboBox->setEnabled(true);  // type of desing
             ui->DFCapcomboBox->setEnabled(true); // type costo de capital
             ui->Dtext20->setEnabled(true); // label unidades temp
             ui->Dtext21->setEnabled(true); // label unidades film
@@ -1098,14 +1372,28 @@ void AnalisisPersonalizado::Dcheckboxes_seleccionadas()
             ui->Dunits_temp->setEnabled(true); // temperaturas
             ui->Dunits_film->setEnabled(true); // coeficiente de pelicula
             ui->Dcapital_units->setEnabled(true); // capital unidades
+            ui->Dservices->setEnabled(true);
+            ui->Dservices->setColumnCount(3);
+            ui->Dservices->setRowCount(2);
+            titulos.clear();
+            titulos << "Tsupply" << "Ttarget" << "h";
+            ui->Dservices->setHorizontalHeaderLabels(titulos);
+            titulos.clear();
+            titulos << "Heating service" << "Cooling service";
+            ui->Dservices->setVerticalHeaderLabels(titulos);
+            for(int i = 0 ; i < ui->Dservices->rowCount(); i++ )
+            {
+                for( int c = 0; c < ui->Dservices->columnCount(); ++c )
+                {
+                    ui->Dservices->setItem(i, c, new QTableWidgetItem("Empty"));
+                }
+            }
         }
         else if(Dap==true && Dadtm==true && Dcp==false && Dcdtm==true){
             ui->Dtext9->setEnabled(true); //areas
-            ui->Dtext11->setEnabled(true); // tpe design
             ui->Dtext8->setEnabled(true); // costrequirement
             ui->Dtext10->setEnabled(true); // cost capital
             ui->Dtext12->setEnabled(true); // cost opera
-            ui->DTodcomboBox->setEnabled(true);  // type of desing
             ui->DFCapcomboBox->setEnabled(true); // type costo de capital
             ui->Dtext20->setEnabled(true); // label unidades temp
             ui->Dtext21->setEnabled(true); // label unidades film
@@ -1114,14 +1402,28 @@ void AnalisisPersonalizado::Dcheckboxes_seleccionadas()
             ui->Dunits_temp->setEnabled(true); // temperaturas
             ui->Dunits_film->setEnabled(true); // coeficiente de pelicula
             ui->Dcapital_units->setEnabled(true); // capital unidades
+            ui->Dservices->setEnabled(true);
+            ui->Dservices->setColumnCount(3);
+            ui->Dservices->setRowCount(2);
+            titulos.clear();
+            titulos << "Tsupply" << "Ttarget" << "h";
+            ui->Dservices->setHorizontalHeaderLabels(titulos);
+            titulos.clear();
+            titulos << "Heating service" << "Cooling service";
+            ui->Dservices->setVerticalHeaderLabels(titulos);
+            for(int i = 0 ; i < ui->Dservices->rowCount(); i++ )
+            {
+                for( int c = 0; c < ui->Dservices->columnCount(); ++c )
+                {
+                    ui->Dservices->setItem(i, c, new QTableWidgetItem("Empty"));
+                }
+            }
         }
         else if(Dap==true && Dadtm==false && Dcp==true && Dcdtm==true){
             ui->Dtext9->setEnabled(true); //areas
-            ui->Dtext11->setEnabled(true); // tpe design
             ui->Dtext8->setEnabled(true); // costrequirement
             ui->Dtext10->setEnabled(true); // cost capital
             ui->Dtext12->setEnabled(true); // cost opera
-            ui->DTodcomboBox->setEnabled(true);  // type of desing
             ui->DFCapcomboBox->setEnabled(true); // type costo de capital
             ui->Dtext20->setEnabled(true); // label unidades temp
             ui->Dtext21->setEnabled(true); // label unidades film
@@ -1130,14 +1432,28 @@ void AnalisisPersonalizado::Dcheckboxes_seleccionadas()
             ui->Dunits_temp->setEnabled(true); // temperaturas
             ui->Dunits_film->setEnabled(true); // coeficiente de pelicula
             ui->Dcapital_units->setEnabled(true); // capital unidades
+            ui->Dservices->setEnabled(true);
+            ui->Dservices->setColumnCount(3);
+            ui->Dservices->setRowCount(2);
+            titulos.clear();
+            titulos << "Tsupply" << "Ttarget" << "h";
+            ui->Dservices->setHorizontalHeaderLabels(titulos);
+            titulos.clear();
+            titulos << "Heating service" << "Cooling service";
+            ui->Dservices->setVerticalHeaderLabels(titulos);
+            for(int i = 0 ; i < ui->Dservices->rowCount(); i++ )
+            {
+                for( int c = 0; c < ui->Dservices->columnCount(); ++c )
+                {
+                    ui->Dservices->setItem(i, c, new QTableWidgetItem("Empty"));
+                }
+            }
         }
         else if(Dap==false && Dadtm==false && Dcp==false && Dcdtm==false){
             ui->Dtext9->setEnabled(false); //areas
-            ui->Dtext11->setEnabled(false); // tpe design
             ui->Dtext8->setEnabled(false); // costrequirement
             ui->Dtext10->setEnabled(false); // cost capital
             ui->Dtext12->setEnabled(false); // cost opera
-            ui->DTodcomboBox->setEnabled(false);  // type of desing
             ui->DFCapcomboBox->setEnabled(false); // type costo de capital
             ui->Dtext20->setEnabled(false); // label unidades temp
             ui->Dtext21->setEnabled(false); // label unidades film
@@ -1146,6 +1462,18 @@ void AnalisisPersonalizado::Dcheckboxes_seleccionadas()
             ui->Dunits_temp->setEnabled(false); // temperaturas
             ui->Dunits_film->setEnabled(false); // coeficiente de pelicula
             ui->Dcapital_units->setEnabled(false); // capital unidades
+            ui->DtableCapital->setEnabled(false);
+            ui->DtableCapital->clear();
+            ui->DtableCapital->setRowCount(0);
+            ui->DtableCapital->setColumnCount(0);
+            ui->DtableOperation->setEnabled(false);
+            ui->DtableOperation->clear();
+            ui->DtableOperation->setRowCount(0);
+            ui->DtableOperation->setColumnCount(0);
+            ui->Dservices->setEnabled(false);
+            ui->Dservices->clear();
+            ui->Dservices->setRowCount(0);
+            ui->Dservices->setColumnCount(0);
         }
     }
 }
@@ -1191,6 +1519,14 @@ void AnalisisPersonalizado::Bcheckboxes_seleccionadas()
             ui->Bcapital_units->setEnabled(false); // capital unidades
             ui->Btext20->setEnabled(true); // label unidades temp
             ui->Btext21->setEnabled(true); // label unidades film
+            ui->BtableCapital->setEnabled(false);
+            ui->BtableCapital->clear();
+            ui->BtableCapital->setRowCount(0);
+            ui->BtableCapital->setColumnCount(0);
+            ui->BtableOperation->setEnabled(false);
+            ui->BtableOperation->clear();
+            ui->BtableOperation->setRowCount(0);
+            ui->BtableOperation->setColumnCount(0);
         }
         else if(Bap==false && Bcp==true){
             ui->Btext9->setEnabled(true); //areas
@@ -1223,6 +1559,18 @@ void AnalisisPersonalizado::Bcheckboxes_seleccionadas()
             ui->Bcapital_units->setEnabled(false); // capital unidades
             ui->Btext20->setEnabled(false); // label unidades temp
             ui->Btext21->setEnabled(false); // label unidades film
+            ui->BtableCapital->setEnabled(false);
+            ui->BtableCapital->clear();
+            ui->BtableCapital->setRowCount(0);
+            ui->BtableCapital->setColumnCount(0);
+            ui->BtableOperation->setEnabled(false);
+            ui->BtableOperation->clear();
+            ui->BtableOperation->setRowCount(0);
+            ui->BtableOperation->setColumnCount(0);
+            ui->Bservices->setEnabled(false);
+            ui->Bservices->clear();
+            ui->Bservices->setRowCount(0);
+            ui->Bservices->setColumnCount(0);
         }
     }
     else if (Bincremento == true){
@@ -1321,6 +1669,14 @@ void AnalisisPersonalizado::Bcheckboxes_seleccionadas()
             ui->Bunits_temp->setEnabled(true); // temperaturas
             ui->Bunits_film->setEnabled(true); // coeficiente de pelicula
             ui->Bcapital_units->setEnabled(false); // capital unidades
+            ui->BtableCapital->setEnabled(false);
+            ui->BtableCapital->clear();
+            ui->BtableCapital->setRowCount(0);
+            ui->BtableCapital->setColumnCount(0);
+            ui->BtableOperation->setEnabled(false);
+            ui->BtableOperation->clear();
+            ui->BtableOperation->setRowCount(0);
+            ui->BtableOperation->setColumnCount(0);
         }
         else if(Bap==true &&  Badtm==true && Bcp==true && Bcdtm==false){
             ui->Btext9->setEnabled(true); //areas
@@ -1481,6 +1837,18 @@ void AnalisisPersonalizado::Bcheckboxes_seleccionadas()
             ui->Bunits_temp->setEnabled(false); // temperaturas
             ui->Bunits_film->setEnabled(false); // coeficiente de pelicula
             ui->Bcapital_units->setEnabled(false); // capital unidades
+            ui->BtableCapital->setEnabled(false);
+            ui->BtableCapital->clear();
+            ui->BtableCapital->setRowCount(0);
+            ui->BtableCapital->setColumnCount(0);
+            ui->BtableOperation->setEnabled(false);
+            ui->BtableOperation->clear();
+            ui->BtableOperation->setRowCount(0);
+            ui->BtableOperation->setColumnCount(0);
+            ui->Bservices->setEnabled(false);
+            ui->Bservices->clear();
+            ui->Bservices->setRowCount(0);
+            ui->Bservices->setColumnCount(0);
         }
     }
 }
@@ -2021,7 +2389,6 @@ void AnalisisPersonalizado::Info_Uniforme(bool UPT, bool UAP, bool UCP,
             OperationCost.resize(rcsize);
         }
     }
-    qDebug() << Enfriamento  << Calentamiento << CapitalCost << OperationCost;
     infoapuniforme info(Checkboxes,estatico,incremento,SI,SIS,Min,Max,Inc,TS,TE,WCP,H,Enfriamento,
                         Calentamiento,CTo,CCo,CapitalCost,OperationCost);
     out25 << info;
@@ -2126,13 +2493,8 @@ void AnalisisPersonalizado::Info_Diversa(bool DPT, bool DAP, bool DCP,
             units2.ConvertirUnidades(Cal,Enf,SI,SIS,A);
             Enfriamento = units2.getEnfriamento();
             Calentamiento = units2.getCalentamiento();
-            if (ui->DTodcomboBox->currentIndex() == 1){
-                CTo = 1;
-                CCo = 0;
-            }else if(ui->DTodcomboBox->currentIndex() == 2){
-                CTo = 0;
-                CCo = 1;
-            }
+            CTo = 0;
+            CCo = 0;
         }else if(DAP == false){
             Enfriamento.resize(2);
             Calentamiento.resize(2);
@@ -2160,13 +2522,8 @@ void AnalisisPersonalizado::Info_Diversa(bool DPT, bool DAP, bool DCP,
             units2.ConvertirUnidades(Cal,Enf,SI,SIS,A);
             Enfriamento = units2.getEnfriamento();
             Calentamiento = units2.getCalentamiento();
-            if (ui->DTodcomboBox->currentIndex() == 1){
-                CTo = 1;
-                CCo = 0;
-            }else if(ui->DTodcomboBox->currentIndex() == 2){
-                CTo = 0;
-                CCo = 1;
-            }
+            CTo = 0;
+            CCo = 0;
             if(metodocapital_uniformes() == false && metodooperacional_uniformes() == false){
                 QMessageBox::warning(this,tr("Error"),tr("Missing information"));
                 return;
@@ -2313,13 +2670,8 @@ void AnalisisPersonalizado::Info_Diversa(bool DPT, bool DAP, bool DCP,
             units2.ConvertirUnidades(Cal,Enf,SI,SIS,A);
             Enfriamento = units2.getEnfriamento();
             Calentamiento = units2.getCalentamiento();
-            if (ui->DTodcomboBox->currentIndex() == 1){
-                CTo = 1;
-                CCo = 0;
-            }else if(ui->DTodcomboBox->currentIndex() == 2){
-                CTo = 0;
-                CCo = 1;
-            }
+            CTo = 0;
+            CCo = 0;
         }else{
             Enfriamento.resize(2);
             Calentamiento.resize(2);
@@ -2346,13 +2698,8 @@ void AnalisisPersonalizado::Info_Diversa(bool DPT, bool DAP, bool DCP,
             units2.ConvertirUnidades(Cal,Enf,SI,SIS,A);
             Enfriamento = units2.getEnfriamento();
             Calentamiento = units2.getCalentamiento();
-            if (ui->DTodcomboBox->currentIndex() == 1){
-                CTo = 1;
-                CCo = 0;
-            }else if(ui->DTodcomboBox->currentIndex() == 2){
-                CTo = 0;
-                CCo = 1;
-            }
+            CTo = 0;
+            CCo = 0;
             if(metodocapital_diverso() == false && metodooperacional_diverso() == false){
                 QMessageBox::warning(this,tr("Error"),tr("Missing information"));
                 return;
@@ -3053,30 +3400,6 @@ bool AnalisisPersonalizado::metodooperacional_both()
         }
     }
     return true;
-}
-
-void AnalisisPersonalizado::on_DTodcomboBox_currentIndexChanged(int index)
-{
-    if(index == 0){
-        return;
-    }else if(index >= 1){
-        ui->Dservices->setEnabled(true);
-        ui->Dservices->setColumnCount(3);
-        ui->Dservices->setRowCount(2);
-        titulos.clear();
-        titulos << "Tsupply" << "Ttarget" << "h";
-        ui->Dservices->setHorizontalHeaderLabels(titulos);
-        titulos.clear();
-        titulos << "Heating service" << "Cooling service";
-        ui->Dservices->setVerticalHeaderLabels(titulos);
-        for(int i = 0 ; i < ui->Dservices->rowCount(); i++ )
-        {
-            for( int c = 0; c < ui->Dservices->columnCount(); ++c )
-            {
-                ui->Dservices->setItem(i, c, new QTableWidgetItem("Empty"));
-            }
-        }
-    }
 }
 
 void AnalisisPersonalizado::on_DFCapcomboBox_currentIndexChanged(int index)

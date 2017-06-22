@@ -19,6 +19,8 @@
 #include "summary.h"
 #include "problemtable.h"
 #include "help.h"
+#include "areatargeting.h"
+#include "costtargeting.h"
 
 VentanaPrincipal::VentanaPrincipal(QWidget *parent) :
     QMainWindow(parent),
@@ -63,6 +65,12 @@ void VentanaPrincipal::loadSubWindow(QWidget *widget,int ValorACTION)
     }else if( ValorACTION == 7){
         Titulo = "Help";
         RutaIcono = ":/resources/Resources/ayuda.png";
+    }else if(ValorACTION == 8){
+        Titulo = "Area targeting";
+        RutaIcono = ":/resources/Resources/intercambiador.png";
+    }else if(ValorACTION == 9){
+        Titulo = "Super Targeting";
+        RutaIcono = ":/resources/Resources/arrow.png";
     }
     auto window = ui->mdiArea->addSubWindow(widget);
     window->setWindowTitle(Titulo);
@@ -144,12 +152,6 @@ void VentanaPrincipal::on_actionPlots_triggered()
     loadSubWindow(new plots(this),ValorACTION);
 }
 
-void VentanaPrincipal::on_actionHelp_triggered()
-{
-    int ValorACTION = 7;
-    loadSubWindow(new Help(this),ValorACTION);
-}
-
 void VentanaPrincipal::on_actionSummary_triggered()
 {
     int ValorACTION = 5;
@@ -158,10 +160,32 @@ void VentanaPrincipal::on_actionSummary_triggered()
 
 void VentanaPrincipal::on_actionProblem_Table_triggered()
 {
-    int ValorACTION = 6;;
+    int ValorACTION = 6;
     loadSubWindow(new problemtable(this),ValorACTION);
 }
 
+void VentanaPrincipal::on_actionHelp_triggered()
+{
+    int ValorACTION = 7;
+    loadSubWindow(new Help(this),ValorACTION);
+}
+
+void VentanaPrincipal::on_actionArea_Targets_triggered()
+{
+    int ValorACTION = 8;
+    areatargeting* _areatargeting = new areatargeting(this);
+//    connect(this, &VentanaPrincipal::);
+//    connect(this, &VentanaPrincipal::actionSave,_tabladatos, &TablaDatos::SaveToogle);
+//    connect(this, &VentanaPrincipal::actionSaveas,_tabladatos, &TablaDatos::SaveAsToogle);
+    loadSubWindow(_areatargeting,ValorACTION);
+}
+
+void VentanaPrincipal::on_actionSuper_Targeting_triggered()
+{
+    int ValorACTION = 9 ;
+    Costtargeting* _costtargeting = new Costtargeting(this);
+    loadSubWindow(_costtargeting,ValorACTION);
+}
 
 void VentanaPrincipal::on_actionSave_triggered()
 {

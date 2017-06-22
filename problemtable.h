@@ -15,6 +15,7 @@
 #include <QWidget>
 #include "duvaloraction.h"
 #include "valoraction.h"
+#include "qcustomplot.h"
 
 namespace Ui {
 class problemtable;
@@ -33,8 +34,25 @@ private slots:
     void on_diverse_clicked();
     void on_pushButton_clicked();
     void radiobuttons();
+    void on_estatico_clicked();
+    void on_incremento_clicked();
+    void tablaproblema_estatico_uniforme(double DTmin);
+    void tablaproblema_incremento_uniforme(double DTmin);
+    void tablaproblema_estatico_diverso(double DTmin,double k);
+    void tablaproblema_incremento_diverso(double DTmin, double k, float punto1, float punto2);
+    void on_Export_clicked();
+    QString espaceadorcalculos(QString row);
+    QStringList unidadestablas();
+    bool compararrows(QString row1, QString row2);
+    QString currDate();
+
 private:
     Ui::problemtable *ui;
+    QStringList CONTADORROWS;
+    int CONTADORFILAS;
+    bool SI,SIS;
+    double Max,Min,Inc,K1,K;
+    QVector<double> TS,TE,WCP,H;
 };
 
 #endif // PROBLEMTABLE_H

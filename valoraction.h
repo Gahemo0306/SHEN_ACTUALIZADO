@@ -42,6 +42,12 @@
 #define INFO_AP_UNIFORME "./Iapu.bin"
 #define INFO_AP_DIVERSO "./Iapd.bin"
 
+#define INFO_AT_UNIFORME "./Iatu.bin"
+#define INFO_AT_DIVERSO "./Iatd.bin"
+
+#define INFO_CT_UNIFORME "./Ictu.bin"
+#define INFO_CT_DIVERSO "./Ictd.bin"
+
 #define AYUDA_FILENAME "./help,bin"
 
 

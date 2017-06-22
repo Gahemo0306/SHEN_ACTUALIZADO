@@ -76,6 +76,7 @@
     </property>
     <addaction name="actionCustom_Analysis"/>
     <addaction name="separator"/>
+    <addaction name="actionProblem_Table"/>
     <addaction name="actionPlots"/>
     <addaction name="actionArea_Targets"/>
     <addaction name="actionSuper_Targeting"/>
@@ -158,8 +159,10 @@
    </attribute>
    <addaction name="actionCustom_Analysis"/>
    <addaction name="actionPlots"/>
-   <addaction name="actionProblem_Table"/>
    <addaction name="separator"/>
+   <addaction name="actionSuper_Targeting"/>
+   <addaction name="actionArea_Targets"/>
+   <addaction name="actionProblem_Table"/>
   </widget>
   <widget class="QToolBar" name="toolBar_2">
    <property name="windowTitle">
@@ -251,22 +254,21 @@
    </property>
   </action>
   <action name="actionArea_Targets">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/resources/Resources/intercambiador.png</normaloff>:/resources/Resources/intercambiador.png</iconset>
+   </property>
    <property name="text">
     <string>Area Targets</string>
    </property>
   </action>
   <action name="actionSuper_Targeting">
-   <property name="text">
-    <string>Super Targeting</string>
-   </property>
-  </action>
-  <action name="actionProblem_Table">
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/resources/Resources/table-icon-png-2.png</normaloff>:/resources/Resources/table-icon-png-2.png</iconset>
+     <normaloff>:/resources/Resources/arrow.png</normaloff>:/resources/Resources/arrow.png</iconset>
    </property>
    <property name="text">
-    <string>Problem Table</string>
+    <string>Super Targeting</string>
    </property>
   </action>
   <action name="actionNetwork_Design">
@@ -375,6 +377,15 @@
   <action name="actionSummary">
    <property name="text">
     <string>Summary</string>
+   </property>
+  </action>
+  <action name="actionProblem_Table">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/resources/Resources/table-icon-png-2.png</normaloff>:/resources/Resources/table-icon-png-2.png</iconset>
+   </property>
+   <property name="text">
+    <string>Problem Table</string>
    </property>
   </action>
  </widget>

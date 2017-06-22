@@ -87,4 +87,6 @@ FORMS    += ventanaprincipal.ui \
 RESOURCES += resources.qrc
 
 DISTFILES += \
-    help_K.html
+    help_K.html \
+    Resources/arrow.png \
+    Resources/intercambiador.png

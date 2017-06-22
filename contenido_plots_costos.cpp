@@ -60,22 +60,38 @@ void contenido_plots_costos::on_diverse_clicked()
 
 void contenido_plots_costos::on_doubleSpinBox_valueChanged()
 {
-    accionguardar();
+    if(ui->Services->isEnabled() == false ||ui->operationcost->isEnabled() == false  || ui->capitalcost->isEnabled() == false ){
+
+    }else{
+        accionguardar();
+    }
 }
 
 void contenido_plots_costos::on_doubleSpinBox_2_valueChanged()
 {
-    accionguardar();
+    if(ui->Services->isEnabled() == false ||ui->operationcost->isEnabled() == false  || ui->capitalcost->isEnabled() == false ){
+
+    }else{
+        accionguardar();
+    }
 }
 
 void contenido_plots_costos::on_doubleSpinBox_3_valueChanged()
 {
-    accionguardar();
+    if(ui->Services->isEnabled() == false ||ui->operationcost->isEnabled() == false  || ui->capitalcost->isEnabled() == false ){
+
+    }else{
+        accionguardar();
+    }
 }
 
 void contenido_plots_costos::on_doubleSpinBox_4_valueChanged()
 {
-    accionguardar();
+    if(ui->Services->isEnabled() == false ||ui->operationcost->isEnabled() == false  || ui->capitalcost->isEnabled() == false ){
+
+    }else{
+        accionguardar();
+    }
 }
 
 void contenido_plots_costos::RADIOBUTTONS()
@@ -110,6 +126,7 @@ void contenido_plots_costos::RADIOBUTTONS()
     ui->groupBox3->setVisible(false);
     ui->labelType->setVisible(false);
     ui->TypeDesign->setVisible(false);
+    ui->TypeDesign->setCurrentIndex(0);
     ui->labelunits->setVisible(false);
     ui->labelfilm->setVisible(false);
     ui->labeltemp->setVisible(false);
@@ -117,15 +134,28 @@ void contenido_plots_costos::RADIOBUTTONS()
     ui->comboBoxTemp->setVisible(false);
     ui->labelAux->setVisible(false);
     ui->Services->setVisible(false);
+    ui->Services->setEnabled(false);
+    ui->Services->setRowCount(0);
+    ui->Services->setColumnCount(0);
+    ui->capitalcost->setVisible(false);
+    ui->capitalcost->setEnabled(false);
+    ui->capitalcost->setRowCount(0);
+    ui->capitalcost->setColumnCount(0);
+    ui->operationcost->setEnabled(false);
+    ui->operationcost->setVisible(false);
+    ui->operationcost->setRowCount(0);
+    ui->operationcost->setColumnCount(0);
     ui->groupBox4->setVisible(false);
     ui->labelcapital->setVisible(false);
     ui->comboBoxCapital->setVisible(false);
+    ui->comboBoxCapital->setCurrentIndex(0);
     ui->capitalcost->setVisible(false);
     ui->labelopera->setVisible(false);
     ui->operationcost->setVisible(false);
     ui->help->setVisible(false);
     ui->label->setVisible(false);
     ui->comboBoxUOP->setVisible(false);
+    ui->comboBoxUOP->setCurrentIndex(0);
     if(uniforme == true){
         ui->groupBox2->setVisible(true);
         ui->labelk->setVisible(false);
@@ -178,6 +208,9 @@ void contenido_plots_costos::RADIOBUTTONS()
             ui->comboBoxFilm->addItems(Lista2);
             ui->comboBoxUOP->addItems(Lista3);
         }
+        if(confirmartablas() == true){
+            return;
+        }
         accionguardar();
     }else if(diverso == true){
         ui->groupBox2->setVisible(true);
@@ -198,7 +231,6 @@ void contenido_plots_costos::RADIOBUTTONS()
         ui->comboBoxFilm->setVisible(true);
         ui->comboBoxTemp->setVisible(true);
         ui->labelAux->setVisible(true);
-        ui->Services->setVisible(true);
         ui->groupBox4->setVisible(true);
         ui->labelcapital->setVisible(true);
         ui->comboBoxCapital->setVisible(true);
@@ -208,6 +240,25 @@ void contenido_plots_costos::RADIOBUTTONS()
         ui->help->setVisible(true);
         ui->label->setVisible(true);
         ui->comboBoxUOP->setVisible(true);
+        ui->Services->setVisible(true);
+        ui->Services->setEnabled(true);
+        ui->Services->setColumnCount(3);
+        ui->Services->setRowCount(2);
+        titulos.clear();
+        titulos << "Tsupply" << "Ttarget" << "h";
+        ui->Services->setHorizontalHeaderLabels(titulos);
+        titulos.clear();
+        titulos << "Heating service" << "Cooling service";
+        ui->Services->setVerticalHeaderLabels(titulos);
+        int row = ui->Services->rowCount();
+        int column = ui->Services->columnCount();
+        for(int i = 0 ; i < row; i++ )
+        {
+            for( int c = 0; c < column; ++c )
+            {
+                ui->Services->setItem(i, c, new QTableWidgetItem("Empty"));
+            }
+        }
         if(SI == true){
             QStringList Lista1,Lista2,Lista3;
             ui->comboBoxTemp->clear();
@@ -228,6 +279,9 @@ void contenido_plots_costos::RADIOBUTTONS()
             ui->comboBoxTemp->addItems(Lista1);
             ui->comboBoxFilm->addItems(Lista2);
             ui->comboBoxUOP->addItems(Lista3);
+        }
+        if(confirmartablas() == true){
+            return;
         }
         accionguardar();
     }
@@ -304,13 +358,6 @@ void contenido_plots_costos::accionguardar()
     Calentamiento = units2.getCalentamiento();
     bool uniforme = ui->uniform->isChecked();
     bool diverso = ui->diverse->isChecked();
-    if (ui->TypeDesign->currentIndex() == 1){
-        CTo = 1;
-        CCo = 0;
-    }else if(ui->TypeDesign->currentIndex() == 2){
-        CTo = 0;
-        CCo = 1;
-    }
     K = ui->doubleSpinBoxK->value();
     Min = ui->doubleSpinBoxMin->value();
     Max = ui->doubleSpinBoxMax->value();
@@ -350,6 +397,13 @@ void contenido_plots_costos::accionguardar()
     }
     OperationCost = ConvertirOperationCost(OperationCost,SI,SIS,cbUOP);
     if(uniforme == true){
+        if (ui->TypeDesign->currentIndex() == 1){
+            CTo = 1;
+            CCo = 0;
+        }else if(ui->TypeDesign->currentIndex() == 2){
+            CTo = 0;
+            CCo = 1;
+        }
         QFile FileBools(VECPLOTCOSTOS_BOOL_FILENAME);
             if (!FileBools.open(QIODevice::WriteOnly)){
                 QMessageBox::warning(this,tr("Error"),tr("Error"));
@@ -491,44 +545,57 @@ void contenido_plots_costos::on_operationcost_cellChanged()
 
 bool contenido_plots_costos::confirmartablas()
 {
-    int row = ui->Services->rowCount();
-    int column = ui->Services->columnCount();
-    for(int i = 0; i < row ; i++){
-        for(int j = 0; j < column ; j++){
-            if (!ui->Services->item(i,j)){
-               return true;
-            }else if (ui->Services->item(i,j)->text() == "Empty"){
-               return true;
-            }else if (ui->Services->item(i,j)->text() == "0"){
-               return true;
+    int row,column;
+    if(ui->Services->isEnabled() == true){
+        row = ui->Services->rowCount();
+        column = ui->Services->columnCount();
+        for(int i = 0; i < row ; i++){
+            for(int j = 0; j < column ; j++){
+                if (!ui->Services->item(i,j)){
+                   return true;
+                }else if (ui->Services->item(i,j)->text() == "Empty"){
+                   return true;
+                }else if (ui->Services->item(i,j)->text() == "0"){
+                   return true;
+                }
             }
         }
+    }else{
+        return true;
     }
-    row = ui->capitalcost->rowCount();
-    column = ui->capitalcost->columnCount();
-    for(int i = 0; i < row ; i++){
-        for(int j = 0; j < column ; j++){
-            if (!ui->capitalcost->item(i,j)){
-               return true;
-            }else if (ui->capitalcost->item(i,j)->text() == "Empty"){
-               return true;
-            }else if (ui->capitalcost->item(i,j)->text() == "0"){
-               return true;
+    if(ui->capitalcost->isEnabled() == true){
+        row = ui->capitalcost->rowCount();
+        column = ui->capitalcost->columnCount();
+        for(int i = 0; i < row ; i++){
+            for(int j = 0; j < column ; j++){
+                if (!ui->capitalcost->item(i,j)){
+                   return true;
+                }else if (ui->capitalcost->item(i,j)->text() == "Empty"){
+                   return true;
+                }else if (ui->capitalcost->item(i,j)->text() == "0"){
+                   return true;
+                }
             }
         }
+    }else{
+        return true;
     }
-    row = ui->operationcost->rowCount();
-    column = ui->operationcost->columnCount();
-    for(int i = 0; i < row ; i++){
-        for(int j = 0; j < column ; j++){
-            if (!ui->operationcost->item(i,j)){
-               return true;
-            }else if (ui->operationcost->item(i,j)->text() == "Empty"){
-               return true;
-            }else if (ui->operationcost->item(i,j)->text() == "0"){
-               return true;
+    if(ui->operationcost->isEnabled() == true){
+        row = ui->operationcost->rowCount();
+        column = ui->operationcost->columnCount();
+        for(int i = 0; i < row ; i++){
+            for(int j = 0; j < column ; j++){
+                if (!ui->operationcost->item(i,j)){
+                   return true;
+                }else if (ui->operationcost->item(i,j)->text() == "Empty"){
+                   return true;
+                }else if (ui->operationcost->item(i,j)->text() == "0"){
+                   return true;
+                }
             }
         }
+    }else{
+        return true;
     }
     return false;
 }
@@ -578,4 +645,30 @@ QVector<double> contenido_plots_costos::ConvertirOperationCost(QVector<double> O
         }
     }
     return OperationCost;
+}
+
+void contenido_plots_costos::on_TypeDesign_currentIndexChanged(int index)
+{
+    if(index == 0){
+        return;
+    }else if(index >= 1){
+        ui->Services->setEnabled(true);
+        ui->Services->setColumnCount(3);
+        ui->Services->setRowCount(2);
+        titulos.clear();
+        titulos << "Tsupply" << "Ttarget" << "h";
+        ui->Services->setHorizontalHeaderLabels(titulos);
+        titulos.clear();
+        titulos << "Heating service" << "Cooling service";
+        ui->Services->setVerticalHeaderLabels(titulos);
+        int row = ui->Services->rowCount();
+        int column = ui->Services->columnCount();
+        for(int i = 0 ; i < row; i++ )
+        {
+            for( int c = 0; c < column; ++c )
+            {
+                ui->Services->setItem(i, c, new QTableWidgetItem("Empty"));
+            }
+        }
+    }
 }

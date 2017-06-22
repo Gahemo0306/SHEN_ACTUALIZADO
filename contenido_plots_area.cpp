@@ -81,8 +81,13 @@ void contenido_plots_area::RADIOBUTTONS()
     ui->SBinc->setVisible(false);
     ui->labelType->setVisible(false);
     ui->TypeDesign->setVisible(false);
+    ui->TypeDesign->setCurrentIndex(0);
     ui->labelAux->setVisible(false);
     ui->Services->setVisible(false);
+    ui->Services->setEnabled(false);
+    ui->Services->setColumnCount(0);
+    ui->Services->setRowCount(0);
+    ui->Services->clear();
     ui->help->setVisible(false);
     bool uniforme = ui->Uniform->isChecked();
     bool diverso = ui->Diverse->isChecked();
@@ -146,6 +151,24 @@ void contenido_plots_area::RADIOBUTTONS()
         ui->TypeDesign->setVisible(false);
         ui->labelAux->setVisible(true);
         ui->Services->setVisible(true);
+        ui->Services->setEnabled(true);
+        ui->Services->setColumnCount(3);
+        ui->Services->setRowCount(2);
+        titulos.clear();
+        titulos << "Tsupply" << "Ttarget" << "h";
+        ui->Services->setHorizontalHeaderLabels(titulos);
+        titulos.clear();
+        titulos << "Heating service" << "Cooling service";
+        ui->Services->setVerticalHeaderLabels(titulos);
+        int row = ui->Services->rowCount();
+        int column = ui->Services->columnCount();
+        for(int i = 0 ; i < row; i++ )
+        {
+            for( int c = 0; c < column; ++c )
+            {
+                ui->Services->setItem(i, c, new QTableWidgetItem("Empty"));
+            }
+        }
         ui->help->setVisible(true);
         if(SI == true){
             QStringList Lista1,Lista2;
@@ -306,28 +329,86 @@ void contenido_plots_area::accionguardar()
 
 }
 
-
 void contenido_plots_area::on_SBk_valueChanged()
 {
-    accionguardar();
+    if(ui->Services->isEnabled() == false){
+        return;
+    }else{
+        accionguardar();
+    }
 }
 
 void contenido_plots_area::on_SBmin_valueChanged()
 {
-    accionguardar();
+    if(ui->Services->isEnabled() == false){
+        return;
+    }else{
+        accionguardar();
+    }
 }
 
 void contenido_plots_area::on_SBmax_valueChanged()
 {
-    accionguardar();
+    if(ui->Services->isEnabled() == false){
+        return;
+    }else{
+        accionguardar();
+    }
 }
 
 void contenido_plots_area::on_SBinc_valueChanged()
 {
-    accionguardar();
+    if(ui->Services->isEnabled() == false){
+        return;
+    }else{
+        accionguardar();
+    }
 }
 
 void contenido_plots_area::on_Services_cellChanged()
 {
-    accionguardar();
+    if(ui->Services->isEnabled() == false){
+        return;
+    }else if(ui->Services->isEnabled() == true){
+        int row = ui->Services->rowCount();
+        int column = ui->Services->columnCount();
+        for(int i = 0; i < row ; i++){
+            for(int j = 0; j < column ; j++){
+                if (!ui->Services->item(i,j)){
+                   return ;
+                }else if (ui->Services->item(i,j)->text() == "Empty"){
+                   return ;
+                }else if (ui->Services->item(i,j)->text() == "0"){
+                   return ;
+                }
+            }
+        }
+        accionguardar();
+    }
+}
+
+void contenido_plots_area::on_TypeDesign_currentIndexChanged(int index)
+{
+    if(index == 0){
+        return;
+    }else if(index >= 1){
+        ui->Services->setEnabled(true);
+        ui->Services->setColumnCount(3);
+        ui->Services->setRowCount(2);
+        titulos.clear();
+        titulos << "Tsupply" << "Ttarget" << "h";
+        ui->Services->setHorizontalHeaderLabels(titulos);
+        titulos.clear();
+        titulos << "Heating service" << "Cooling service";
+        ui->Services->setVerticalHeaderLabels(titulos);
+        int row = ui->Services->rowCount();
+        int column = ui->Services->columnCount();
+        for(int i = 0 ; i < row; i++ )
+        {
+            for( int c = 0; c < column; ++c )
+            {
+                ui->Services->setItem(i, c, new QTableWidgetItem("Empty"));
+            }
+        }
+    }
 }
