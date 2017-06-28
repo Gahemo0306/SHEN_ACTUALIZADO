@@ -3,7 +3,7 @@
 #include <QFile>
 #include <QDataStream>
 #include <QVector>
-
+#include "qcustomplot.h"
 #include <QWidget>
 
 namespace Ui {
@@ -24,11 +24,21 @@ public:
 
 private slots:
     void on_pushButton_clicked();
-
     void on_pushButton_2_clicked();
+    //INTERACCIONES CON LA TABLA
+    void titleDoubleClick(QMouseEvent* event);
+    void axisLabelDoubleClick(QCPAxis *axis, QCPAxis::SelectablePart part);
+    void legendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *item);
+    void selectionChanged();
+    void mousePress();
+    void mouseWheel();
+    void contextMenuRequest(QPoint pos);
+    void moveLegend();
+    //void graphClicked(QCPAbstractPlottable *plottable, int dataIndex);
 
 private:
     Ui::plotter *ui;
+    QCPTextElement *title;
 };
 
 #endif // PLOTTER_H

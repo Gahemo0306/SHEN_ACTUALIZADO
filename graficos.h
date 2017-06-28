@@ -43,10 +43,12 @@ public:
     QVector<QVector<double>> getVecHeatFlow();
     QVector<QVector<double>> getVecAdjHeatFlow();
     QVector<double> getDeficit();
+    QVector<QVector<double>> getVectorCalientesMATRIZ();
+    QVector<QVector<double>> getVectorFriasMATRIZ();
 private:
     QVector<double> MCCENTALPIA,MCCTEMPERATURAS;
     QVector<double> MCFENTALPIAAJUSTADA,MCFTEMPERATURASAJUSTADA;
-    QVector<QVector<double>> MVectorCorrientesTotal;
+    QVector<QVector<double>> MVectorCorrientesTotal ,MVectorCalientesMATRIZ,MVectorFriasMATRIZ;
     QVector<QVector<double>> MVecHeatFlow,MVecAdjHeatFlow;
     QVector<double> MDeficit;
 };

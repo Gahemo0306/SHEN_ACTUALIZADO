@@ -28,7 +28,7 @@ class problemtable : public QWidget
 public:
     explicit problemtable(QWidget *parent = 0);
     ~problemtable();
-
+    void helprecibidor(bool checked);
 private slots:
     void on_uniform_clicked();
     void on_diverse_clicked();
@@ -45,7 +45,9 @@ private slots:
     QStringList unidadestablas();
     bool compararrows(QString row1, QString row2);
     QString currDate();
-
+    void on_help_tableproblem_clicked();
+signals:
+    void helpsender(bool checked);
 private:
     Ui::problemtable *ui;
     QStringList CONTADORROWS;

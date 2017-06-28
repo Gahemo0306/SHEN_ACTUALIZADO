@@ -50,5 +50,8 @@
 
 #define AYUDA_FILENAME "./help,bin"
 
+#define BOOL_DESIGNGRID_FILENAME "./bdg,bin"
+#define UNIFORM_DESIGNGRID_FILENAME "./udg.bin"
+#define DIVERSE_DESIGNGRID_FILENAME "./ddg.bin"
 
 #endif // VALORACTION_H

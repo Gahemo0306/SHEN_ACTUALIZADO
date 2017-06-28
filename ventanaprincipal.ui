@@ -89,17 +89,13 @@
      <string>Language</string>
     </property>
    </widget>
-   <widget class="QMenu" name="menuContact">
-    <property name="title">
-     <string>Contact</string>
-    </property>
-   </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
      <string>Help</string>
     </property>
     <addaction name="actionHelp_Topics"/>
     <addaction name="separator"/>
+    <addaction name="actionContact"/>
     <addaction name="actionAbour_SHEN"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
@@ -121,7 +117,6 @@
    <addaction name="menuEdit"/>
    <addaction name="menuPlots"/>
    <addaction name="menuLanguage"/>
-   <addaction name="menuContact"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
@@ -158,11 +153,11 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionCustom_Analysis"/>
-   <addaction name="actionPlots"/>
    <addaction name="separator"/>
-   <addaction name="actionSuper_Targeting"/>
-   <addaction name="actionArea_Targets"/>
    <addaction name="actionProblem_Table"/>
+   <addaction name="actionPlots"/>
+   <addaction name="actionArea_Targets"/>
+   <addaction name="actionSuper_Targeting"/>
   </widget>
   <widget class="QToolBar" name="toolBar_2">
    <property name="windowTitle">
@@ -386,6 +381,11 @@
    </property>
    <property name="text">
     <string>Problem Table</string>
+   </property>
+  </action>
+  <action name="actionContact">
+   <property name="text">
+    <string>Contact</string>
    </property>
   </action>
  </widget>

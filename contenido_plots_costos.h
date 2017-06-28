@@ -18,20 +18,26 @@ public:
 private slots:
     void on_uniform_clicked();
     void on_diverse_clicked();
-    void on_doubleSpinBox_valueChanged();
-    void on_doubleSpinBox_2_valueChanged();
-    void on_doubleSpinBox_3_valueChanged();
-    void on_doubleSpinBox_4_valueChanged();
     void RADIOBUTTONS();
     void accionguardar();
+    //COMBOBOXES
     void on_comboBoxCapital_currentIndexChanged(int index);
+    void on_comboBoxUOP_currentIndexChanged(int index);
+    void on_TypeDesign_currentIndexChanged(int index);
+    //TABLAS
     void on_Services_cellChanged();
     void on_capitalcost_cellChanged();
     void on_operationcost_cellChanged();
+
+    //ACCIONES
     bool confirmartablas();
-    void on_comboBoxUOP_currentIndexChanged(int index);
     QVector<double> ConvertirOperationCost(QVector<double> OperationCost,bool SI,bool SIS,int A);
-    void on_TypeDesign_currentIndexChanged(int index);
+
+    //SPINBOXES
+    void on_doubleSpinBoxK_valueChanged();
+    void on_doubleSpinBoxMin_valueChanged();
+    void on_doubleSpinBoxMax_valueChanged();
+    void on_doubleSpinBoxInc_valueChanged();
 
 private:
     Ui::contenido_plots_costos *ui;

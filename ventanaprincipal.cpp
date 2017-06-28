@@ -21,6 +21,11 @@
 #include "help.h"
 #include "areatargeting.h"
 #include "costtargeting.h"
+#include "contenido_plots.h"
+#include "contenido_plots_area.h"
+#include "contenido_plots_cc.h"
+#include "networkdesign.h"
+#include "contenido_plots_costos.h"
 
 VentanaPrincipal::VentanaPrincipal(QWidget *parent) :
     QMainWindow(parent),
@@ -43,20 +48,16 @@ void VentanaPrincipal::loadSubWindow(QWidget *widget,int ValorACTION)
     if(ValorACTION == 1){ //NEW
         Titulo = "WorkSpace";
         RutaIcono = ":/resources/Resources/workspace.png";
-    }
-    else if (ValorACTION == 2){ //OPEN
+    }else if (ValorACTION == 2){ //OPEN
         Titulo = "WorkSpace";
         RutaIcono = ":/resources/Resources/workspace.png";
-    }
-    else if (ValorACTION ==3){ //CUSTOM ANALISYS
+    }else if (ValorACTION ==3){ //CUSTOM ANALISYS
         Titulo = "Custom analisys";
         RutaIcono = "";
-    }
-    else if (ValorACTION == 4){ //GRAFICOS
+    }else if (ValorACTION == 4){ //GRAFICOS
         Titulo = "Plots";
         RutaIcono = ":/resources/Resources/plots.png";
-    }
-    else if (ValorACTION == 5){ //SUMMARY
+    }else if (ValorACTION == 5){ //SUMMARY
         Titulo = "Report Options";
         RutaIcono = "";
     }else if (ValorACTION == 6){
@@ -71,6 +72,9 @@ void VentanaPrincipal::loadSubWindow(QWidget *widget,int ValorACTION)
     }else if(ValorACTION == 9){
         Titulo = "Super Targeting";
         RutaIcono = ":/resources/Resources/arrow.png";
+    }else if(ValorACTION == 10){
+        Titulo = "Network Design";
+        RutaIcono = "";
     }
     auto window = ui->mdiArea->addSubWindow(widget);
     window->setWindowTitle(Titulo);
@@ -100,7 +104,7 @@ void VentanaPrincipal::on_actionNew_triggered() //NEW
     int ValorACTION = 1;
     QFile F(VALORACTION_FILENAME);
     if (!F.open(QIODevice::WriteOnly)) {
-        QMessageBox::critical(this,"error",F.errorString());
+        QMessageBox::critical(this,"Error",F.errorString());
         return;
     }
     QDataStream out1(&F);
@@ -143,31 +147,41 @@ void VentanaPrincipal::on_actionClose_triggered()
 void VentanaPrincipal::on_actionCustom_Analysis_triggered()
 {
     int ValorACTION = 3;
-    loadSubWindow(new AnalisisPersonalizado(this),ValorACTION);
-}
-
-void VentanaPrincipal::on_actionPlots_triggered()
-{
-    int ValorACTION = 4;
-    loadSubWindow(new plots(this),ValorACTION);
-}
-
-void VentanaPrincipal::on_actionSummary_triggered()
-{
-    int ValorACTION = 5;
-    loadSubWindow(new Summary(this),ValorACTION);
+    AnalisisPersonalizado* _AP = new AnalisisPersonalizado(this);
+    emit actionHelp(true);
+    connect(_AP,&AnalisisPersonalizado::helpsender,this,&VentanaPrincipal::on_actionHelp_triggered);
+    connect(this, &VentanaPrincipal::actionHelp,_AP,&AnalisisPersonalizado::helprecibidor);
+    loadSubWindow(_AP,ValorACTION);
 }
 
 void VentanaPrincipal::on_actionProblem_Table_triggered()
 {
     int ValorACTION = 6;
-    loadSubWindow(new problemtable(this),ValorACTION);
+    problemtable* _problemtable = new problemtable(this);
+    emit actionHelp(true);
+    connect(_problemtable,&problemtable::helpsender,this,&VentanaPrincipal::on_actionHelp_triggered);
+    connect(this, &VentanaPrincipal::actionHelp,_problemtable,&problemtable::helprecibidor);
+    loadSubWindow(_problemtable,ValorACTION);
+}
+
+void VentanaPrincipal::on_actionPlots_triggered()
+{
+    int ValorACTION = 4;
+    contenido_plots_cc* _contenido_plots_cc = new contenido_plots_cc(this);
+//    Contenido_PLOTS* _contenido_plots = new Contenido_PLOTS(this);
+//    contenido_plots_area* _contenido_plots_area = new contenido_plots_area(this);
+//    contenido_plots_costos* contendio_plots_costos = new contenido_plots_costos(this);
+    connect(_contenido_plots_cc,&contenido_plots_cc::helpsender,this,&VentanaPrincipal::on_actionHelp_triggered);
+    connect(this, &VentanaPrincipal::actionHelp,_contenido_plots_cc,&contenido_plots_cc::helprecibidor);
+    loadSubWindow(new plots(this),ValorACTION);
 }
 
 void VentanaPrincipal::on_actionHelp_triggered()
 {
     int ValorACTION = 7;
-    loadSubWindow(new Help(this),ValorACTION);
+    Help* _help = new Help(this);
+    //connect(this, &VentanaPrincipal::actionHelp,_help,&);
+    loadSubWindow(_help,ValorACTION);
 }
 
 void VentanaPrincipal::on_actionArea_Targets_triggered()
@@ -187,6 +201,20 @@ void VentanaPrincipal::on_actionSuper_Targeting_triggered()
     loadSubWindow(_costtargeting,ValorACTION);
 }
 
+void VentanaPrincipal::on_actionNetwork_Design_triggered()
+{
+    int ValorACTION = 10 ;
+    NetworkDesign* _networkdesign = new NetworkDesign(this);
+    loadSubWindow(_networkdesign,ValorACTION);
+}
+
+void VentanaPrincipal::on_actionSummary_triggered()
+{
+    int ValorACTION = 5;
+    Summary* _summary = new Summary(this);
+    loadSubWindow(_summary,ValorACTION);
+}
+
 void VentanaPrincipal::on_actionSave_triggered()
 {
     bool checked = true;
@@ -198,3 +226,19 @@ void VentanaPrincipal::on_actionSave_as_triggered()
     bool checked = true;
     emit actionSaveas(checked);
 }
+
+void VentanaPrincipal::on_actionHelp_Topics_triggered()
+{
+
+}
+
+void VentanaPrincipal::on_actionAbour_SHEN_triggered()
+{
+
+}
+
+void VentanaPrincipal::on_actionContact_triggered()
+{
+
+}
+

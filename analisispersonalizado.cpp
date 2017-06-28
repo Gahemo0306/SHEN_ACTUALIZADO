@@ -3587,3 +3587,51 @@ void AnalisisPersonalizado::on_BCDTM_clicked()
 {
     Bcheckboxes_seleccionadas();
 }
+
+void AnalisisPersonalizado::helprecibidor(bool checked)
+{
+    if(checked == true){
+        if(ui->tabWidget->currentIndex() == 1){
+            on_Dhelp_clicked();
+        }else if(ui->tabWidget->currentIndex() == 2){
+            on_Bhelp_clicked();
+        }
+    }else{
+        return;
+    }
+}
+
+
+void AnalisisPersonalizado::on_Dhelp_clicked()
+{
+    int Help = 1; //AYUDA SOBRE PARAMETRO K
+    QFile F(AYUDA_FILENAME);
+    if (!F.open(QIODevice::WriteOnly)){
+        QMessageBox::critical(this,tr("Error"),tr("Error"));
+        return;
+    }
+    QDataStream out29(&F);
+    out29.setVersion(QDataStream::Qt_5_4);
+    savehelp help(Help);
+    out29 << help;
+    F.flush();
+    F.close();
+    emit helpsender(true);
+}
+
+void AnalisisPersonalizado::on_Bhelp_clicked()
+{
+    int Help = 1; //AYUDA SOBRE PARAMETRO K
+    QFile F(AYUDA_FILENAME);
+    if (!F.open(QIODevice::WriteOnly)){
+        QMessageBox::critical(this,tr("Error"),tr("Error"));
+        return;
+    }
+    QDataStream out29(&F);
+    out29.setVersion(QDataStream::Qt_5_4);
+    savehelp help(Help);
+    out29 << help;
+    F.flush();
+    F.close();
+    emit helpsender(true);
+}

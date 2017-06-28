@@ -717,4 +717,90 @@ private:
 QDataStream &operator<<(QDataStream &out28, const infoapboth &apboth);
 QDataStream &operator>>(QDataStream &in28, infoapboth &apboth);
 
+class savehelp{
+public:
+    savehelp(int Help);
+    int gethelp();
+    friend QDataStream &operator<<(QDataStream &out29, const savehelp &savehel);
+    friend QDataStream &operator>>(QDataStream &in29, savehelp &savehel);
+private:
+    int MHelp;
+};
+QDataStream &operator<<(QDataStream &out29, const savehelp &savehel);
+QDataStream &operator>>(QDataStream &in29, savehelp &savehel);
+
+class VecCostUniDesGri
+{
+public:
+    VecCostUniDesGri(bool uniforme, bool diverso,
+                    QVector<double> &Calentamiento, QVector<double> &Enfriamento,
+                    QVector<QVector<double> > &CapitalCost, QVector<double> &OperationCost,
+                    double DTmin, int CTo, int CCo);
+    bool getUniforme() const;
+    bool getDiverso() const;
+    double getDTmin() const;
+    int getCTo() const;
+    int getCCo() const;
+    QVector<double> getCalentamiento() const;
+    QVector<double> getEnfriamento() const;
+    QVector<QVector<double>> getCapitalCost() const;
+    QVector<double> getOperationCost() const;
+    friend QDataStream &operator<<(QDataStream &out30, const VecCostUniDesGri &VCUD);
+    friend QDataStream &operator>>(QDataStream &in30, VecCostUniDesGri &VCUD);
+private:
+    bool Muniforme,Mdiverso;
+    double MDTmin, MCTo, MCCo;
+    QVector<double> MCalentamiento;
+    QVector<double> MEnfriamento,MOperationCost;
+    QVector<QVector<double>> MCapitalCost;
+};
+QDataStream &operator<<(QDataStream &out30, const VecCostUniDesGri &VCUD);
+QDataStream &operator>>(QDataStream &in30, VecCostUniDesGri &VCUD);
+
+
+class VecCostDivDesGri
+{
+public:
+    VecCostDivDesGri(bool uniforme, bool diverso,
+                    QVector<double> &Calentamiento, QVector<double> &Enfriamento,
+                    QVector<QVector<double> > &CapitalCost, QVector<double> &OperationCost,
+                    double DTmin, double k);
+    bool getUniforme() const;
+    bool getDiverso() const;
+    double getDTmin() const;
+    double getk() const;
+    QVector<double> getCalentamiento() const;
+    QVector<double> getEnfriamento() const;
+    QVector<QVector<double>> getCapitalCost() const;
+    QVector<double> getOperationCost() const;
+    friend QDataStream &operator<<(QDataStream &out31, const VecCostDivDesGri &VCDD);
+    friend QDataStream &operator>>(QDataStream &in31, VecCostDivDesGri &VCDD);
+private:
+    bool Muniforme,Mdiverso;
+    double MDTmin, Mk;
+    QVector<double> MCalentamiento;
+    QVector<double> MEnfriamento,MOperationCost;
+    QVector<QVector<double>> MCapitalCost;
+};
+QDataStream &operator<<(QDataStream &out31, const VecCostDivDesGri &VCDD);
+QDataStream &operator>>(QDataStream &in31, VecCostDivDesGri &VCDD);
+
+class VecDesigBool
+{
+public:
+    VecDesigBool(bool uniforme,bool diverso);
+    bool getUniforme() const;
+    bool getDiverso() const;
+    friend QDataStream &operator<<(QDataStream &out32, const VecDesigBool &VecDB);
+    friend QDataStream &operator>>(QDataStream &in32,VecDesigBool &VecDB);
+private:
+    bool Muniforme,Mdiverso;
+
+};
+QDataStream &operator<<(QDataStream &out32, const VecDesigBool &VecDB);
+QDataStream &operator>>(QDataStream &in32, VecDesigBool &VecDB);
+
+
+
+
 #endif // DUVALORACTION_H

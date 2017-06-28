@@ -28,7 +28,7 @@ Plot_curvascompuestas::Plot_curvascompuestas(QVector<double> Tsupply, QVector<do
         }
         j++;
     }
-    QVector < QVector <double> > VectorCalientesMATRIZ;
+    QVector<QVector <double>> VectorCalientesMATRIZ;
     Pares = VectorCalientesCp.size();
     nfils = Pares/3;
     ncols = 3;
@@ -354,8 +354,10 @@ Plot_curvascompuestasajustadas::Plot_curvascompuestasajustadas(QVector<double> T
     nfils = Pares/3;
     ncols = 3;
     VectorCalientesMATRIZ.resize(nfils);
+    MVectorCalientesMATRIZ.resize(nfils);
     for(i = 0; i< VectorCalientesMATRIZ.size(); i++)
     {
+        MVectorCalientesMATRIZ[i].resize(ncols);
         VectorCalientesMATRIZ[i].resize(ncols);
     }
     contador = 0;
@@ -363,6 +365,7 @@ Plot_curvascompuestasajustadas::Plot_curvascompuestasajustadas(QVector<double> T
     {
         for(int j = 0; j < VectorCalientesMATRIZ.at(i).size(); j++)
         {
+            MVectorCalientesMATRIZ[i][j] = VectorCalientesCp[contador];
             VectorCalientesMATRIZ[i][j] = VectorCalientesCp[contador];
             contador++;
         }
@@ -372,15 +375,18 @@ Plot_curvascompuestasajustadas::Plot_curvascompuestasajustadas(QVector<double> T
     nfils = Pares/3;
     ncols = 3;
     VectorFriasMATRIZ.resize(nfils);
+    MVectorFriasMATRIZ.resize(nfils);
     for(i = 0; i<  VectorFriasMATRIZ.size(); i++)
     {
         VectorFriasMATRIZ[i].resize(ncols);
+        MVectorFriasMATRIZ[i].resize(ncols);
     }
     contador = 0;
     for(i = 0; i <  VectorFriasMATRIZ.size(); i++)
     {
         for(j = 0; j <  VectorFriasMATRIZ.at(i).size(); j++)
         {
+            MVectorFriasMATRIZ[i][j] = VectorFriasCp[contador];
             VectorFriasMATRIZ[i][j] = VectorFriasCp[contador];
             contador++;
         }
@@ -895,6 +901,15 @@ QVector<double> Plot_curvascompuestasajustadas::getDeficit()
     return MDeficit;
 }
 
+QVector<QVector<double> > Plot_curvascompuestasajustadas::getVectorCalientesMATRIZ()
+{
+    return MVectorCalientesMATRIZ;
+}
+
+QVector<QVector<double> > Plot_curvascompuestasajustadas::getVectorFriasMATRIZ()
+{
+    return MVectorFriasMATRIZ;
+}
 
 Plot_Dtmin_vs_Areas::Plot_Dtmin_vs_Areas(QVector<double> Tsupply, QVector<double> Ttarget,
                                          QVector<double> Cp, QVector<double> h,

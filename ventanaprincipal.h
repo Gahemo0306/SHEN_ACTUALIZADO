@@ -33,11 +33,13 @@ private slots:
     void on_actionProblem_Table_triggered();
     void on_actionSave_triggered();
     void on_actionSave_as_triggered();
-
-
     void on_actionArea_Targets_triggered();
-
     void on_actionSuper_Targeting_triggered();
+    void on_actionHelp_Topics_triggered();
+    void on_actionAbour_SHEN_triggered();
+    void on_actionContact_triggered();
+
+    void on_actionNetwork_Design_triggered();
 
 private:
     Ui::VentanaPrincipal *ui;
@@ -45,6 +47,7 @@ private:
 signals:
     void actionSave(const bool checked);
     void actionSaveas(const bool checked);
+    void actionHelp(const bool checked);
 };
 
 #endif // VENTANAPRINCIPAL_H

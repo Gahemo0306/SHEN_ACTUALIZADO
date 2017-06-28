@@ -58,42 +58,6 @@ void contenido_plots_costos::on_diverse_clicked()
     RADIOBUTTONS();
 }
 
-void contenido_plots_costos::on_doubleSpinBox_valueChanged()
-{
-    if(ui->Services->isEnabled() == false ||ui->operationcost->isEnabled() == false  || ui->capitalcost->isEnabled() == false ){
-
-    }else{
-        accionguardar();
-    }
-}
-
-void contenido_plots_costos::on_doubleSpinBox_2_valueChanged()
-{
-    if(ui->Services->isEnabled() == false ||ui->operationcost->isEnabled() == false  || ui->capitalcost->isEnabled() == false ){
-
-    }else{
-        accionguardar();
-    }
-}
-
-void contenido_plots_costos::on_doubleSpinBox_3_valueChanged()
-{
-    if(ui->Services->isEnabled() == false ||ui->operationcost->isEnabled() == false  || ui->capitalcost->isEnabled() == false ){
-
-    }else{
-        accionguardar();
-    }
-}
-
-void contenido_plots_costos::on_doubleSpinBox_4_valueChanged()
-{
-    if(ui->Services->isEnabled() == false ||ui->operationcost->isEnabled() == false  || ui->capitalcost->isEnabled() == false ){
-
-    }else{
-        accionguardar();
-    }
-}
-
 void contenido_plots_costos::RADIOBUTTONS()
 {
     disconnect(ui->Services, SIGNAL(cellChanged(int,int)), 0, 0);
@@ -670,5 +634,41 @@ void contenido_plots_costos::on_TypeDesign_currentIndexChanged(int index)
                 ui->Services->setItem(i, c, new QTableWidgetItem("Empty"));
             }
         }
+    }
+}
+
+void contenido_plots_costos::on_doubleSpinBoxK_valueChanged()
+{
+    if(ui->Services->isEnabled() == false ||ui->operationcost->isEnabled() == false  || ui->capitalcost->isEnabled() == false ){
+
+    }else{
+        accionguardar();
+    }
+}
+
+void contenido_plots_costos::on_doubleSpinBoxMin_valueChanged()
+{
+    if(ui->Services->isEnabled() == false ||ui->operationcost->isEnabled() == false  || ui->capitalcost->isEnabled() == false ){
+
+    }else{
+        accionguardar();
+    }
+}
+
+void contenido_plots_costos::on_doubleSpinBoxMax_valueChanged()
+{
+    if(ui->Services->isEnabled() == false ||ui->operationcost->isEnabled() == false  || ui->capitalcost->isEnabled() == false ){
+
+    }else{
+        accionguardar();
+    }
+}
+
+void contenido_plots_costos::on_doubleSpinBoxInc_valueChanged()
+{
+    if(ui->Services->isEnabled() == false ||ui->operationcost->isEnabled() == false  || ui->capitalcost->isEnabled() == false ){
+
+    }else{
+        accionguardar();
     }
 }

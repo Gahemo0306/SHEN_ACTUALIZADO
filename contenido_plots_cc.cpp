@@ -191,3 +191,29 @@ void contenido_plots_cc::Guardar()
     FileUnidades.flush();
     FileUnidades.close();
 }
+
+void contenido_plots_cc::on_help_clicked()
+{
+    int Help = 1; //AYUDA SOBRE PARAMETRO K
+    QFile F(AYUDA_FILENAME);
+    if (!F.open(QIODevice::WriteOnly)){
+        QMessageBox::critical(this,tr("Error"),tr("Error"));
+        return;
+    }
+    QDataStream out29(&F);
+    out29.setVersion(QDataStream::Qt_5_4);
+    savehelp help(Help);
+    out29 << help;
+    F.flush();
+    F.close();
+    emit helpsender(true);
+}
+
+void contenido_plots_cc::helprecibidor(bool checked)
+{
+    if(checked == true){
+        on_help_clicked();
+    }else{
+        return;
+    }
+}

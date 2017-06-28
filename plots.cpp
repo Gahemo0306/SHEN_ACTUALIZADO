@@ -2,14 +2,14 @@
 #include "ui_plots.h"
 #include "contenido_plots.h"
 #include "contenido_plots_area.h"
+#include "contenido_plots_cc.h"
+#include "contenido_plots_costos.h"
+#include "plotter.h"
 #include "duvaloraction.h"
 #include "valoraction.h"
-#include "contenido_plots_cc.h"
 #include "QFile"
 #include "QDataStream"
 #include "QMessageBox"
-#include "contenido_plots_costos.h"
-#include "plotter.h"
 
 plots::plots(QWidget *parent) :
     QWidget(parent),

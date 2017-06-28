@@ -15,7 +15,7 @@ class AnalisisPersonalizado : public QWidget
 public:
     explicit AnalisisPersonalizado(QWidget *parent = 0);
     ~AnalisisPersonalizado();
-
+    void helprecibidor(bool checked);
 private slots:
     //RADIOBUTTONS
     void on_IncrementradioButton_clicked();
@@ -75,6 +75,12 @@ private slots:
     bool metodoservicios_both();
     bool metodocapital_both();
     bool metodooperacional_both();
+    void on_Dhelp_clicked();
+
+    void on_Bhelp_clicked();
+
+signals:
+    void helpsender(bool checked);
 private:
     Ui::AnalisisPersonalizado *ui;
     double Max,Min,Inc,K;

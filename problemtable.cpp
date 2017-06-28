@@ -560,3 +560,29 @@ QString problemtable::currDate()
     QDate date = QDate::currentDate();
     return date.toString("dd.MM.yyyy");
 }
+
+void problemtable::on_help_tableproblem_clicked()
+{
+    int Help = 1; //AYUDA SOBRE PARAMETRO K
+    QFile F(AYUDA_FILENAME);
+    if (!F.open(QIODevice::WriteOnly)){
+        QMessageBox::critical(this,tr("Error"),tr("Error"));
+        return;
+    }
+    QDataStream out29(&F);
+    out29.setVersion(QDataStream::Qt_5_4);
+    savehelp help(Help);
+    out29 << help;
+    F.flush();
+    F.close();
+    emit helpsender(true);
+}
+
+void problemtable::helprecibidor(bool checked)
+{
+    if(checked == true){
+        on_help_tableproblem_clicked();
+    }else{
+        return;
+    }
+}

@@ -16,7 +16,6 @@ class Summary : public QWidget
 public:
     explicit Summary(QWidget *parent = 0);
     ~Summary();
-
 private slots:
     //SEÑAL
     void on_treeWidget_doubleClicked();
@@ -25,7 +24,6 @@ private slots:
     void AddChild(QTreeWidgetItem *parent,QString name);
     //MOSTRAR INFO
     void desplegar_info(QString text);
-
     //OPERACIONES
     void tablaproblema_estatico_uniforme(double DTmin,QString text);
     void tablaproblema_incremento_uniforme(double DTmin,QString text);
@@ -103,16 +101,21 @@ private slots:
     void DataPoints(QString text);
     //FECHA
     QString currDate();
-
     //BOTON PDF
     void on_pushButton_clicked();
     QString espaceadorcalculos(QString text, QString row, int j);
     QStringList unidadestablas(QString item_select);
     //QString acompletador(int diferencia, int syzebytes, int tamano);
     bool compararrows(QString row1,QString row2);
-
     void on_pushButton_4_clicked();
-
+    void titleDoubleClick(QMouseEvent* event);
+    void axisLabelDoubleClick(QCPAxis *axis, QCPAxis::SelectablePart part);
+    void legendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *item);
+    void selectionChanged();
+    void mousePress();
+    void mouseWheel();
+    void contextMenuRequest(QPoint pos);
+    void moveLegend();
 private:
     Ui::Summary *ui;
     QString item_select, item_select_datapoint;
