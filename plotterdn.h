@@ -31,15 +31,18 @@ private slots:
     void AlgoritmoCoorrGrafi(QVector<QVector<double>> VectorCalientesMATRIZ,QVector<QVector<double>> VectorFriasMATRIZ ,
                              QVector<double> PuntodePliegue);
     void on_Legend_clicked();
-    bool comparadortemperaturas(double A,double B,double C);
     void heatingService();
     void coolingService();
     void conectStream();
+    void splitStream();
+    bool comparadortemperaturas(double A,double B,double C);
+    bool controlintercambio(double DTmin, double dif1,double dif2, double X1,double X2,double TobjC,double TobjF);
 private:
     Ui::plotterDN *ui;
     QStringList titulos;
     QVector<double> TS,TE,WCP,H,Enfriamento,Calentamiento;
     QVector<QVector<double>> LadoCaliente, LadoFrio, Uniones;
+    int NumUniones,contadorPlots,contadorUniones;
     int CTo,CCo;
     double DTmin, K;
     bool uniforme,diverso,SI,SIS,control;
