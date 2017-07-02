@@ -22,8 +22,6 @@ private slots:
     void selectionChanged();
     void mousePress();
     void mouseWheel();
-    void removeSelectedGraph();
-    void removeAllGraphs();
     void contextMenuRequest(QPoint pos);
     void moveLegend();
     void AlgoritmoCorrientes(QVector<double> TS, QVector<double> TE, QVector<double> WCP, QVector<double> H,
@@ -31,20 +29,22 @@ private slots:
     void AlgoritmoCoorrGrafi(QVector<QVector<double>> VectorCalientesMATRIZ,QVector<QVector<double>> VectorFriasMATRIZ ,
                              QVector<double> PuntodePliegue);
     void on_Legend_clicked();
-    void heatingService();
-    void coolingService();
+    void AuxiliaryService();
     void conectStream();
     void splitStream();
+    void hideItemText();
+    void conectdefault();
     bool comparadortemperaturas(double A,double B,double C);
     bool controlintercambio(double DTmin, double dif1,double dif2, double X1,double X2,double TobjC,double TobjF);
 private:
     Ui::plotterDN *ui;
     QStringList titulos;
     QVector<double> TS,TE,WCP,H,Enfriamento,Calentamiento;
-    QVector<QVector<double>> LadoCaliente, LadoFrio, Uniones;
+    QVector<QVector<double>> LadoCaliente, LadoFrio, Uniones , Servicios;
     int NumUniones,contadorPlots,contadorUniones;
+    double contadorSERCAL,contadorSERFRI,contadorSER;
     int CTo,CCo;
-    double DTmin, K;
+    double DTmin, K , espaciadoruniones;
     bool uniforme,diverso,SI,SIS,control;
 };
 

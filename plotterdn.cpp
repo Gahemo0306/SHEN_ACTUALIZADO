@@ -18,6 +18,10 @@ plotterDN::plotterDN(QWidget *parent) :
 {
     ui->setupUi(this);
     //NumUniones = 0;
+    contadorSER = 0;
+    contadorSERCAL = 0;
+    contadorSERFRI = 0;
+    espaciadoruniones = 0;
     contadorPlots = 0;
     contadorUniones = 0;
     QFile F(WORKSPACE_FILENAME);
@@ -237,14 +241,14 @@ void plotterDN::contextMenuRequest(QPoint pos)
     menu->addAction("Move to bottom right", this, SLOT(moveLegend()))->setData((int)(Qt::AlignBottom|Qt::AlignRight));
     menu->addAction("Move to bottom left", this, SLOT(moveLegend()))->setData((int)(Qt::AlignBottom|Qt::AlignLeft));
   }else{
-    //menu->addAction("Add random graph", this, SLOT(addRandomGraph()));
     if (ui->qcustomplot->selectedGraphs().size() > 0)
-      menu->addAction("Conect selected stream", this, SLOT(conectStream()));
-      menu->addAction("Add heating service",this,SLOT(heatingService()));
-      menu->addAction("Add cooling service",this, SLOT(coolingService()));
+      menu->addAction("Define the hot current output temperature", this, SLOT(conectStream()));
+      menu->addAction("Default connection",this,SLOT(conectdefault()));
+      menu->addAction("Add auxiliary service",this,SLOT(AuxiliaryService()));
       menu->addAction("Split stream",this,SLOT(splitStream()));
-    if (ui->qcustomplot->graphCount() > 0)
-      menu->addAction("Remove all graphs", this, SLOT(removeAllGraphs()));
+    if (ui->qcustomplot->selectedItems().size() > 0 ){
+        menu->addAction("Hide text",this,SLOT(hideItemText()));
+    }
   }
 
   menu->popup(ui->qcustomplot->mapToGlobal(pos));
@@ -309,9 +313,6 @@ void plotterDN::AlgoritmoCoorrGrafi(QVector<QVector<double>> VectorCalientesMATR
     //corrientes calientes;
     QVector<QVector<double>> TCalPINCH_HOT;
     TCalPINCH_HOT.resize(VectorCalientesMATRIZ.size());
-//    qDebug() << VectorCalientesMATRIZ << "VectorCalienteMatriz";
-//    qDebug() << VectorFriasMATRIZ << "VectorFriasMatriz";
-//    qDebug() << PuntodePliegue << "punto de pliegue" << PuntodePliegue[1] << PuntodePliegue[0];
     int ncols = 3;
     for(int i = 0; i < TCalPINCH_HOT.size(); i ++){
         TCalPINCH_HOT[i].resize(ncols);
@@ -611,8 +612,6 @@ void plotterDN::AlgoritmoCoorrGrafi(QVector<QVector<double>> VectorCalientesMATR
     y2[0] = n*4;
     x2[1] = 12;
     y2[1] = n*4;
-//    qDebug() << TFriPINCH_HOT;
-//    qDebug() << TFriPINCH_COL;
     //LadoFrio;
     LadoFrio.resize(n);
     for(int i = 0; i < LadoFrio.size(); i++){
@@ -769,8 +768,6 @@ void plotterDN::AlgoritmoCoorrGrafi(QVector<QVector<double>> VectorCalientesMATR
             y2[1] = y2[1] - 3;
         }
     }
-//    qDebug() << LadoCaliente << "Lado caliente";
-//    qDebug() << LadoFrio << "Lado frio";
     ui->qcustomplot->replot();
     connect(ui->qcustomplot, SIGNAL(selectionChangedByUser()), this, SLOT(selectionChanged()));
     connect(ui->qcustomplot, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(mousePress()));
@@ -779,9 +776,10 @@ void plotterDN::AlgoritmoCoorrGrafi(QVector<QVector<double>> VectorCalientesMATR
     connect(ui->qcustomplot->yAxis, SIGNAL(rangeChanged(QCPRange)), ui->qcustomplot->yAxis2, SLOT(setRange(QCPRange)));
     connect(ui->qcustomplot, SIGNAL(axisDoubleClick(QCPAxis*,QCPAxis::SelectablePart,QMouseEvent*)), this, SLOT(axisLabelDoubleClick(QCPAxis*,QCPAxis::SelectablePart)));
     connect(ui->qcustomplot, SIGNAL(legendDoubleClick(QCPLegend*,QCPAbstractLegendItem*,QMouseEvent*)), this, SLOT(legendDoubleClick(QCPLegend*,QCPAbstractLegendItem*)));
-    //connect(title, SIGNAL(doubleClicked(QMouseEvent*)), this, SLOT(titleDoubleClick(QMouseEvent*)));
     ui->qcustomplot->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->qcustomplot, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(contextMenuRequest(QPoint)));
+    qDebug() << LadoCaliente << "LadoCaliente";
+    qDebug() << LadoFrio << "Ladofrio";
 }
 
 void plotterDN::on_Legend_clicked()
@@ -791,6 +789,7 @@ void plotterDN::on_Legend_clicked()
     }else if(ui->Legend->isChecked() ==  false){
         ui->qcustomplot->legend->setVisible(false);
     }
+    ui->qcustomplot->replot();
 }
 
 bool plotterDN::comparadortemperaturas(double A, double B, double C)
@@ -805,7 +804,7 @@ bool plotterDN::comparadortemperaturas(double A, double B, double C)
 
 bool plotterDN::controlintercambio(double DTmin, double dif1, double dif2, double X1, double X2, double TobjC, double TobjF)
 {
-    qDebug() << DTmin << dif1 << dif2 << X1 << X2 <<  TobjC << TobjF ;
+//    qDebug() << DTmin << dif1 << dif2 << X1 << X2 <<  TobjC << TobjF ;
     if(dif1 < DTmin){
         QMessageBox::warning(this,tr("Error"),tr("Violation of Delta T min"));
         return true;
@@ -825,13 +824,271 @@ bool plotterDN::controlintercambio(double DTmin, double dif1, double dif2, doubl
     return false;
 }
 
-void plotterDN::heatingService()
+void plotterDN::AuxiliaryService()
 {
+    QFile FileCostos(UNIFORM_DESIGNGRID_FILENAME);
+    if (!FileCostos.open(QIODevice::ReadOnly)){
+        QMessageBox::warning(this,tr("Error"),tr("Error"));
+        return;
+    }
+    QDataStream in30(&FileCostos);
+    in30.setVersion(QDataStream::Qt_5_4);
+    bool diverso2 = false, uniforme2 = false;
+    QVector<double> Calentamiento2,Enfriamento2,OperationCost2;
+    Calentamiento2.resize(10);
+    Enfriamento2.resize(10);
+    OperationCost2.resize(10);
+    QVector<QVector<double>> CapitalCost2;
+    CapitalCost2.resize(10);
+    for(int i = 0; i < CapitalCost2.size(); i++){
+        CapitalCost2[i].resize(10);
+    }
+    int CTo2 = 0, CCo2 = 0;
+    double DTmin2 = 0;
+    VecCostUniDesGri VCUD(uniforme2,diverso2,Calentamiento2,Enfriamento2,
+                          CapitalCost2,OperationCost2,DTmin2,CTo2,CCo2);
+    in30 >> VCUD;
+    DTmin = VCUD.getDTmin();
+    Calentamiento = VCUD.getCalentamiento();
+    Enfriamento = VCUD.getEnfriamento();
+    FileCostos.flush();
+    FileCostos.close();
+    if(ui->qcustomplot->selectedGraphs().size() > 2){
+        QMessageBox::warning(this,tr("Error"),tr("Error"));
+        return;
+    }
+    QVector<double> GraphSelect;
+    QVector<double> Conexion;
+    GraphSelect.resize(2);
+    Conexion.resize(2);
+    int j = 0;
+    for(int i = 0; i < ui->qcustomplot->graphCount(); i++){
+        QCPGraph * graph = ui->qcustomplot->graph(i);
+        if(graph->selected()){
+            GraphSelect[j]  = i;
+            if(i+1  <= LadoCaliente.size()){
+                if(LadoCaliente[i][1] == 0 && LadoCaliente[i][2] == 0){ // es caliente inhabilitada
+                    QMessageBox::warning(this,tr("Error"),tr("Error"));
+                    control = true;
+                    break;
+                }else if(LadoCaliente[i][1] == 1 && LadoCaliente[i][2] == 0){ // es fria inhabilitada
+                    QMessageBox::warning(this,tr("Error"),tr("Error"));
+                    control = true;
+                    break;
+                }else if(LadoCaliente[i][1] == 0 && LadoCaliente[i][2] == 1){ // es caliente habilitada
+                    control = false;
+                    Conexion[0] = 0 ; // Es caliente
+                    Conexion[1] = i ; // Numero de corriente
+                    break;
+                }else if(LadoCaliente[i][1] == 1 && LadoCaliente[i][2] == 1){ // es fria habilitada
+                    control = false;
+                    Conexion[0] = 1 ; // Es fria
+                    Conexion[1] = i ; // Numero de corriente
+                    break;
+                }
+            }else if(i+1 >= LadoCaliente.size() ){
+                if(LadoFrio[i-LadoCaliente.size()][1] == 0 && LadoFrio[i-LadoCaliente.size()][2] == 0){
+                    QMessageBox::warning(this,tr("Error"),tr("Error"));
+                    control = true;
+                    break;
+                }else if(LadoFrio[i-LadoCaliente.size()][1] == 1 && LadoFrio[i-LadoCaliente.size()][2] == 0){ // es fria inhabilitada
+                    QMessageBox::warning(this,tr("Error"),tr("Error"));
+                    control = true;
+                    break;
+                }else if(LadoFrio[i-LadoCaliente.size()][1] == 0 && LadoFrio[i-LadoCaliente.size()][2] == 1){ // es caliente habilitada
+                    control = false;
+                    Conexion[0] = 0 ; // Es caliente
+                    Conexion[1] = i ; // Numero de corriente
+                    break;
+                }else if(LadoFrio[i-LadoCaliente.size()][1] == 1 && LadoFrio[i-LadoCaliente.size()][2] == 1){ // es fria habilitada
+                    control = false;
+                    Conexion[0] = 1 ; // Es fria
+                    Conexion[1] = i ; // Numero de corriente
+                    break;
+                }
+            }
+            j++;
+        }
+    }
+    qDebug() << Conexion;
+    if(control == true){
+        return;  // es decir que esta mal
+    }else if(control == false){
+        if(Conexion[0] == 0){ //SE REQUIERE UN SERVICIO DE ENFRIAMENTO PARA CORRIENTE CALIENTE
+            // ES CALIENTE
+            qDebug() << Conexion[1];
+            if(Conexion[1]  < LadoCaliente.size() ){ // LADO IZQUIERO
+                qDebug() << "1";
+                contadorSER = contadorSER + 1;
+                contadorSERCAL = contadorSERCAL + 1;
+                double corriente = Conexion[1]; // corriente caliente
+                double Q1 = LadoCaliente[corriente][6]*(LadoCaliente[corriente][4]-LadoCaliente[corriente][5]) ;
+                if(Q1 > 0){ // SE APLICA EL SERVICIO DE CALENTAMIENTO
+                    QVector<double> x1,y1;
+                    x1.resize(2),y1.resize(2);
+                    x1[0] = LadoCaliente[corriente][10]; // x
+                    y1[0] = LadoCaliente[corriente][11]; // y
+                    x1[1] = LadoCaliente[corriente][10]; // x
+                    y1[1] = LadoCaliente[corriente][11]; // y
+//                    qDebug() << "1";
+                    QPen pen;
+                    pen.setStyle(Qt::DashLine);
+                    pen.setWidth(2);
+                    pen.setColor(Qt::blue);
+                    ui->qcustomplot->addGraph();
+                    ui->qcustomplot->graph(contadorPlots)->setName(QString("Heating service %1").arg(QString::number(contadorSERCAL)));
+                    ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
+                    ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
+                    ui->qcustomplot->graph(contadorPlots)->setPen(pen);
+                    ui->qcustomplot->replot();
+                    contadorPlots++;
+//                    qDebug() << "1";
+                    //ALMACENA EN EL VECTOR SERVICIOES
+                    Servicios.resize(contadorSER);
+                    for(int i = 0; i < Servicios.size(); i++){
+                        Servicios[i].resize(5);
+                    }
+//                    qDebug() << "1";
+                    Servicios[contadorSER-1][0] = corriente;
+//                    qDebug() << "1";
+                    Servicios[contadorSER-1][1] = LadoCaliente[corriente][4]; // entrada caliente
+//                    qDebug() << "1";
+                    Servicios[contadorSER-1][2] = LadoCaliente[corriente][5]; // salida caliente
+//                    qDebug() << "1";
+                    Servicios[contadorSER-1][3] = Enfriamento[0]; // entrada caliente
+//                    qDebug() << "1";
+                    Servicios[contadorSER-1][4] = Enfriamento[1]; // salida fria
+//                    qDebug() << "1";
+                }else if(Q1 <= 0){ // NO SE APLICA
+                    QMessageBox::warning(this,tr("Error"),tr("Error"));
+                    return;
+                }
+            }else if(Conexion[1] >= LadoCaliente.size() ){ // LADO DERECHO
+                qDebug() << "2";
+                contadorSER = contadorSER + 1;
+                contadorSERCAL = contadorSERCAL + 1;
+                double corriente = Conexion[1] - LadoCaliente.size(); // corriente caliente
+                qDebug() << LadoFrio;
+                double Q1 = LadoFrio[corriente][6]*(LadoFrio[corriente][4]-LadoFrio[corriente][5]) ;
 
-}
-
-void plotterDN::coolingService()
-{
+                qDebug() << corriente;
+                if(Q1 > 0){
+                    QVector<double> x1,y1;
+                    x1.resize(2),y1.resize(2);
+                    x1[0] = LadoFrio[corriente][10]; // x
+                    y1[0] = LadoFrio[corriente][11]; // y
+                    x1[1] = LadoFrio[corriente][10]; // x
+                    y1[1] = LadoFrio[corriente][11]; // y
+                    QPen pen;
+                    pen.setStyle(Qt::DashLine);
+                    pen.setWidth(2);
+                    pen.setColor(Qt::blue);
+                    ui->qcustomplot->addGraph();
+                    ui->qcustomplot->graph(contadorPlots)->setName(QString("Heating service %1").arg(QString::number(contadorSERCAL)));
+                    ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
+                    ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
+                    ui->qcustomplot->graph(contadorPlots)->setPen(pen);
+                    ui->qcustomplot->replot();
+                    contadorPlots++;
+                    //ALMACENA EN EL VECTOR SERVICIOES
+                    Servicios.resize(contadorSER);
+                    for(int i = 0; i < Servicios.size(); i++){
+                        Servicios[i].resize(5);
+                    }
+                    Servicios[contadorSER-1][0] = corriente;
+                    Servicios[contadorSER-1][1] = LadoFrio[corriente][4]; // entrada caliente
+                    Servicios[contadorSER-1][2] = LadoFrio[corriente][5]; // salida caliente
+                    Servicios[contadorSER-1][3] = Enfriamento[0]; // entrada caliente
+                    Servicios[contadorSER-1][4] = Enfriamento[1]; // salida fria
+                }else if(Q1 <= 0){
+                    QMessageBox::warning(this,tr("Error"), tr("Error"));
+                    return;
+                }
+            }
+        }else if(Conexion[0] == 1){ // SE REQUIERE UN SERVICIO DE CALENTAMIENTO PARA CORRIENTE FRIAS
+            if(Conexion[1]  < LadoCaliente.size() ){ // LADO IZQUIERO
+                contadorSER = contadorSER + 1;
+                contadorSERFRI = contadorSERFRI + 1;
+                double corriente = Conexion[1]; // corriente caliente
+                double Q1 = LadoCaliente[corriente][6]*(LadoCaliente[corriente][4]-LadoCaliente[corriente][5]) ;
+                if(Q1 > 0){ // SE APLICA EL SERVICIO DE CALENTAMIENTO
+                    QVector<double> x1,y1;
+                    x1.resize(2),y1.resize(2);
+                    x1[0] = LadoCaliente[corriente][8]; // x
+                    y1[0] = LadoCaliente[corriente][9]; // y
+                    x1[1] = LadoCaliente[corriente][8]; // x
+                    y1[1] = LadoCaliente[corriente][9]; // y
+                    QPen pen;
+                    pen.setStyle(Qt::DashLine);
+                    pen.setWidth(2);
+                    pen.setColor(Qt::red);
+                    ui->qcustomplot->addGraph();
+                    ui->qcustomplot->graph(contadorPlots)->setName(QString("Heating service %1").arg(QString::number(contadorSERFRI)));
+                    ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
+                    ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
+                    ui->qcustomplot->graph(contadorPlots)->setPen(pen);
+                    ui->qcustomplot->replot();
+                    contadorPlots++;
+                    //ALMACENA EN EL VECTOR SERVICIOES
+                    Servicios.resize(contadorSER);
+                    for(int i = 0; i < Servicios.size(); i++){
+                        Servicios[i].resize(5);
+                    }
+                    Servicios[contadorSER-1][0] = corriente;
+                    Servicios[contadorSER-1][1] = LadoCaliente[corriente][4]; // entrada caliente
+                    Servicios[contadorSER-1][2] = LadoCaliente[corriente][5]; // salida caliente
+                    Servicios[contadorSER-1][3] = Calentamiento[0]; // entrada caliente
+                    Servicios[contadorSER-1][4] = Calentamiento[1]; // salida fria
+                }else if(Q1 <= 0){ // NO SE APLICA
+                    QMessageBox::warning(this,tr("Error"),tr("Error"));
+                    return;
+                }
+            }else if(Conexion[1] >= LadoCaliente.size() ){ // LADO DERECHO
+                contadorSER = contadorSER + 1;
+                contadorSERFRI = contadorSERFRI + 1;
+                double corriente = Conexion[1] - LadoCaliente.size() ; // corriente caliente
+                //qDebug() << corriente << LadoFrio[corriente][1] ;
+                double Q1 = LadoFrio[corriente][6]*(LadoFrio[corriente][4]- LadoFrio[corriente][5]) ;
+                //qDebug() << Q1;
+                if(Q1 > 0){ // SE APLICA EL SERVICIO DE CALENTAMIENTO
+                    QVector<double> x1,y1;
+                    x1.resize(2),y1.resize(2);
+                    x1[0] = LadoFrio[corriente][8]; // x
+                    y1[0] = LadoFrio[corriente][9]; // y
+                    x1[1] = LadoFrio[corriente][8]; // x
+                    y1[1] = LadoFrio[corriente][9]; // y
+                    QPen pen;
+                    pen.setStyle(Qt::DashLine);
+                    pen.setWidth(2);
+                    pen.setColor(Qt::red);
+                    //qDebug() << "grafica";
+                    ui->qcustomplot->addGraph();
+                    ui->qcustomplot->graph(contadorPlots)->setName(QString("Heating service %1").arg(QString::number(contadorSERFRI)));
+                    ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
+                    ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
+                    ui->qcustomplot->graph(contadorPlots)->setPen(pen);
+                    ui->qcustomplot->replot();
+                    //qDebug() << "rploteo";
+                    contadorPlots++;
+                    //ALMACENA EN EL VECTOR SERVICIOES
+                    Servicios.resize(contadorSER);
+                    for(int i = 0; i < Servicios.size(); i++){
+                        Servicios[i].resize(5);
+                    }
+                    Servicios[contadorSER-1][0] = corriente;
+                    Servicios[contadorSER-1][1] = LadoFrio[corriente][4]; // entrada caliente
+                    Servicios[contadorSER-1][2] = LadoFrio[corriente][5]; // salida caliente
+                    Servicios[contadorSER-1][3] = Calentamiento[0]; // entrada caliente
+                    Servicios[contadorSER-1][4] = Calentamiento[1]; // salida fria
+                    return;
+                }else if(Q1 <= 0){ // NO SE APLICA
+                    QMessageBox::warning(this,tr("Error"),tr("Error"));
+                    return;
+                }
+            }
+        }
+    }
+    qDebug() << Servicios;
 
 }
 
@@ -862,15 +1119,15 @@ void plotterDN::conectStream()
     DTmin = VCUD.getDTmin();
     FileCostos.flush();
     FileCostos.close();
-
-//    qDebug() << LadoCaliente;
-//    qDebug() << LadoFrio;
-//    qDebug() << ui->qcustomplot->selectedGraphs();
     QVector<double> GraphSelect;
     QVector<double> Conexion;
     GraphSelect.resize(2);
     Conexion.resize(2);
     int j = 0;
+    if(ui->qcustomplot->selectedGraphs().size() == 1 || ui->qcustomplot->selectedGraphs().size() > 2){
+        QMessageBox::warning(this,tr("Error"),tr("Error"));
+        return;
+    }
     for(int i = 0; i < ui->qcustomplot->graphCount(); i++){
         QCPGraph * graph = ui->qcustomplot->graph(i);
         if(graph->selected()){
@@ -892,18 +1149,18 @@ void plotterDN::conectStream()
                     Conexion[1] = i; //  fria
                 }
             }else if(i+1 >= LadoCaliente.size() ){
-                if(LadoFrio[i][1] == 0 && LadoFrio[i][2] == 0){
+                if(LadoFrio[i-LadoCaliente.size()][1] == 0 && LadoFrio[i-LadoCaliente.size()][2] == 0){
                     QMessageBox::warning(this,tr("Error"),tr("Error"));
                     control = true;
                     break;
-                }else if(LadoFrio[i][1] == 1 && LadoFrio[i][2] == 0){ // es fria inhabilitada
+                }else if(LadoFrio[i-LadoCaliente.size()][1] == 1 && LadoFrio[i-LadoCaliente.size()][2] == 0){ // es fria inhabilitada
                     QMessageBox::warning(this,tr("Error"),tr("Error"));
                     control = true;
                     break;
-                }else if(LadoFrio[i][1] == 0 && LadoFrio[i][2] == 1){ // es caliente habilitada
+                }else if(LadoFrio[i-LadoCaliente.size()][1] == 0 && LadoFrio[i-LadoCaliente.size()][2] == 1){ // es caliente habilitada
                     control = false;
                     Conexion[0] = i ; // caliente
-                }else if(LadoFrio[i][1] == 1 && LadoFrio[i][2] == 1){ // es fria habilitada
+                }else if(LadoFrio[i-LadoCaliente.size()][1] == 1 && LadoFrio[i-LadoCaliente.size()][2] == 1){ // es fria habilitada
                     control = false;
                     Conexion[1] = i; //  fria
                 }
@@ -912,37 +1169,30 @@ void plotterDN::conectStream()
         }
     }
     if(control == true){
-        return;
-        // es decir que esta mal
+        return;  // es decir que esta mal
     }else if(control == false){
-        //prosigue
-        //PRIMERO SE DETECTA SI ES PRINCIPAL O RAIZ
-        if(Conexion[0]  <= LadoCaliente.size() && Conexion[1] <= LadoCaliente.size() ){
-            double Caliente = Conexion[0]; // corriente caliente
-            double Fria = Conexion[1]; // corriente fria
-            if(LadoCaliente[Caliente][3] == 0 ){ // es principal caliente
-                if(LadoCaliente[Fria][3] == 0){ // es principal fria
-                        double X1 = QInputDialog::getDouble(this, "Specification", "Output temperature for hot stream:");
+        if(Uniones.size() == 0){ // es decir que no se ha hecho uniones
+            if(Conexion[0]  < LadoCaliente.size() && Conexion[1] < LadoCaliente.size() ){
+                double Caliente = Conexion[0]; // corriente caliente
+                double Fria = Conexion[1]; // corriente fria
+                if(LadoCaliente[Caliente][3] == 0 ){ // es principal caliente
+                    if(LadoCaliente[Fria][3] == 0){ // es principal fria
                         //calculos
+                        double X1 = QInputDialog::getDouble(this, "Specification", "Output temperature for hot stream:");
                         double X2 = -( (LadoCaliente[Caliente][6]/LadoCaliente[Fria][6])* (X1 - LadoCaliente[Caliente][4]) - LadoCaliente[Fria][5]);
-                        qDebug() << LadoCaliente[Caliente][4] << LadoCaliente[Caliente][5] << LadoCaliente[Caliente][6] << LadoCaliente[Caliente][7];
-                        qDebug() << LadoCaliente[Fria][4] << LadoCaliente[Fria][5] << LadoCaliente[Fria][6] << LadoCaliente[Fria][7];
-                        qDebug() << X2;
                         double dif1 = qFabs(X1 - LadoCaliente[Fria][5] );
                         double dif2 = qFabs(LadoCaliente[Caliente][4] - X2);
-                        if(controlintercambio(DTmin,dif1,dif2,X1,X2,LadoCaliente[Caliente][5],LadoCaliente[Fria][4]) == true){
-                            qDebug() << "NO PASA";
-                        }else{ // si pasa el fiiltro se grafica la union
+                        if(controlintercambio(DTmin,dif1,dif2,X1,X2,LadoCaliente[Caliente][5],LadoCaliente[Fria][4]) == false){
                             contadorUniones = contadorUniones + 1;
                             QVector<double> x1,y1;
                             x1.resize(4),y1.resize(4);
-                            x1[0] = LadoCaliente[Caliente][8] + .15; // x
+                            x1[0] = LadoCaliente[Caliente][8] + .4; // x
                             y1[0] = LadoCaliente[Caliente][9]; // y
-                            x1[1] = LadoCaliente[Caliente][8] + .15;
-                            y1[1] = LadoCaliente[Caliente][9] - 1;
-                            x1[2] = LadoCaliente[Caliente][10] + -.15;
-                            y1[2] = LadoCaliente[Caliente][11] - 1;
-                            x1[3] = LadoCaliente[Fria][10] - .15; // x
+                            x1[1] = LadoCaliente[Caliente][8] + .4; // x
+                            y1[1] = LadoCaliente[Caliente][9] - 1; // y
+                            x1[2] = LadoCaliente[Caliente][10] - .4; // x
+                            y1[2] = LadoCaliente[Caliente][11] - 1; // y
+                            x1[3] = LadoCaliente[Fria][10] - .4; // x
                             y1[3] = LadoCaliente[Fria][11]; // y
                             QPen pen;
                             pen.setStyle(Qt::DashLine);
@@ -953,10 +1203,10 @@ void plotterDN::conectStream()
                             ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
                             ui->qcustomplot->graph(contadorPlots)->setPen(pen);
                             QPointF posIni,posFin;
-                            posIni.setX(x1[0] + .05);
-                            posIni.setY(y1[0]);
-                            posFin.setX(x1[3] - .05);
-                            posFin.setY(y1[3]);
+                            posIni.setX(x1[0] + .2);
+                            posIni.setY(y1[0] + .5);
+                            posFin.setX(x1[3] - .2);
+                            posFin.setY(y1[3] + .5);
                             QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
                             textLabel1->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
                             textLabel1->position->setType(QCPItemPosition::ptPlotCoords);
@@ -969,7 +1219,6 @@ void plotterDN::conectStream()
                             textLabel2->position->setCoords(posFin);
                             textLabel2->setText(QString("%1 ªF").arg(QString::number(X2)));
                             textLabel2->setFont(QFont(font().family(), 8)); // make font a bit larger
-                            // qDebug() << ui->qcustomplot->itemCount() << "items count";
                             ui->qcustomplot->replot();
                             // ALMECENAJE EN EL VECTOR UNION
                             Uniones.resize(contadorUniones);
@@ -988,60 +1237,1188 @@ void plotterDN::conectStream()
                             LadoCaliente[Caliente][4]  = X1;
                             LadoCaliente[Fria][5] = X2;
                             for(int i = 0; i < LadoCaliente.size(); i++){
-                                LadoCaliente[i][8] = LadoCaliente[i][8] + .15; // x
+                                LadoCaliente[i][8] = LadoCaliente[i][8] + .4; // x
                                 LadoCaliente[i][9] = LadoCaliente[i][9]; // y
-                                LadoCaliente[i][10]= LadoCaliente[i][10] - .15; // x
+                                LadoCaliente[i][10]= LadoCaliente[i][10] - .4; // x
                                 LadoCaliente[i][11]= LadoCaliente[i][11]; // y
                             }
                             contadorPlots++;
+                        }else{
+                            return;
                         }
-                }else if(LadoCaliente[Fria][3] == 1){ // es subred fria
+                    }else if(LadoCaliente[Fria][3] == 1){ // es subred fria
 
+                    }
+                }else if(LadoCaliente[Caliente][3] == 1){  // es subred caliente
+                    if(LadoCaliente[Fria][3] == 0){ // es principal fria
+
+                    }else if(LadoCaliente[Fria][3] == 1){ // es subred fria
+
+                    }
                 }
-            }else if(LadoCaliente[Caliente][3] == 1){  // es subred caliente
-                if(LadoCaliente[Fria][3] == 0){ // es principal fria
+            }else if(Conexion[0] >= LadoCaliente.size()  && Conexion[1] >= LadoCaliente.size()){
+                double Caliente = Conexion[0]- LadoCaliente.size();
+                double Fria = Conexion[1]- LadoCaliente.size();
+                if(LadoFrio[Caliente][3] == 0){ // es principal
+                    if(LadoFrio[Fria][3] == 0){ // es principal fria
+                        //calculos
+                        double X1 = QInputDialog::getDouble(this, "Specification", "Output temperature for hot stream:");
+                        double X2 = -( (LadoFrio[Caliente][6]/LadoFrio[Fria][6])* (X1 - LadoFrio[Caliente][4]) - LadoFrio[Fria][5]);
+                        double dif1 = qFabs(X1 - LadoFrio[Fria][5] );
+                        double dif2 = qFabs(LadoFrio[Caliente][4] - X2);
+                        if(controlintercambio(DTmin,dif1,dif2,X1,X2,LadoFrio[Caliente][5],LadoFrio[Fria][4]) == false){
+                            contadorUniones = contadorUniones + 1;
+                            QVector<double> x1,y1;
+                            x1.resize(4),y1.resize(4);
+                            x1[0] = LadoFrio[Caliente][8] + .4; // x
+                            y1[0] = LadoFrio[Caliente][9]; // y
+                            x1[1] = LadoFrio[Caliente][8] + .4; // x
+                            y1[1] = LadoFrio[Caliente][9] - 1; // y
+                            x1[2] = LadoFrio[Caliente][10] - .4; // x
+                            y1[2] = LadoFrio[Caliente][11] - 1; // y
+                            x1[3] = LadoFrio[Fria][10] - .4; // x
+                            y1[3] = LadoFrio[Fria][11]; // y
+                            QPen pen;
+                            pen.setStyle(Qt::DashLine);
+                            pen.setWidth(2);
+                            pen.setColor(Qt::black);
+                            ui->qcustomplot->addGraph();
+                            ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
+                            ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
+                            ui->qcustomplot->graph(contadorPlots)->setPen(pen);
+                            QPointF posIni,posFin;
+                            posIni.setX(x1[0] + .2);
+                            posIni.setY(y1[0] + .5);
+                            posFin.setX(x1[3] - .2);
+                            posFin.setY(y1[3] + .5);
+                            QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
+                            textLabel1->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
+                            textLabel1->position->setType(QCPItemPosition::ptPlotCoords);
+                            textLabel1->position->setCoords(posIni);
+                            textLabel1->setText(QString("%1 ªF").arg(QString::number(X1)));
+                            textLabel1->setFont(QFont(font().family(), 8)); // make font a bit larger
+                            QCPItemText *textLabel2 = new QCPItemText(ui->qcustomplot);
+                            textLabel2->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
+                            textLabel2->position->setType(QCPItemPosition::ptPlotCoords);
+                            textLabel2->position->setCoords(posFin);
+                            textLabel2->setText(QString("%1 ªF").arg(QString::number(X2)));
+                            textLabel2->setFont(QFont(font().family(), 8)); // make font a bit larger
+                            ui->qcustomplot->replot();
+                            // ALMECENAJE EN EL VECTOR UNION
+                            Uniones.resize(contadorUniones);
+                            for(int i = 0; i < Uniones.size(); i++){
+                                Uniones[i].resize(8);
+                            }
+                            Uniones[contadorUniones-1][0] = Caliente;
+                            Uniones[contadorUniones-1][1] = Fria;
+                            Uniones[contadorUniones-1][2] = ui->qcustomplot->itemCount() - 1;
+                            Uniones[contadorUniones-1][3] = ui->qcustomplot->itemCount();
+                            Uniones[contadorUniones-1][4] = LadoFrio[Caliente][4]; // entrada caliente
+                            Uniones[contadorUniones-1][5] = X1; // salida caliente
+                            Uniones[contadorUniones-1][6] = LadoFrio[Fria][5]; // entrada fria
+                            Uniones[contadorUniones-1][7] = X2; // salida fria
+                            //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
+                            LadoFrio[Caliente][4]  = X1;
+                            LadoFrio[Fria][5] = X2;
+                            for(int i = 0; i < LadoFrio.size(); i++){
+                                LadoFrio[i][8] = LadoFrio[i][8] + .4; // x
+                                LadoFrio[i][9] = LadoFrio[i][9]; // y
+                                LadoFrio[i][10]= LadoFrio[i][10] - .4; // x
+                                LadoFrio[i][11]= LadoFrio[i][11]; // y
+                            }
+                            contadorPlots++;
+                        }else{
+                            return;
+                        }
+                    }else if(LadoFrio[Fria][3] == 1){ // es subred fria
 
-                }else if(LadoCaliente[Fria][3] == 1){ // es subred fria
+                    }
+                }else if(LadoFrio[Fria][3] == 1){ // es subred
+                    if(LadoFrio[Fria][3] == 0){ // es principal fria
 
+                    }else if(LadoFrio[Fria][3] == 1){ // es subred fria
+
+                    }
                 }
             }
-        }else if(Conexion[0] >= LadoFrio.size()  && Conexion[1] >= LadoFrio.size()){
-            double Caliente = Conexion[0];
-            double Fria = Conexion[1];
-            if(LadoFrio[Caliente][3] == 0){ // es principal
-                if(LadoFrio[Fria][3] == 0){ // es principal fria
+        }else if(Uniones.size() > 0){ // HAY MAS UNIONES
+            for(int i = 0; i < Uniones.size(); i++){
+                if(Conexion[0] == Uniones[i][0]){
+                    if(Conexion[0] < LadoCaliente.size() && Conexion[1] < LadoCaliente.size() ){
+                        double Caliente = Conexion[0]; // corriente caliente
+                        double Fria = Conexion[1]; // corriente fria
+                        if(LadoCaliente[Caliente][3] == 0 ){ // es principal caliente
+                            if(LadoCaliente[Fria][3] == 0){ // es principal fria
+                                //calculos
+                                double X1 = QInputDialog::getDouble(this, "Specification", "Output temperature for hot stream:");
+                                double X2 = -( (LadoCaliente[Caliente][6]/LadoCaliente[Fria][6])* (X1 - LadoCaliente[Caliente][4]) - LadoCaliente[Fria][5]);
+                                double dif1 = qFabs(X1 - LadoCaliente[Fria][5] );
+                                double dif2 = qFabs(LadoCaliente[Caliente][4] - X2);
+                                if(controlintercambio(DTmin,dif1,dif2,X1,X2,LadoCaliente[Caliente][5],LadoCaliente[Fria][4]) == false){
+                                    contadorUniones = contadorUniones + 1;
+                                    QVector<double> x1,y1;
+                                    espaciadoruniones = espaciadoruniones + 1;
+                                    //MODIFICAR ESTAS UNIONES
+                                    x1.resize(4),y1.resize(4);
+                                    x1[0] = LadoCaliente[Caliente][8] + .4; // x
+                                    y1[0] = LadoCaliente[Caliente][9]; // y
+                                    x1[1] = LadoCaliente[Caliente][8] + .4; // x
+                                    y1[1] = LadoCaliente[Caliente][9] - 1 - espaciadoruniones; // y // se debe modificar solamnte esta
+                                    x1[2] = LadoCaliente[Caliente][10] - .4; // x
+                                    y1[2] = LadoCaliente[Caliente][11] - 1 - espaciadoruniones ; // y // se debe modificar solamente esta
+                                    x1[3] = LadoCaliente[Fria][10] - .4; // x
+                                    y1[3] = LadoCaliente[Fria][11]; // y
+                                    QPen pen;
+                                    pen.setStyle(Qt::DashLine);
+                                    pen.setWidth(2);
+                                    pen.setColor(Qt::black);
+                                    ui->qcustomplot->addGraph();
+                                    ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
+                                    ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
+                                    ui->qcustomplot->graph(contadorPlots)->setPen(pen);
+                                    QPointF posIni,posFin;
+                                    posIni.setX(x1[0] + .2);
+                                    posIni.setY(y1[0] + .5);
+                                    posFin.setX(x1[3] - .2);
+                                    posFin.setY(y1[3] + .5);
+                                    QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
+                                    textLabel1->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
+                                    textLabel1->position->setType(QCPItemPosition::ptPlotCoords);
+                                    textLabel1->position->setCoords(posIni);
+                                    textLabel1->setText(QString("%1 ªF").arg(QString::number(X1)));
+                                    textLabel1->setFont(QFont(font().family(), 8)); // make font a bit larger
+                                    QCPItemText *textLabel2 = new QCPItemText(ui->qcustomplot);
+                                    textLabel2->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
+                                    textLabel2->position->setType(QCPItemPosition::ptPlotCoords);
+                                    textLabel2->position->setCoords(posFin);
+                                    textLabel2->setText(QString("%1 ªF").arg(QString::number(X2)));
+                                    textLabel2->setFont(QFont(font().family(), 8)); // make font a bit larger
+                                    ui->qcustomplot->replot();
+                                    // ALMECENAJE EN EL VECTOR UNION
+                                    Uniones.resize(contadorUniones);
+                                    for(int i = 0; i < Uniones.size(); i++){
+                                        Uniones[i].resize(8);
+                                    }
+                                    Uniones[contadorUniones-1][0] = Caliente;
+                                    Uniones[contadorUniones-1][1] = Fria;
+                                    Uniones[contadorUniones-1][2] = ui->qcustomplot->itemCount() - 1;
+                                    Uniones[contadorUniones-1][3] = ui->qcustomplot->itemCount();
+                                    Uniones[contadorUniones-1][4] = LadoCaliente[Caliente][4]; // entrada caliente
+                                    Uniones[contadorUniones-1][5] = X1; // salida caliente
+                                    Uniones[contadorUniones-1][6] = LadoCaliente[Fria][5]; // entrada fria
+                                    Uniones[contadorUniones-1][7] = X2; // salida fria
+                                    //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
+                                    LadoCaliente[Caliente][4]  = X1;
+                                    LadoCaliente[Fria][5] = X2;
+                                    for(int i = 0; i < LadoCaliente.size(); i++){
+                                        LadoCaliente[i][8] = LadoCaliente[i][8] + .4; // x
+                                        LadoCaliente[i][9] = LadoCaliente[i][9]; // y
+                                        LadoCaliente[i][10]= LadoCaliente[i][10] - .4; // x
+                                        LadoCaliente[i][11]= LadoCaliente[i][11]; // y
+                                    }
+                                    contadorPlots++;
+                                }else{
+                                    return;
+                                }
+                            }else if(LadoCaliente[Fria][3] == 1){ // es subred fria
 
-                }else if(LadoFrio[Fria][3] == 1){ // es subred fria
+                            }
+                        }else if(LadoCaliente[Caliente][3] == 1){  // es subred caliente
+                            if(LadoCaliente[Fria][3] == 0){ // es principal fria
 
+                            }else if(LadoCaliente[Fria][3] == 1){ // es subred fria
+
+                            }
+                        }
+                        return;
+                    }else if(Conexion[0] >= LadoCaliente.size()  && Conexion[1] >= LadoCaliente.size() ){
+                        double Caliente = Conexion[0] - LadoCaliente.size();
+                        double Fria = Conexion[1] - LadoCaliente.size();
+                        if(LadoFrio[Caliente][3] == 0){ // es principal CALIENTE
+                            if(LadoFrio[Fria][3] == 0){ // es principal FRIA
+                                //calculos
+                                double X1 = QInputDialog::getDouble(this, "Specification", "Output temperature for hot stream:");
+                                double X2 = -( (LadoFrio[Caliente][6]/LadoFrio[Fria][6])* (X1 - LadoFrio[Caliente][4]) - LadoFrio[Fria][5]);
+                                double dif1 = qFabs(X1 - LadoFrio[Fria][5] );
+                                double dif2 = qFabs(LadoFrio[Caliente][4] - X2);
+                                if(controlintercambio(DTmin,dif1,dif2,X1,X2,LadoFrio[Caliente][5],LadoFrio[Fria][4]) == false){
+                                    contadorUniones = contadorUniones + 1;
+                                    QVector<double> x1,y1;
+                                    espaciadoruniones = espaciadoruniones + 1;
+                                    //MODIFICAR ESTAS UNIONES
+                                    x1.resize(4),y1.resize(4);
+                                    x1[0] = LadoFrio[Caliente][8] + .4; // x
+                                    y1[0] = LadoFrio[Caliente][9]; // y
+                                    x1[1] = LadoFrio[Caliente][8] + .4; // x
+                                    y1[1] = LadoFrio[Caliente][9] - 1 - espaciadoruniones; // y // se debe modificar solamnte esta
+                                    x1[2] = LadoFrio[Caliente][10] - .4; // x
+                                    y1[2] = LadoFrio[Caliente][11] - 1 - espaciadoruniones ; // y // se debe modificar solamente esta
+                                    x1[3] = LadoFrio[Fria][10] - .4; // x
+                                    y1[3] = LadoFrio[Fria][11]; // y
+                                    QPen pen;
+                                    pen.setStyle(Qt::DashLine);
+                                    pen.setWidth(2);
+                                    pen.setColor(Qt::black);
+                                    ui->qcustomplot->addGraph();
+                                    ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
+                                    ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
+                                    ui->qcustomplot->graph(contadorPlots)->setPen(pen);
+                                    QPointF posIni,posFin;
+                                    posIni.setX(x1[0] + .2);
+                                    posIni.setY(y1[0] + .5);
+                                    posFin.setX(x1[3] - .2);
+                                    posFin.setY(y1[3] + .5);
+                                    QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
+                                    textLabel1->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
+                                    textLabel1->position->setType(QCPItemPosition::ptPlotCoords);
+                                    textLabel1->position->setCoords(posIni);
+                                    textLabel1->setText(QString("%1 ªF").arg(QString::number(X1)));
+                                    textLabel1->setFont(QFont(font().family(), 8)); // make font a bit larger
+                                    QCPItemText *textLabel2 = new QCPItemText(ui->qcustomplot);
+                                    textLabel2->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
+                                    textLabel2->position->setType(QCPItemPosition::ptPlotCoords);
+                                    textLabel2->position->setCoords(posFin);
+                                    textLabel2->setText(QString("%1 ªF").arg(QString::number(X2)));
+                                    textLabel2->setFont(QFont(font().family(), 8)); // make font a bit larger
+                                    ui->qcustomplot->replot();
+                                    // ALMECENAJE EN EL VECTOR UNION
+                                    Uniones.resize(contadorUniones);
+                                    for(int i = 0; i < Uniones.size(); i++){
+                                        Uniones[i].resize(8);
+                                    }
+                                    Uniones[contadorUniones-1][0] = Caliente;
+                                    Uniones[contadorUniones-1][1] = Fria;
+                                    Uniones[contadorUniones-1][2] = ui->qcustomplot->itemCount() - 1;
+                                    Uniones[contadorUniones-1][3] = ui->qcustomplot->itemCount();
+                                    Uniones[contadorUniones-1][4] = LadoFrio[Caliente][4]; // entrada caliente
+                                    Uniones[contadorUniones-1][5] = X1; // salida caliente
+                                    Uniones[contadorUniones-1][6] = LadoFrio[Fria][5]; // entrada fria
+                                    Uniones[contadorUniones-1][7] = X2; // salida fria
+                                    //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
+                                    LadoFrio[Caliente][4]  = X1;
+                                    LadoFrio[Fria][5] = X2;
+                                    for(int i = 0; i < LadoFrio.size(); i++){
+                                        LadoFrio[i][8] = LadoFrio[i][8] + .4; // x
+                                        LadoFrio[i][9] = LadoFrio[i][9]; // y
+                                        LadoFrio[i][10]= LadoFrio[i][10] - .4; // x
+                                        LadoFrio[i][11]= LadoFrio[i][11]; // y
+                                    }
+                                    contadorPlots++;
+                                }else{
+                                    return;
+                                }
+                            }else if(LadoFrio[Fria][3] == 1){ // es subred FRIA
+
+                            }
+                        }else if(LadoFrio[Fria][3] == 1){ // es subred CALIENTE
+                            if(LadoFrio[Fria][3] == 0){ // es principal FRIA
+
+                            }else if(LadoFrio[Fria][3] == 1){ // es subred FRIA
+
+                            }
+                        }
+                        return;
+                    }
                 }
-            }else if(LadoFrio[Fria][3] == 1){ // es subred
-                if(LadoFrio[Fria][3] == 0){ // es principal fria
+            } // NO HAY UNION REGISTRADA ENTONCES HACE ANALISIS
+            espaciadoruniones = 0;
+            if(Conexion[0]  < LadoCaliente.size() && Conexion[1] < LadoCaliente.size() ){
+                double Caliente = Conexion[0]; // corriente caliente
+                double Fria = Conexion[1]; // corriente fria
+                if(LadoCaliente[Caliente][3] == 0 ){ // es principal caliente
+                    if(LadoCaliente[Fria][3] == 0){ // es principal fria
+                        //calculos
+                        double X1 = QInputDialog::getDouble(this, "Specification", "Output temperature for hot stream:");
+                        double X2 = -( (LadoCaliente[Caliente][6]/LadoCaliente[Fria][6])* (X1 - LadoCaliente[Caliente][4]) - LadoCaliente[Fria][5]);
+                        double dif1 = qFabs(X1 - LadoCaliente[Fria][5] );
+                        double dif2 = qFabs(LadoCaliente[Caliente][4] - X2);
+                        if(controlintercambio(DTmin,dif1,dif2,X1,X2,LadoCaliente[Caliente][5],LadoCaliente[Fria][4]) == false){
+                            contadorUniones = contadorUniones + 1;
+                            QVector<double> x1,y1;
+                            x1.resize(4),y1.resize(4);
+                            x1[0] = LadoCaliente[Caliente][8] + .4; // x
+                            y1[0] = LadoCaliente[Caliente][9]; // y
+                            x1[1] = LadoCaliente[Caliente][8] + .4; // x
+                            y1[1] = LadoCaliente[Caliente][9] - 1; // y
+                            x1[2] = LadoCaliente[Caliente][10] - .4; // x
+                            y1[2] = LadoCaliente[Caliente][11] - 1; // y
+                            x1[3] = LadoCaliente[Fria][10] - .4; // x
+                            y1[3] = LadoCaliente[Fria][11]; // y
+                            QPen pen;
+                            pen.setStyle(Qt::DashLine);
+                            pen.setWidth(2);
+                            pen.setColor(Qt::black);
+                            ui->qcustomplot->addGraph();
+                            ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
+                            ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
+                            ui->qcustomplot->graph(contadorPlots)->setPen(pen);
+                            QPointF posIni,posFin;
+                            posIni.setX(x1[0] + .2);
+                            posIni.setY(y1[0] + .5);
+                            posFin.setX(x1[3] - .2);
+                            posFin.setY(y1[3] + .5);
+                            QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
+                            textLabel1->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
+                            textLabel1->position->setType(QCPItemPosition::ptPlotCoords);
+                            textLabel1->position->setCoords(posIni);
+                            textLabel1->setText(QString("%1 ªF").arg(QString::number(X1)));
+                            textLabel1->setFont(QFont(font().family(), 8)); // make font a bit larger
+                            QCPItemText *textLabel2 = new QCPItemText(ui->qcustomplot);
+                            textLabel2->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
+                            textLabel2->position->setType(QCPItemPosition::ptPlotCoords);
+                            textLabel2->position->setCoords(posFin);
+                            textLabel2->setText(QString("%1 ªF").arg(QString::number(X2)));
+                            textLabel2->setFont(QFont(font().family(), 8)); // make font a bit larger
+                            ui->qcustomplot->replot();
+                            // ALMECENAJE EN EL VECTOR UNION
+                            Uniones.resize(contadorUniones);
+                            for(int i = 0; i < Uniones.size(); i++){
+                                Uniones[i].resize(8);
+                            }
+                            Uniones[contadorUniones-1][0] = Caliente;
+                            Uniones[contadorUniones-1][1] = Fria;
+                            Uniones[contadorUniones-1][2] = ui->qcustomplot->itemCount() - 1;
+                            Uniones[contadorUniones-1][3] = ui->qcustomplot->itemCount();
+                            Uniones[contadorUniones-1][4] = LadoCaliente[Caliente][4]; // entrada caliente
+                            Uniones[contadorUniones-1][5] = X1; // salida caliente
+                            Uniones[contadorUniones-1][6] = LadoCaliente[Fria][5]; // entrada fria
+                            Uniones[contadorUniones-1][7] = X2; // salida fria
+                            //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
+                            LadoCaliente[Caliente][4]  = X1;
+                            LadoCaliente[Fria][5] = X2;
+                            for(int i = 0; i < LadoCaliente.size(); i++){
+                                LadoCaliente[i][8] = LadoCaliente[i][8] + .4; // x
+                                LadoCaliente[i][9] = LadoCaliente[i][9]; // y
+                                LadoCaliente[i][10]= LadoCaliente[i][10] - .4; // x
+                                LadoCaliente[i][11]= LadoCaliente[i][11]; // y
+                            }
+                            contadorPlots++;
+                        }else{
+                            return;
+                        }
+                    }else if(LadoCaliente[Fria][3] == 1){ // es subred fria
 
-                }else if(LadoFrio[Fria][3] == 1){ // es subred fria
+                    }
+                }else if(LadoCaliente[Caliente][3] == 1){  // es subred caliente
+                    if(LadoCaliente[Fria][3] == 0){ // es principal fria
 
+                    }else if(LadoCaliente[Fria][3] == 1){ // es subred fria
+
+                    }
+                }
+            }else if(Conexion[0] >= LadoCaliente.size()  && Conexion[1] >= LadoCaliente.size() ){
+                double Caliente = Conexion[0] - LadoCaliente.size();
+                double Fria = Conexion[1] - LadoCaliente.size();
+                if(LadoFrio[Caliente][3] == 0){ // es principal CALIENTE
+                    if(LadoFrio[Fria][3] == 0){ // es principal FRIA
+                        //calculos
+                        double X1 = QInputDialog::getDouble(this, "Specification", "Output temperature for hot stream:");
+                        double X2 = -( (LadoFrio[Caliente][6]/LadoFrio[Fria][6])* (X1 - LadoFrio[Caliente][4]) - LadoFrio[Fria][5]);
+                        double dif1 = qFabs(X1 - LadoFrio[Fria][5] );
+                        double dif2 = qFabs(LadoFrio[Caliente][4] - X2);
+                        if(controlintercambio(DTmin,dif1,dif2,X1,X2,LadoFrio[Caliente][5],LadoFrio[Fria][4]) == false){
+                            contadorUniones = contadorUniones + 1;
+                            QVector<double> x1,y1;
+                            x1.resize(4),y1.resize(4);
+                            x1[0] = LadoFrio[Caliente][8] + .4; // x
+                            y1[0] = LadoFrio[Caliente][9]; // y
+                            x1[1] = LadoFrio[Caliente][8] + .4; // x
+                            y1[1] = LadoFrio[Caliente][9] - 1; // y
+                            x1[2] = LadoFrio[Caliente][10] - .4; // x
+                            y1[2] = LadoFrio[Caliente][11] - 1; // y
+                            x1[3] = LadoFrio[Fria][10] - .4; // x
+                            y1[3] = LadoFrio[Fria][11]; // y
+                            QPen pen;
+                            pen.setStyle(Qt::DashLine);
+                            pen.setWidth(2);
+                            pen.setColor(Qt::black);
+                            ui->qcustomplot->addGraph();
+                            ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
+                            ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
+                            ui->qcustomplot->graph(contadorPlots)->setPen(pen);
+                            QPointF posIni,posFin;
+                            posIni.setX(x1[0] + .2);
+                            posIni.setY(y1[0] + .5);
+                            posFin.setX(x1[3] - .2);
+                            posFin.setY(y1[3] + .5);
+                            QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
+                            textLabel1->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
+                            textLabel1->position->setType(QCPItemPosition::ptPlotCoords);
+                            textLabel1->position->setCoords(posIni);
+                            textLabel1->setText(QString("%1 ªF").arg(QString::number(X1)));
+                            textLabel1->setFont(QFont(font().family(), 8)); // make font a bit larger
+                            QCPItemText *textLabel2 = new QCPItemText(ui->qcustomplot);
+                            textLabel2->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
+                            textLabel2->position->setType(QCPItemPosition::ptPlotCoords);
+                            textLabel2->position->setCoords(posFin);
+                            textLabel2->setText(QString("%1 ªF").arg(QString::number(X2)));
+                            textLabel2->setFont(QFont(font().family(), 8)); // make font a bit larger
+                            ui->qcustomplot->replot();
+                            // ALMECENAJE EN EL VECTOR UNION
+                            Uniones.resize(contadorUniones);
+                            for(int i = 0; i < Uniones.size(); i++){
+                                Uniones[i].resize(8);
+                            }
+                            Uniones[contadorUniones-1][0] = Caliente;
+                            Uniones[contadorUniones-1][1] = Fria;
+                            Uniones[contadorUniones-1][2] = ui->qcustomplot->itemCount() - 1;
+                            Uniones[contadorUniones-1][3] = ui->qcustomplot->itemCount();
+                            Uniones[contadorUniones-1][4] = LadoFrio[Caliente][4]; // entrada caliente
+                            Uniones[contadorUniones-1][5] = X1; // salida caliente
+                            Uniones[contadorUniones-1][6] = LadoFrio[Fria][5]; // entrada fria
+                            Uniones[contadorUniones-1][7] = X2; // salida fria
+                            //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
+                            LadoFrio[Caliente][4]  = X1;
+                            LadoFrio[Fria][5] = X2;
+                            for(int i = 0; i < LadoFrio.size(); i++){
+                                LadoFrio[i][8] = LadoFrio[i][8] + .4; // x
+                                LadoFrio[i][9] = LadoFrio[i][9]; // y
+                                LadoFrio[i][10]= LadoFrio[i][10] - .4; // x
+                                LadoFrio[i][11]= LadoFrio[i][11]; // y
+                            }
+                            contadorPlots++;
+                        }else{
+                            return;
+                        }
+                    }else if(LadoFrio[Fria][3] == 1){ // es subred FRIA
+
+                    }
+                }else if(LadoFrio[Fria][3] == 1){ // es subred CALIENTE
+                    if(LadoFrio[Fria][3] == 0){ // es principal FRIA
+
+                    }else if(LadoFrio[Fria][3] == 1){ // es subred FRIA
+
+                    }
+                }
+                return;
+            }
+        }
+
+    }
+}
+
+void plotterDN::splitStream()
+{
+    for(int i = 0; i < ui->qcustomplot->graphCount(); i++){
+        QCPGraph * graph = ui->qcustomplot->graph(i);
+        if(graph->selected()){
+            if(i+1 <= LadoCaliente.size()){
+                //se reajusta las de lado caliente
+                if(LadoCaliente[i][1] == 0 && LadoCaliente[i][2] == 0){ // es caliente inhabilitada
+                    QMessageBox::warning(this,tr("Error"),tr("Error"));
+                    control = true;
+                    break;
+                }else if(LadoCaliente[i][1] == 1 && LadoCaliente[i][2] == 0){ // es fria inhabilitada
+                    QMessageBox::warning(this,tr("Error"),tr("Error"));
+                    control = true;
+                    break;
+                }else if(LadoCaliente[i][1] == 0 && LadoCaliente[i][2] == 1){ // es caliente habilitada
+                    control = false;
+                }else if(LadoCaliente[i][1] == 1 && LadoCaliente[i][2] == 1){ // es fria habilitada
+                    control = false;
+                }
+            }else if(i+1 >= LadoCaliente.size()){
+                //se reajusta las LadoFrio
+                if(LadoFrio[i][1] == 0 && LadoFrio[i][2] == 0){
+                    QMessageBox::warning(this,tr("Error"),tr("Error"));
+                    control = true;
+                    break;
+                }else if(LadoFrio[i][1] == 1 && LadoFrio[i][2] == 0){ // es fria inhabilitada
+                    QMessageBox::warning(this,tr("Error"),tr("Error"));
+                    control = true;
+                    break;
+                }else if(LadoFrio[i][1] == 0 && LadoFrio[i][2] == 1){ // es caliente habilitada
+                    control = false;
+                }else if(LadoFrio[i][1] == 1 && LadoFrio[i][2] == 1){ // es fria habilitada
+                    control = false;
+                }
+            }
+        }
+    }
+    if(control == true){
+        return;
+    }else if(control == false){
+
+    }
+}
+
+void plotterDN::hideItemText()
+{
+    for(int i = 0; i <  ui->qcustomplot->itemCount() ; i++){
+        QCPItemText *pItem = qobject_cast<QCPItemText*>(ui->qcustomplot->item(i));
+        if(pItem->selected() ){
+            pItem->setVisible(false);
+        }
+    }
+    ui->qcustomplot->replot();
+}
+
+void plotterDN::conectdefault()
+{
+    QFile FileCostos(UNIFORM_DESIGNGRID_FILENAME);
+    if (!FileCostos.open(QIODevice::ReadOnly)){
+        QMessageBox::warning(this,tr("Error"),tr("Error"));
+        return;
+    }
+    QDataStream in30(&FileCostos);
+    in30.setVersion(QDataStream::Qt_5_4);
+    bool diverso2 = false, uniforme2 = false;
+    QVector<double> Calentamiento2,Enfriamento2,OperationCost2;
+    Calentamiento2.resize(10);
+    Enfriamento2.resize(10);
+    OperationCost2.resize(10);
+    QVector<QVector<double>> CapitalCost2;
+    CapitalCost2.resize(10);
+    for(int i = 0; i < CapitalCost2.size(); i++){
+        CapitalCost2[i].resize(10);
+    }
+    int CTo2 = 0, CCo2 = 0;
+    double DTmin2 = 0;
+    VecCostUniDesGri VCUD(uniforme2,diverso2,Calentamiento2,Enfriamento2,
+                          CapitalCost2,OperationCost2,DTmin2,CTo2,CCo2);
+    in30 >> VCUD;
+    DTmin = VCUD.getDTmin();
+    FileCostos.flush();
+    FileCostos.close();
+    QVector<double> GraphSelect;
+    QVector<double> Conexion;
+    GraphSelect.resize(2);
+    Conexion.resize(2);
+    int j = 0;
+    if(ui->qcustomplot->selectedGraphs().size() == 1 || ui->qcustomplot->selectedGraphs().size() > 2){
+        QMessageBox::warning(this,tr("Error"),tr("Error"));
+        return;
+    }
+    for(int i = 0; i < ui->qcustomplot->graphCount(); i++){
+        QCPGraph * graph = ui->qcustomplot->graph(i);
+        if(graph->selected()){
+            GraphSelect[j]  = i;
+            if(i+1  <= LadoCaliente.size()){
+                if(LadoCaliente[i][1] == 0 && LadoCaliente[i][2] == 0){ // es caliente inhabilitada
+                    QMessageBox::warning(this,tr("Error"),tr("Error"));
+                    control = true;
+                    break;
+                }else if(LadoCaliente[i][1] == 1 && LadoCaliente[i][2] == 0){ // es fria inhabilitada
+                    QMessageBox::warning(this,tr("Error"),tr("Error"));
+                    control = true;
+                    break;
+                }else if(LadoCaliente[i][1] == 0 && LadoCaliente[i][2] == 1){ // es caliente habilitada
+                    control = false;
+                    Conexion[0] = i ; // caliente
+                }else if(LadoCaliente[i][1] == 1 && LadoCaliente[i][2] == 1){ // es fria habilitada
+                    control = false;
+                    Conexion[1] = i; //  fria
+                }
+            }else if(i+1 >= LadoCaliente.size() ){
+                if(LadoFrio[i-LadoCaliente.size()][1] == 0 && LadoFrio[i-LadoCaliente.size()][2] == 0){
+                    QMessageBox::warning(this,tr("Error"),tr("Error"));
+                    control = true;
+                    break;
+                }else if(LadoFrio[i-LadoCaliente.size()][1] == 1 && LadoFrio[i-LadoCaliente.size()][2] == 0){ // es fria inhabilitada
+                    QMessageBox::warning(this,tr("Error"),tr("Error"));
+                    control = true;
+                    break;
+                }else if(LadoFrio[i-LadoCaliente.size()][1] == 0 && LadoFrio[i-LadoCaliente.size()][2] == 1){ // es caliente habilitada
+                    control = false;
+                    Conexion[0] = i ; // caliente
+                }else if(LadoFrio[i-LadoCaliente.size()][1] == 1 && LadoFrio[i-LadoCaliente.size()][2] == 1){ // es fria habilitada
+                    control = false;
+                    Conexion[1] = i; //  fria
+                }
+            }
+            j++;
+        }
+    }
+    if(control == true){
+        return;
+    }else if(control == false){
+        if(Uniones.size() == 0){ // es decir que no se ha hecho uniones
+            if(Conexion[0]  < LadoCaliente.size() && Conexion[1] < LadoCaliente.size() ){
+                double Caliente = Conexion[0]; // corriente caliente
+                double Fria = Conexion[1]; // corriente fria
+                if(LadoCaliente[Caliente][3] == 0 ){ // es principal caliente
+                    if(LadoCaliente[Fria][3] == 0){ // es principal fria
+                        //CALCULOS
+                        double Q1 = LadoCaliente[Caliente][6]*(LadoCaliente[Caliente][4]-LadoCaliente[Caliente][5]) ;
+                        double Q2 = LadoCaliente[Fria][6]*(LadoCaliente[Fria][4] - LadoCaliente[Fria][5]);
+                        double X1,X2,dif1,dif2;
+                        if(Q1 < Q2){ // Prueba si el calor Q1 es menor que Q2 se trasmite lo mayor posible
+                          X1 = LadoCaliente[Caliente][5];
+                          X2 = (Q1/ LadoCaliente[Fria][6]) + LadoCaliente[Fria][5];
+                          dif1 = qFabs(X1 - LadoCaliente[Fria][5] );
+                          dif2 = qFabs(LadoCaliente[Caliente][4] - X2);
+                        }else if(Q2 > Q1){ // se trasmite lo mayor posible
+                          X1 = -( ( Q2 / LadoCaliente[Caliente][6] ) - LadoCaliente[Caliente][4] );
+                          X2 = (Q2/ LadoCaliente[Fria][6]) + LadoCaliente[Fria][5];
+                          dif1 = qFabs(X1 - LadoCaliente[Fria][5] );
+                          dif2 = qFabs(LadoCaliente[Caliente][4] - X2);
+                        }
+                        if(controlintercambio(DTmin,dif1,dif2,X1,X2,LadoCaliente[Caliente][5],LadoCaliente[Fria][4]) == false){
+                            contadorUniones = contadorUniones + 1;
+                            QVector<double> x1,y1;
+                            x1.resize(4),y1.resize(4);
+                            x1[0] = LadoCaliente[Caliente][8] + .4; // x
+                            y1[0] = LadoCaliente[Caliente][9]; // y
+                            x1[1] = LadoCaliente[Caliente][8] + .4; // x
+                            y1[1] = LadoCaliente[Caliente][9] - 1; // y
+                            x1[2] = LadoCaliente[Caliente][10] - .4; // x
+                            y1[2] = LadoCaliente[Caliente][11] - 1; // y
+                            x1[3] = LadoCaliente[Fria][10] - .4; // x
+                            y1[3] = LadoCaliente[Fria][11]; // y
+                            QPen pen;
+                            pen.setStyle(Qt::DashLine);
+                            pen.setWidth(2);
+                            pen.setColor(Qt::black);
+                            ui->qcustomplot->addGraph();
+                            ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
+                            ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
+                            ui->qcustomplot->graph(contadorPlots)->setPen(pen);
+                            QPointF posIni,posFin;
+                            posIni.setX(x1[0] + .2);
+                            posIni.setY(y1[0] + .5);
+                            posFin.setX(x1[3] - .2);
+                            posFin.setY(y1[3] + .5);
+                            QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
+                            textLabel1->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
+                            textLabel1->position->setType(QCPItemPosition::ptPlotCoords);
+                            textLabel1->position->setCoords(posIni);
+                            textLabel1->setText(QString("%1 ªF").arg(QString::number(X1)));
+                            textLabel1->setFont(QFont(font().family(), 8)); // make font a bit larger
+                            QCPItemText *textLabel2 = new QCPItemText(ui->qcustomplot);
+                            textLabel2->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
+                            textLabel2->position->setType(QCPItemPosition::ptPlotCoords);
+                            textLabel2->position->setCoords(posFin);
+                            textLabel2->setText(QString("%1 ªF").arg(QString::number(X2)));
+                            textLabel2->setFont(QFont(font().family(), 8)); // make font a bit larger
+                            ui->qcustomplot->replot();
+                            // ALMECENAJE EN EL VECTOR UNION
+                            Uniones.resize(contadorUniones);
+                            for(int i = 0; i < Uniones.size(); i++){
+                                Uniones[i].resize(8);
+                            }
+                            Uniones[contadorUniones-1][0] = Caliente;
+                            Uniones[contadorUniones-1][1] = Fria;
+                            Uniones[contadorUniones-1][2] = ui->qcustomplot->itemCount() - 1;
+                            Uniones[contadorUniones-1][3] = ui->qcustomplot->itemCount();
+                            Uniones[contadorUniones-1][4] = LadoCaliente[Caliente][4]; // entrada caliente
+                            Uniones[contadorUniones-1][5] = X1; // salida caliente
+                            Uniones[contadorUniones-1][6] = LadoCaliente[Fria][5]; // entrada fria
+                            Uniones[contadorUniones-1][7] = X2; // salida fria
+                            //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
+                            LadoCaliente[Caliente][4]  = X1;
+                            LadoCaliente[Fria][5] = X2;
+                            for(int i = 0; i < LadoCaliente.size(); i++){
+                                LadoCaliente[i][8] = LadoCaliente[i][8] + .4; // x
+                                LadoCaliente[i][9] = LadoCaliente[i][9]; // y
+                                LadoCaliente[i][10]= LadoCaliente[i][10] - .4; // x
+                                LadoCaliente[i][11]= LadoCaliente[i][11]; // y
+                            }
+                            contadorPlots++;
+                        }else{
+                            return;
+                        }
+                    }else if(LadoCaliente[Fria][3] == 1){ // es subred fria
+
+                    }
+                }else if(LadoCaliente[Caliente][3] == 1){  // es subred caliente
+                    if(LadoCaliente[Fria][3] == 0){ // es principal fria
+
+                    }else if(LadoCaliente[Fria][3] == 1){ // es subred fria
+
+                    }
+                }
+            }else if(Conexion[0] >= LadoCaliente.size()  && Conexion[1] >= LadoCaliente.size()){ //LADO FRIO
+                double Caliente = Conexion[0] - LadoCaliente.size();
+                double Fria = Conexion[1] - LadoCaliente.size();
+                if(LadoFrio[Caliente][3] == 0){ // es principal CALIENTE
+                    if(LadoFrio[Fria][3] == 0){ // es principal FRIA
+                        double Q1 = LadoFrio[Caliente][6]*(LadoFrio[Caliente][4]- LadoFrio[Caliente][5]) ;
+                        double Q2 = LadoFrio[Fria][6]*(LadoFrio[Fria][4] -LadoFrio[Fria][5]);
+                        double X1,X2,dif1,dif2;
+                        if(Q1 < Q2){ // Prueba si el calor Q1 es menor que Q2 se trasmite lo mayor posible
+                          X1 = LadoFrio[Caliente][5];
+                          X2 = (Q1/ LadoFrio[Fria][6]) + LadoFrio[Fria][5];
+                          dif1 = qFabs(X1 - LadoFrio[Fria][5] );
+                          dif2 = qFabs(LadoFrio[Caliente][4] - X2);
+                        }else if(Q2 > Q1){ // se trasmite lo mayor posible
+                          X1 = -( ( Q2 / LadoFrio[Caliente][6] ) - LadoFrio[Caliente][4] );
+                          X2 = (Q2/ LadoFrio[Fria][6]) + LadoFrio[Fria][5];
+                          dif1 = qFabs(X1 - LadoFrio[Fria][5] );
+                          dif2 = qFabs(LadoFrio[Caliente][4] - X2);
+                        }
+                        if(controlintercambio(DTmin,dif1,dif2,X1,X2,LadoFrio[Caliente][5],LadoFrio[Fria][4]) == false){
+                            contadorUniones = contadorUniones + 1;
+                            QVector<double> x1,y1;
+                            x1.resize(4),y1.resize(4);
+                            x1[0] = LadoFrio[Caliente][8] + .4; // x
+                            y1[0] = LadoFrio[Caliente][9]; // y
+                            x1[1] = LadoFrio[Caliente][8] + .4; // x
+                            y1[1] = LadoFrio[Caliente][9] - 1; // y
+                            x1[2] = LadoFrio[Caliente][10] - .4; // x
+                            y1[2] = LadoFrio[Caliente][11] - 1; // y
+                            x1[3] = LadoFrio[Fria][10] - .4; // x
+                            y1[3] = LadoFrio[Fria][11]; // y
+                            QPen pen;
+                            pen.setStyle(Qt::DashLine);
+                            pen.setWidth(2);
+                            pen.setColor(Qt::black);
+                            ui->qcustomplot->addGraph();
+                            ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
+                            ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
+                            ui->qcustomplot->graph(contadorPlots)->setPen(pen);
+                            QPointF posIni,posFin;
+                            posIni.setX(x1[0] + .2);
+                            posIni.setY(y1[0] + .5);
+                            posFin.setX(x1[3] - .2);
+                            posFin.setY(y1[3] + .5);
+                            QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
+                            textLabel1->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
+                            textLabel1->position->setType(QCPItemPosition::ptPlotCoords);
+                            textLabel1->position->setCoords(posIni);
+                            textLabel1->setText(QString("%1 ªF").arg(QString::number(X1)));
+                            textLabel1->setFont(QFont(font().family(), 8)); // make font a bit larger
+                            QCPItemText *textLabel2 = new QCPItemText(ui->qcustomplot);
+                            textLabel2->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
+                            textLabel2->position->setType(QCPItemPosition::ptPlotCoords);
+                            textLabel2->position->setCoords(posFin);
+                            textLabel2->setText(QString("%1 ªF").arg(QString::number(X2)));
+                            textLabel2->setFont(QFont(font().family(), 8)); // make font a bit larger
+                            ui->qcustomplot->replot();
+                            // ALMECENAJE EN EL VECTOR UNION
+                            Uniones.resize(contadorUniones);
+                            for(int i = 0; i < Uniones.size(); i++){
+                                Uniones[i].resize(8);
+                            }
+                            Uniones[contadorUniones-1][0] = Caliente;
+                            Uniones[contadorUniones-1][1] = Fria;
+                            Uniones[contadorUniones-1][2] = ui->qcustomplot->itemCount() - 1;
+                            Uniones[contadorUniones-1][3] = ui->qcustomplot->itemCount();
+                            Uniones[contadorUniones-1][4] = LadoFrio[Caliente][4]; // entrada caliente
+                            Uniones[contadorUniones-1][5] = X1; // salida caliente
+                            Uniones[contadorUniones-1][6] = LadoFrio[Fria][5]; // entrada fria
+                            Uniones[contadorUniones-1][7] = X2; // salida fria
+                            //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
+                            LadoFrio[Caliente][4]  = X1;
+                            LadoFrio[Fria][5] = X2;
+                            for(int i = 0; i < LadoFrio.size(); i++){
+                                LadoFrio[i][8] = LadoFrio[i][8] + .4; // x
+                                LadoFrio[i][9] = LadoFrio[i][9]; // y
+                                LadoFrio[i][10]= LadoFrio[i][10] - .4; // x
+                                LadoFrio[i][11]= LadoFrio[i][11]; // y
+                            }
+                            contadorPlots++;
+                        }else{
+                            return;
+                        }
+                    }else if(LadoFrio[Fria][3] == 1){ // es subred FRIA
+
+                    }
+                }else if(LadoFrio[Fria][3] == 1){ // es subred CALIENTE
+                    if(LadoFrio[Fria][3] == 0){ // es principal FRIA
+
+                    }else if(LadoFrio[Fria][3] == 1){ // es subred FRIA
+
+                    }
+                }
+            }
+        }else if(Uniones.size() > 0){ // hay mas uniones
+            for(int i = 0; i < Uniones.size(); i++){
+                if(Conexion[0] == Uniones[i][0]){
+                    if(Conexion[0] < LadoCaliente.size() && Conexion[1] < LadoCaliente.size() ){
+                        double Caliente = Conexion[0]; // corriente caliente
+                        double Fria = Conexion[1]; // corriente fria
+                        if(LadoCaliente[Caliente][3] == 0 ){ // es principal caliente
+                            if(LadoCaliente[Fria][3] == 0){ // es principal fria
+                                //CALCULOS
+                                double Q1 = LadoCaliente[Caliente][6]*(LadoCaliente[Caliente][4]-LadoCaliente[Caliente][5]) ;
+                                double Q2 = LadoCaliente[Fria][6]*(LadoCaliente[Fria][4] - LadoCaliente[Fria][5]);
+                                double X1,X2,dif1,dif2;
+                                if(Q1 < Q2){ // Prueba si el calor Q1 es menor que Q2 se trasmite lo mayor posible
+                                    X1 = LadoCaliente[Caliente][5];
+                                    X2 = (Q1/ LadoCaliente[Fria][6]) + LadoCaliente[Fria][5];
+                                    dif1 = qFabs(X1 - LadoCaliente[Fria][5] );
+                                    dif2 = qFabs(LadoCaliente[Caliente][4] - X2);
+                                }else if(Q2 > Q1){ // se trasmite lo mayor posible
+                                    X1 = -( ( Q2 / LadoCaliente[Caliente][6] ) + LadoCaliente[Caliente][4] );
+                                    X2 = (Q2/ LadoCaliente[Fria][6]) + LadoCaliente[Fria][5];
+                                    dif1 = qFabs(X1 - LadoCaliente[Fria][5] );
+                                    dif2 = qFabs(LadoCaliente[Caliente][4] - X2);
+                                }
+                                if(controlintercambio(DTmin,dif1,dif2,X1,X2,LadoCaliente[Caliente][5],LadoCaliente[Fria][4]) == false){
+                                    contadorUniones = contadorUniones + 1;
+                                    QVector<double> x1,y1;
+                                    espaciadoruniones = espaciadoruniones + 1;
+                                    //MODIFICAR ESTAS UNIONES
+                                    x1.resize(4),y1.resize(4);
+                                    x1[0] = LadoCaliente[Caliente][8] + .4; // x
+                                    y1[0] = LadoCaliente[Caliente][9]; // y
+                                    x1[1] = LadoCaliente[Caliente][8] + .4; // x
+                                    y1[1] = LadoCaliente[Caliente][9] - 1 - espaciadoruniones; // y // se debe modificar solamnte esta
+                                    x1[2] = LadoCaliente[Caliente][10] - .4; // x
+                                    y1[2] = LadoCaliente[Caliente][11] - 1 - espaciadoruniones ; // y // se debe modificar solamente esta
+                                    x1[3] = LadoCaliente[Fria][10] - .4; // x
+                                    y1[3] = LadoCaliente[Fria][11]; // y
+                                    QPen pen;
+                                    pen.setStyle(Qt::DashLine);
+                                    pen.setWidth(2);
+                                    pen.setColor(Qt::black);
+                                    ui->qcustomplot->addGraph();
+                                    ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
+                                    ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
+                                    ui->qcustomplot->graph(contadorPlots)->setPen(pen);
+                                    QPointF posIni,posFin;
+                                    posIni.setX(x1[0] + .2);
+                                    posIni.setY(y1[0] + .5);
+                                    posFin.setX(x1[3] - .2);
+                                    posFin.setY(y1[3] + .5);
+                                    QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
+                                    textLabel1->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
+                                    textLabel1->position->setType(QCPItemPosition::ptPlotCoords);
+                                    textLabel1->position->setCoords(posIni);
+                                    textLabel1->setText(QString("%1 ªF").arg(QString::number(X1)));
+                                    textLabel1->setFont(QFont(font().family(), 8)); // make font a bit larger
+                                    QCPItemText *textLabel2 = new QCPItemText(ui->qcustomplot);
+                                    textLabel2->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
+                                    textLabel2->position->setType(QCPItemPosition::ptPlotCoords);
+                                    textLabel2->position->setCoords(posFin);
+                                    textLabel2->setText(QString("%1 ªF").arg(QString::number(X2)));
+                                    textLabel2->setFont(QFont(font().family(), 8)); // make font a bit larger
+                                    ui->qcustomplot->replot();
+                                    // ALMECENAJE EN EL VECTOR UNION
+                                    Uniones.resize(contadorUniones);
+                                    for(int i = 0; i < Uniones.size(); i++){
+                                        Uniones[i].resize(8);
+                                    }
+                                    Uniones[contadorUniones-1][0] = Caliente;
+                                    Uniones[contadorUniones-1][1] = Fria;
+                                    Uniones[contadorUniones-1][2] = ui->qcustomplot->itemCount() - 1;
+                                    Uniones[contadorUniones-1][3] = ui->qcustomplot->itemCount();
+                                    Uniones[contadorUniones-1][4] = LadoCaliente[Caliente][4]; // entrada caliente
+                                    Uniones[contadorUniones-1][5] = X1; // salida caliente
+                                    Uniones[contadorUniones-1][6] = LadoCaliente[Fria][5]; // entrada fria
+                                    Uniones[contadorUniones-1][7] = X2; // salida fria
+                                    //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
+                                    LadoCaliente[Caliente][4]  = X1;
+                                    LadoCaliente[Fria][5] = X2;
+                                    for(int i = 0; i < LadoCaliente.size(); i++){
+                                        LadoCaliente[i][8] = LadoCaliente[i][8] + .4; // x
+                                        LadoCaliente[i][9] = LadoCaliente[i][9]; // y
+                                        LadoCaliente[i][10]= LadoCaliente[i][10] - .4; // x
+                                        LadoCaliente[i][11]= LadoCaliente[i][11]; // y
+                                    }
+                                    contadorPlots++;
+                                }else{
+                                    return;
+                                }
+                            }else if(LadoCaliente[Fria][3] == 1){ // es subred fria
+
+                            }
+                        }else if(LadoCaliente[Caliente][3] == 1){  // es subred caliente
+                            if(LadoCaliente[Fria][3] == 0){ // es principal fria
+
+                            }else if(LadoCaliente[Fria][3] == 1){ // es subred fria
+
+                            }
+                        }
+                        return;
+                    }else if(Conexion[0] >= LadoCaliente.size()  && Conexion[1] >= LadoCaliente.size() ){
+                        double Caliente = Conexion[0] - LadoCaliente.size();
+                        double Fria = Conexion[1] - LadoCaliente.size();
+                        if(LadoFrio[Caliente][3] == 0){ // es principal CALIENTE
+                            if(LadoFrio[Fria][3] == 0){ // es principal FRIA
+                                double Q1 = LadoFrio[Caliente][6]*(LadoFrio[Caliente][4]- LadoFrio[Caliente][5]) ;
+                                double Q2 = LadoFrio[Fria][6]*(LadoFrio[Fria][4] -LadoFrio[Fria][5]);
+                                double X1,X2,dif1,dif2;
+                                if(Q1 < Q2){ // Prueba si el calor Q1 es menor que Q2 se trasmite lo mayor posible
+                                  X1 = LadoFrio[Caliente][5];
+                                  X2 = (Q1/ LadoFrio[Fria][6]) + LadoFrio[Fria][5];
+                                  dif1 = qFabs(X1 - LadoFrio[Fria][5] );
+                                  dif2 = qFabs(LadoFrio[Caliente][4] - X2);
+                                }else if(Q2 > Q1){ // se trasmite lo mayor posible
+                                  X1 = -( ( Q2 / LadoFrio[Caliente][6] ) - LadoFrio[Caliente][4] );
+                                  X2 = (Q2/ LadoFrio[Fria][6]) + LadoFrio[Fria][5];
+                                  dif1 = qFabs(X1 - LadoFrio[Fria][5] );
+                                  dif2 = qFabs(LadoFrio[Caliente][4] - X2);
+                                }
+                                if(controlintercambio(DTmin,dif1,dif2,X1,X2,LadoFrio[Caliente][5],LadoFrio[Fria][4]) == false){
+                                    contadorUniones = contadorUniones + 1;
+                                    QVector<double> x1,y1;
+                                    espaciadoruniones = espaciadoruniones + 1;
+                                    //MODIFICAR ESTAS UNIONES
+                                    x1.resize(4),y1.resize(4);
+                                    x1[0] = LadoFrio[Caliente][8] + .4; // x
+                                    y1[0] = LadoFrio[Caliente][9]; // y
+                                    x1[1] = LadoFrio[Caliente][8] + .4; // x
+                                    y1[1] = LadoFrio[Caliente][9] - 1 - espaciadoruniones; // y // se debe modificar solamnte esta
+                                    x1[2] = LadoFrio[Caliente][10] - .4; // x
+                                    y1[2] = LadoFrio[Caliente][11] - 1 - espaciadoruniones ; // y // se debe modificar solamente esta
+                                    x1[3] = LadoFrio[Fria][10] - .4; // x
+                                    y1[3] = LadoFrio[Fria][11]; // y
+                                    QPen pen;
+                                    pen.setStyle(Qt::DashLine);
+                                    pen.setWidth(2);
+                                    pen.setColor(Qt::black);
+                                    ui->qcustomplot->addGraph();
+                                    ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
+                                    ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
+                                    ui->qcustomplot->graph(contadorPlots)->setPen(pen);
+                                    QPointF posIni,posFin;
+                                    posIni.setX(x1[0] + .2);
+                                    posIni.setY(y1[0] + .5);
+                                    posFin.setX(x1[3] - .2);
+                                    posFin.setY(y1[3] + .5);
+                                    QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
+                                    textLabel1->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
+                                    textLabel1->position->setType(QCPItemPosition::ptPlotCoords);
+                                    textLabel1->position->setCoords(posIni);
+                                    textLabel1->setText(QString("%1 ªF").arg(QString::number(X1)));
+                                    textLabel1->setFont(QFont(font().family(), 8)); // make font a bit larger
+                                    QCPItemText *textLabel2 = new QCPItemText(ui->qcustomplot);
+                                    textLabel2->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
+                                    textLabel2->position->setType(QCPItemPosition::ptPlotCoords);
+                                    textLabel2->position->setCoords(posFin);
+                                    textLabel2->setText(QString("%1 ªF").arg(QString::number(X2)));
+                                    textLabel2->setFont(QFont(font().family(), 8)); // make font a bit larger
+                                    ui->qcustomplot->replot();
+                                    // ALMECENAJE EN EL VECTOR UNION
+                                    Uniones.resize(contadorUniones);
+                                    for(int i = 0; i < Uniones.size(); i++){
+                                        Uniones[i].resize(8);
+                                    }
+                                    Uniones[contadorUniones-1][0] = Caliente;
+                                    Uniones[contadorUniones-1][1] = Fria;
+                                    Uniones[contadorUniones-1][2] = ui->qcustomplot->itemCount() - 1;
+                                    Uniones[contadorUniones-1][3] = ui->qcustomplot->itemCount();
+                                    Uniones[contadorUniones-1][4] = LadoFrio[Caliente][4]; // entrada caliente
+                                    Uniones[contadorUniones-1][5] = X1; // salida caliente
+                                    Uniones[contadorUniones-1][6] = LadoFrio[Fria][5]; // entrada fria
+                                    Uniones[contadorUniones-1][7] = X2; // salida fria
+                                    //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
+                                    LadoFrio[Caliente][4]  = X1;
+                                    LadoFrio[Fria][5] = X2;
+                                    for(int i = 0; i < LadoFrio.size(); i++){
+                                        LadoFrio[i][8] = LadoFrio[i][8] + .4; // x
+                                        LadoFrio[i][9] = LadoFrio[i][9]; // y
+                                        LadoFrio[i][10]= LadoFrio[i][10] - .4; // x
+                                        LadoFrio[i][11]= LadoFrio[i][11]; // y
+                                    }
+                                    contadorPlots++;
+                                }else{
+                                    return;
+                                }
+                            }else if(LadoFrio[Fria][3] == 1){ // es subred FRIA
+
+                            }
+                        }else if(LadoFrio[Fria][3] == 1){ // es subred CALIENTE
+                            if(LadoFrio[Fria][3] == 0){ // es principal FRIA
+
+                            }else if(LadoFrio[Fria][3] == 1){ // es subred FRIA
+
+                            }
+                        }
+                        return;
+                    }
+                }
+            }// NO HAY UNION REGISTRADA ENTONCES HACE ANALISIS
+            espaciadoruniones = 0;
+            if(Conexion[0]  < LadoCaliente.size() && Conexion[1] < LadoCaliente.size() ){
+                double Caliente = Conexion[0]; // corriente caliente
+                double Fria = Conexion[1]; // corriente fria
+                if(LadoCaliente[Caliente][3] == 0 ){ // es principal caliente
+                    if(LadoCaliente[Fria][3] == 0){ // es principal fria
+                        //CALCULOS
+                        double Q1 = LadoCaliente[Caliente][6]*(LadoCaliente[Caliente][4]-LadoCaliente[Caliente][5]) ;
+                        double Q2 = LadoCaliente[Fria][6]*(LadoCaliente[Fria][4] - LadoCaliente[Fria][5]);
+                        double X1,X2,dif1,dif2;
+                        if(Q1 < Q2){ // Prueba si el calor Q1 es menor que Q2 se trasmite lo mayor posible
+                            X1 = LadoCaliente[Caliente][5];
+                            X2 = (Q1/ LadoCaliente[Fria][6]) + LadoCaliente[Fria][5];
+                            dif1 = qFabs(X1 - LadoCaliente[Fria][5] );
+                            dif2 = qFabs(LadoCaliente[Caliente][4] - X2);
+                        }else if(Q1 > Q2){ // se trasmite lo mayor posible
+                            X1 = -( ( Q2 / LadoCaliente[Caliente][6] ) - LadoCaliente[Caliente][4] );
+                            X2 = (Q2/ LadoCaliente[Fria][6]) + LadoCaliente[Fria][5];
+                            dif1 = qFabs(X1 - LadoCaliente[Fria][5] );
+                            dif2 = qFabs(LadoCaliente[Caliente][4] - X2);
+                        }
+                        if(controlintercambio(DTmin,dif1,dif2,X1,X2,LadoCaliente[Caliente][5],LadoCaliente[Fria][4]) == false){
+                            contadorUniones = contadorUniones + 1;
+                            QVector<double> x1,y1;
+                            x1.resize(4),y1.resize(4);
+                            x1[0] = LadoCaliente[Caliente][8] + .4; // x
+                            y1[0] = LadoCaliente[Caliente][9]; // y
+                            x1[1] = LadoCaliente[Caliente][8] + .4; // x
+                            y1[1] = LadoCaliente[Caliente][9] - 1; // y
+                            x1[2] = LadoCaliente[Caliente][10] - .4; // x
+                            y1[2] = LadoCaliente[Caliente][11] - 1; // y
+                            x1[3] = LadoCaliente[Fria][10] - .4; // x
+                            y1[3] = LadoCaliente[Fria][11]; // y
+                            x1[0] = LadoCaliente[Caliente][8] + .4; // x
+                            y1[0] = LadoCaliente[Caliente][9]; // y
+                            x1[1] = LadoCaliente[Caliente][8] + .4; // x
+                            y1[1] = LadoCaliente[Caliente][9] - 1; // y
+                            x1[2] = LadoCaliente[Caliente][10] - .4; // x
+                            y1[2] = LadoCaliente[Caliente][11] - 1; // y
+                            x1[3] = LadoCaliente[Fria][10] - .4; // x
+                            y1[3] = LadoCaliente[Fria][11]; // y
+                            QPen pen;
+                            pen.setStyle(Qt::DashLine);
+                            pen.setWidth(2);
+                            pen.setColor(Qt::black);
+                            ui->qcustomplot->addGraph();
+                            ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
+                            ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
+                            ui->qcustomplot->graph(contadorPlots)->setPen(pen);
+                            QPointF posIni,posFin;
+                            posIni.setX(x1[0] + .2);
+                            posIni.setY(y1[0] + .5);
+                            posFin.setX(x1[3] - .2);
+                            posFin.setY(y1[3] + .5);
+                            QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
+                            textLabel1->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
+                            textLabel1->position->setType(QCPItemPosition::ptPlotCoords);
+                            textLabel1->position->setCoords(posIni);
+                            textLabel1->setText(QString("%1 ªF").arg(QString::number(X1)));
+                            textLabel1->setFont(QFont(font().family(), 8)); // make font a bit larger
+                            QCPItemText *textLabel2 = new QCPItemText(ui->qcustomplot);
+                            textLabel2->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
+                            textLabel2->position->setType(QCPItemPosition::ptPlotCoords);
+                            textLabel2->position->setCoords(posFin);
+                            textLabel2->setText(QString("%1 ªF").arg(QString::number(X2)));
+                            textLabel2->setFont(QFont(font().family(), 8)); // make font a bit larger
+                            ui->qcustomplot->replot();
+                            // ALMECENAJE EN EL VECTOR UNION
+                            Uniones.resize(contadorUniones);
+                            for(int i = 0; i < Uniones.size(); i++){
+                                Uniones[i].resize(8);
+                            }
+                            Uniones[contadorUniones-1][0] = Caliente;
+                            Uniones[contadorUniones-1][1] = Fria;
+                            Uniones[contadorUniones-1][2] = ui->qcustomplot->itemCount() - 1;
+                            Uniones[contadorUniones-1][3] = ui->qcustomplot->itemCount();
+                            Uniones[contadorUniones-1][4] = LadoCaliente[Caliente][4]; // entrada caliente
+                            Uniones[contadorUniones-1][5] = X1; // salida caliente
+                            Uniones[contadorUniones-1][6] = LadoCaliente[Fria][5]; // entrada fria
+                            Uniones[contadorUniones-1][7] = X2; // salida fria
+                            //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
+                            LadoCaliente[Caliente][4]  = X1;
+                            LadoCaliente[Fria][5] = X2;
+                            for(int i = 0; i < LadoCaliente.size(); i++){
+                                LadoCaliente[i][8] = LadoCaliente[i][8] + .4; // x
+                                LadoCaliente[i][9] = LadoCaliente[i][9]; // y
+                                LadoCaliente[i][10]= LadoCaliente[i][10] - .4; // x
+                                LadoCaliente[i][11]= LadoCaliente[i][11]; // y
+                            }
+                            contadorPlots++;
+                        }else{
+                            return;
+                        }
+                    }else if(LadoCaliente[Fria][3] == 1){ // es subred fria
+
+                    }
+                }else if(LadoCaliente[Caliente][3] == 1){  // es subred caliente
+                    if(LadoCaliente[Fria][3] == 0){ // es principal fria
+
+                    }else if(LadoCaliente[Fria][3] == 1){ // es subred fria
+
+                    }
+                }
+            }else if(Conexion[0] >= LadoCaliente.size()  && Conexion[1] >= LadoCaliente.size() ){
+                double Caliente = Conexion[0] - LadoCaliente.size() ; // corriente caliente
+                double Fria = Conexion[1] - LadoCaliente.size() ; // corriente fria
+                if(LadoFrio[Caliente][3] == 0){ // es principal CALIENTE
+                    if(LadoFrio[Fria][3] == 0){ // es principal FRIA
+                        double Q1 = LadoFrio[Caliente][6]*(LadoFrio[Caliente][4]- LadoFrio[Caliente][5]) ;
+                        double Q2 = LadoFrio[Fria][6]*(LadoFrio[Fria][4] -LadoFrio[Fria][5]);
+                        double X1,X2,dif1,dif2;
+                        if(Q1 < Q2){ // Prueba si el calor Q1 es menor que Q2 se trasmite lo mayor posible
+                          X1 = LadoFrio[Caliente][5];
+                          X2 = (Q1/ LadoFrio[Fria][6]) + LadoFrio[Fria][5];
+                          dif1 = qFabs(X1 - LadoFrio[Fria][5] );
+                          dif2 = qFabs(LadoFrio[Caliente][4] - X2);
+                        }else if(Q2 > Q1){ // se trasmite lo mayor posible
+                          X1 = -( ( Q2 / LadoFrio[Caliente][6] ) - LadoFrio[Caliente][4] );
+                          X2 = (Q2/ LadoFrio[Fria][6]) + LadoFrio[Fria][5];
+                          dif1 = qFabs(X1 - LadoFrio[Fria][5] );
+                          dif2 = qFabs(LadoFrio[Caliente][4] - X2);
+                        }
+                        if(controlintercambio(DTmin,dif1,dif2,X1,X2,LadoFrio[Caliente][5],LadoFrio[Fria][4]) == false){
+                            contadorUniones = contadorUniones + 1;
+                            QVector<double> x1,y1;
+                            x1.resize(4),y1.resize(4);
+                            x1[0] = LadoFrio[Caliente][8] + .4; // x
+                            y1[0] = LadoFrio[Caliente][9]; // y
+                            x1[1] = LadoFrio[Caliente][8] + .4; // x
+                            y1[1] = LadoFrio[Caliente][9] - 1; // y
+                            x1[2] = LadoFrio[Caliente][10] - .4; // x
+                            y1[2] = LadoFrio[Caliente][11] - 1; // y
+                            x1[3] = LadoFrio[Fria][10] - .4; // x
+                            y1[3] = LadoFrio[Fria][11]; // y
+                            QPen pen;
+                            pen.setStyle(Qt::DashLine);
+                            pen.setWidth(2);
+                            pen.setColor(Qt::black);
+                            ui->qcustomplot->addGraph();
+                            ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
+                            ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
+                            ui->qcustomplot->graph(contadorPlots)->setPen(pen);
+                            QPointF posIni,posFin;
+                            posIni.setX(x1[0] + .2);
+                            posIni.setY(y1[0] + .5);
+                            posFin.setX(x1[3] - .2);
+                            posFin.setY(y1[3] + .5);
+                            QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
+                            textLabel1->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
+                            textLabel1->position->setType(QCPItemPosition::ptPlotCoords);
+                            textLabel1->position->setCoords(posIni);
+                            textLabel1->setText(QString("%1 ªF").arg(QString::number(X1)));
+                            textLabel1->setFont(QFont(font().family(), 8)); // make font a bit larger
+                            QCPItemText *textLabel2 = new QCPItemText(ui->qcustomplot);
+                            textLabel2->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
+                            textLabel2->position->setType(QCPItemPosition::ptPlotCoords);
+                            textLabel2->position->setCoords(posFin);
+                            textLabel2->setText(QString("%1 ªF").arg(QString::number(X2)));
+                            textLabel2->setFont(QFont(font().family(), 8)); // make font a bit larger
+                            ui->qcustomplot->replot();
+                            // ALMECENAJE EN EL VECTOR UNION
+                            Uniones.resize(contadorUniones);
+                            for(int i = 0; i < Uniones.size(); i++){
+                                Uniones[i].resize(8);
+                            }
+                            Uniones[contadorUniones-1][0] = Caliente;
+                            Uniones[contadorUniones-1][1] = Fria;
+                            Uniones[contadorUniones-1][2] = ui->qcustomplot->itemCount() - 1;
+                            Uniones[contadorUniones-1][3] = ui->qcustomplot->itemCount();
+                            Uniones[contadorUniones-1][4] = LadoFrio[Caliente][4]; // entrada caliente
+                            Uniones[contadorUniones-1][5] = X1; // salida caliente
+                            Uniones[contadorUniones-1][6] = LadoFrio[Fria][5]; // entrada fria
+                            Uniones[contadorUniones-1][7] = X2; // salida fria
+                            //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
+                            LadoFrio[Caliente][4]  = X1;
+                            LadoFrio[Fria][5] = X2;
+                            for(int i = 0; i < LadoFrio.size(); i++){
+                                LadoFrio[i][8] = LadoFrio[i][8] + .4; // x
+                                LadoFrio[i][9] = LadoFrio[i][9]; // y
+                                LadoFrio[i][10]= LadoFrio[i][10] - .4; // x
+                                LadoFrio[i][11]= LadoFrio[i][11]; // y
+                            }
+                            contadorPlots++;
+                        }else{
+                            return;
+                        }
+                    }else if(LadoFrio[Fria][3] == 1){ // es subred FRIA
+
+                    }
+                }else if(LadoFrio[Fria][3] == 1){ // es subred CALIENTE
+                    if(LadoFrio[Fria][3] == 0){ // es principal FRIA
+
+                    }else if(LadoFrio[Fria][3] == 1){ // es subred FRIA
+
+                    }
                 }
             }
         }
     }
 }
 
-void plotterDN::splitStream()
-{
-
-}
-
-void plotterDN::removeSelectedGraph()
-{
-  if (ui->qcustomplot->selectedGraphs().size() > 0)
-  {
-    ui->qcustomplot->removeGraph(ui->qcustomplot->selectedGraphs().first());
-    ui->qcustomplot->replot();
-  }
-}
-
-void plotterDN::removeAllGraphs()
-{
-  ui->qcustomplot->clearGraphs();
-  ui->qcustomplot->replot();
-}
 
