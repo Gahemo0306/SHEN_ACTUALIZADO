@@ -606,3 +606,8 @@ void NetworkDesign::on_operationcost_cellChanged()
         accionguardar();
     }
 }
+
+void NetworkDesign::on_tabWidget_tabCloseRequested(int index)
+{
+    ui->tabWidget->removeTab(index);
+}

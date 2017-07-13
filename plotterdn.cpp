@@ -18,6 +18,13 @@ plotterDN::plotterDN(QWidget *parent) :
 {
     ui->setupUi(this);
     //NumUniones = 0;
+    contadorDivisionesCalientes = 0;
+    contadorDivisionesFrias = 0;
+    contadorDivisionesTotal = 0;
+    contadorTOTALIZQYDER = 0;
+    contadorLADOIZQUIERDO = 0;
+    contadorLADODERECHO = 0;
+    contadorSEPARACIONES = 0;
     contadorSER = 0;
     contadorSERCAL = 0;
     contadorSERFRI = 0;
@@ -268,6 +275,7 @@ void plotterDN::moveLegend()
   }
 }
 
+
 void plotterDN::AlgoritmoCorrientes(QVector<double> TS, QVector<double> TE, QVector<double> WCP,
                                         QVector<double> H, bool uniforme, bool diverso,double DTmin,double k)
 {
@@ -421,10 +429,9 @@ void plotterDN::AlgoritmoCoorrGrafi(QVector<QVector<double>> VectorCalientesMATR
         }
     }
     double n = VectorCalientesMATRIZ.size() + VectorFriasMATRIZ.size();
-    ui->qcustomplot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes |
-                                     QCP::iSelectLegend | QCP::iSelectItems | QCP::iSelectPlottables | QCP::iMultiSelect );
-    ui->qcustomplot->xAxis->setRange(0, 12);
-    ui->qcustomplot->yAxis->setRange(0, n*4);
+    ui->qcustomplot->setInteractions(QCP::iSelectLegend | QCP::iSelectPlottables | QCP::iMultiSelect | QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes); //| QCP::iSelectItems
+    ui->qcustomplot->xAxis->setRange(-1, 13);
+    ui->qcustomplot->yAxis->setRange(0, n*6);
     ui->qcustomplot->axisRect()->setupFullAxesBox();
     ui->qcustomplot->xAxis->setLabel("x Axis");
     ui->qcustomplot->yAxis->setLabel("y Axis");
@@ -434,9 +441,7 @@ void plotterDN::AlgoritmoCoorrGrafi(QVector<QVector<double>> VectorCalientesMATR
     ui->qcustomplot->legend->setFont(legendFont);
     ui->qcustomplot->legend->setSelectedFont(legendFont);
     ui->qcustomplot->legend->setSelectableParts(QCPLegend::spItems);
-
     //  PROBLEMA CALIENTE GRAFICACION
-
     QVector<double> x1,y1;
     x1.resize(2);
     y1.resize(2);
@@ -447,13 +452,16 @@ void plotterDN::AlgoritmoCoorrGrafi(QVector<QVector<double>> VectorCalientesMATR
     contadorPlots = 0;
     int matrizPC = 0;
     //LadoCaliente;
+    int CONTADORCORRIENTES = 0;
     LadoCaliente.resize(n);
     for(int i = 0; i < LadoCaliente.size(); i++){
         LadoCaliente[i].resize(12);
     }
     for(int i = 0; i < TCalPINCH_HOT.size() ; i++){ // primero la parte del problema calientes
         if(TCalPINCH_HOT[i][0] == 0 && TCalPINCH_HOT[i][1] ==0 && TCalPINCH_HOT[i][2] ==0){
+            CONTADORCORRIENTES = CONTADORCORRIENTES + 1;
             ui->qcustomplot->addGraph();
+            ui->qcustomplot->graph(contadorPlots)->setName("Not available");
             ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
             ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssNone));
             ui->qcustomplot->graph(contadorPlots)->setPen(QPen(Qt::black));
@@ -469,23 +477,22 @@ void plotterDN::AlgoritmoCoorrGrafi(QVector<QVector<double>> VectorCalientesMATR
             LadoCaliente[matrizPC][9] = y1[0]; //
             LadoCaliente[matrizPC][10] = x1[1]; //
             LadoCaliente[matrizPC][11] = y1[1]; //
-
-            QPointF posMed;
-            posMed.setX((x1[0] + x1[1])/ 2);
-            posMed.setY(y1[0]+.5);
             QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
-            textLabel1->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-            textLabel1->position->setType(QCPItemPosition::ptPlotCoords);
-            textLabel1->position->setCoords(posMed);
+            textLabel1->setClipToAxisRect(true);
+            textLabel1->setClipAxisRect(ui->qcustomplot->axisRect());
+            textLabel1->setLayer(ui->qcustomplot->axisRect()->layer()->name());
+            textLabel1->position->setAxisRect(ui->qcustomplot->axisRect());
+            textLabel1->position->setCoords(x1[0] + x1[1]/2, y1[0]+.5);
             textLabel1->setText("Not available");
             textLabel1->setFont(QFont(font().family(), 8)); // make font a bit larger
-
             matrizPC++;
             contadorPlots++;
             y1[0] = y1[0] - 3;
             y1[1] = y1[1] - 3;
         }else{
+            CONTADORCORRIENTES = CONTADORCORRIENTES + 1 ;
             ui->qcustomplot->addGraph();
+            ui->qcustomplot->graph(contadorPlots)->setName(QString("Hot stream %1").arg(QString::number(CONTADORCORRIENTES)));
             ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
             ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssNone));
             ui->qcustomplot->graph(contadorPlots)->setPen(QPen(Qt::red));
@@ -501,25 +508,24 @@ void plotterDN::AlgoritmoCoorrGrafi(QVector<QVector<double>> VectorCalientesMATR
             LadoCaliente[matrizPC][9] = y1[0]; //
             LadoCaliente[matrizPC][10] = x1[1]; //
             LadoCaliente[matrizPC][11] = y1[1]; //
-
-            QPointF posIni,posFin;
-            posIni.setX(x1[0]-.25);
-            posIni.setY(y1[0]+.5);
-            posFin.setX(x1[1]+.25);
-            posFin.setY(y1[1]+.5);
             QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
-            textLabel1->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-            textLabel1->position->setType(QCPItemPosition::ptPlotCoords);
-            textLabel1->position->setCoords(posIni);
+            textLabel1->setClipToAxisRect(true);
+            textLabel1->setClipAxisRect(ui->qcustomplot->axisRect());
+            textLabel1->setLayer(ui->qcustomplot->axisRect()->layer()->name());
+            textLabel1->position->setAxisRect(ui->qcustomplot->axisRect());
+            textLabel1->position->setCoords(x1[0]-.25,y1[0]+.5);
             textLabel1->setText(QString("%1 ªF").arg(QString::number(TCalPINCH_HOT[i][0])));
             textLabel1->setFont(QFont(font().family(), 8)); // make font a bit larger
+            textLabel1->setPadding(QMargins(8, 0, 0, 0));
             QCPItemText *textLabel2 = new QCPItemText(ui->qcustomplot);
-            textLabel2->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-            textLabel2->position->setType(QCPItemPosition::ptPlotCoords);
-            textLabel2->position->setCoords(posFin);
+            textLabel2->setClipToAxisRect(true);
+            textLabel2->setClipAxisRect(ui->qcustomplot->axisRect());
+            textLabel2->setLayer(ui->qcustomplot->axisRect()->layer()->name());
+            textLabel2->position->setAxisRect(ui->qcustomplot->axisRect());
+            textLabel2->position->setCoords(x1[1]+.25,y1[1]+.5);
             textLabel2->setText(QString("%1 ªF").arg(QString::number(TCalPINCH_HOT[i][1])));
             textLabel2->setFont(QFont(font().family(), 8)); // make font a bit larger
-
+            textLabel2->setPadding(QMargins(8, 0, 0, 0));
             matrizPC++;
             contadorPlots++;
             y1[0] = y1[0] - 3;
@@ -528,12 +534,12 @@ void plotterDN::AlgoritmoCoorrGrafi(QVector<QVector<double>> VectorCalientesMATR
     }
     for(int i = 0 ; i < TCalPINCH_COL.size() ; i++){
         if(TCalPINCH_COL[i][0] == 0 && TCalPINCH_COL[i][1] == 0 && TCalPINCH_COL[i][2] == 0){
+            CONTADORCORRIENTES = CONTADORCORRIENTES + 1;
             ui->qcustomplot->addGraph();
+            ui->qcustomplot->graph(contadorPlots)->setName("Not available");
             ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
             ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssNone));
             ui->qcustomplot->graph(contadorPlots)->setPen(QPen(Qt::black));
-
-
             LadoCaliente[matrizPC][0] = contadorPlots;
             LadoCaliente[matrizPC][1] = 1; // fria
             LadoCaliente[matrizPC][2] = 0; // Disponibilidad
@@ -546,22 +552,23 @@ void plotterDN::AlgoritmoCoorrGrafi(QVector<QVector<double>> VectorCalientesMATR
             LadoCaliente[matrizPC][9] = y1[0]; //
             LadoCaliente[matrizPC][10] = x1[1]; //
             LadoCaliente[matrizPC][11] = y1[1]; //
-            QPointF posMed;
-            posMed.setX((x1[0] + x1[1])/ 2);
-            posMed.setY(y1[0]+.5);
             QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
-            textLabel1->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-            textLabel1->position->setType(QCPItemPosition::ptPlotCoords);
-            textLabel1->position->setCoords(posMed);
+            textLabel1->setClipToAxisRect(true);
+            textLabel1->setClipAxisRect(ui->qcustomplot->axisRect());
+            textLabel1->setLayer(ui->qcustomplot->axisRect()->layer()->name());
+            textLabel1->position->setAxisRect(ui->qcustomplot->axisRect());
+            textLabel1->position->setCoords((x1[0] + x1[1])/ 2,y1[0]+.5);
             textLabel1->setText("Not available");
             textLabel1->setFont(QFont(font().family(), 8)); // make font a bit larger
-
+            textLabel1->setPadding(QMargins(8, 0, 0, 0));
             matrizPC++;
             contadorPlots++;
             y1[0] = y1[0] - 3;
             y1[1] = y1[1] - 3;
         }else{
+            CONTADORCORRIENTES = CONTADORCORRIENTES + 1;
             ui->qcustomplot->addGraph();
+            ui->qcustomplot->graph(contadorPlots)->setName(QString("Cold stream %1").arg(QString::number(CONTADORCORRIENTES)));
             ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
             ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssNone));
             ui->qcustomplot->graph(contadorPlots)->setPen(QPen(Qt::blue));
@@ -577,24 +584,24 @@ void plotterDN::AlgoritmoCoorrGrafi(QVector<QVector<double>> VectorCalientesMATR
             LadoCaliente[matrizPC][9] = y1[0]; //
             LadoCaliente[matrizPC][10] = x1[1]; //
             LadoCaliente[matrizPC][11] = y1[1]; //
-
-            QPointF posIni,posFin;
-            posIni.setX(x1[0]-.25);
-            posIni.setY(y1[0]+.5);
-            posFin.setX(x1[1]+.25);
-            posFin.setY(y1[1]+.5);
             QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
-            textLabel1->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-            textLabel1->position->setType(QCPItemPosition::ptPlotCoords);
-            textLabel1->position->setCoords(posIni);
+            textLabel1->setClipToAxisRect(true);
+            textLabel1->setClipAxisRect(ui->qcustomplot->axisRect());
+            textLabel1->setLayer(ui->qcustomplot->axisRect()->layer()->name());
+            textLabel1->position->setAxisRect(ui->qcustomplot->axisRect());
+            textLabel1->position->setCoords(x1[0]-.25,y1[0]+.5);
             textLabel1->setText(QString("%1 ªF").arg(QString::number(TCalPINCH_COL[i][0])));
             textLabel1->setFont(QFont(font().family(), 8)); // make font a bit larger
+            textLabel1->setPadding(QMargins(8, 0, 0, 0));
             QCPItemText *textLabel2 = new QCPItemText(ui->qcustomplot);
-            textLabel2->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-            textLabel2->position->setType(QCPItemPosition::ptPlotCoords);
-            textLabel2->position->setCoords(posFin);
+            textLabel2->setClipToAxisRect(true);
+            textLabel2->setClipAxisRect(ui->qcustomplot->axisRect());
+            textLabel2->setLayer(ui->qcustomplot->axisRect()->layer()->name());//currentLayer());
+            textLabel2->position->setAxisRect(ui->qcustomplot->axisRect());
+            textLabel2->position->setCoords(x1[1]+.25,y1[1]+.5);
             textLabel2->setText(QString("%1 ªF").arg(QString::number(TCalPINCH_COL[i][1])));
             textLabel2->setFont(QFont(font().family(), 8)); // make font a bit larger
+            textLabel2->setPadding(QMargins(8, 0, 0, 0));
 
             matrizPC++;
             contadorPlots++;
@@ -602,9 +609,9 @@ void plotterDN::AlgoritmoCoorrGrafi(QVector<QVector<double>> VectorCalientesMATR
             y1[1] = y1[1] - 3;
         }
     }
-
+    contadorLADOIZQUIERDO = TCalPINCH_HOT.size() + TCalPINCH_COL.size();
     //  PROBLEMA FRIO GRAFICACION
-
+    CONTADORCORRIENTES = 0;
     QVector<double> x2,y2;
     x2.resize(2);
     y2.resize(2);
@@ -620,7 +627,9 @@ void plotterDN::AlgoritmoCoorrGrafi(QVector<QVector<double>> VectorCalientesMATR
     matrizPC = 0;
     for(int i = 0; i < TFriPINCH_HOT.size() ; i++){ // primero la parte del problema calientes
         if(TFriPINCH_HOT[i][0] == 0 && TFriPINCH_HOT[i][1] == 0 && TFriPINCH_HOT[i][2] == 0){
+            CONTADORCORRIENTES = CONTADORCORRIENTES +1 ;
             ui->qcustomplot->addGraph();
+            ui->qcustomplot->graph(contadorPlots)->setName("Not available");
             ui->qcustomplot->graph(contadorPlots)->setData(x2,y2);
             ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssNone));
             ui->qcustomplot->graph(contadorPlots)->setPen(QPen(Qt::black));
@@ -636,23 +645,23 @@ void plotterDN::AlgoritmoCoorrGrafi(QVector<QVector<double>> VectorCalientesMATR
             LadoFrio[matrizPC][9] = y2[0]; //
             LadoFrio[matrizPC][10] = x2[1]; //
             LadoFrio[matrizPC][11] = y2[1]; //
-
-            QPointF posMed;
-            posMed.setX((x2[0] + x2[1])/ 2);
-            posMed.setY(y2[0]+.5);
             QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
-            textLabel1->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-            textLabel1->position->setType(QCPItemPosition::ptPlotCoords);
-            textLabel1->position->setCoords(posMed);
+            textLabel1->setClipToAxisRect(true);
+            textLabel1->setClipAxisRect(ui->qcustomplot->axisRect());
+            textLabel1->setLayer(ui->qcustomplot->axisRect()->layer()->name());
+            textLabel1->position->setAxisRect(ui->qcustomplot->axisRect());
+            textLabel1->position->setCoords((x2[0] + x2[1])/ 2,y2[0]+.5);
             textLabel1->setText("Not available");
             textLabel1->setFont(QFont(font().family(), 8)); // make font a bit larger
-
+            textLabel1->setPadding(QMargins(8, 0, 0, 0));
             matrizPC++;
             contadorPlots++;
             y2[0] = y2[0] - 3;
             y2[1] = y2[1] - 3;
         }else{
+            CONTADORCORRIENTES = CONTADORCORRIENTES + 1;
             ui->qcustomplot->addGraph();
+            ui->qcustomplot->graph(contadorPlots)->setName(QString("Hot stream %1").arg(QString::number(CONTADORCORRIENTES)));
             ui->qcustomplot->graph(contadorPlots)->setData(x2,y2);
             ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssNone));
             ui->qcustomplot->graph(contadorPlots)->setPen(QPen(Qt::red));
@@ -668,25 +677,24 @@ void plotterDN::AlgoritmoCoorrGrafi(QVector<QVector<double>> VectorCalientesMATR
             LadoFrio[matrizPC][9] = y2[0]; //
             LadoFrio[matrizPC][10] = x2[1]; //
             LadoFrio[matrizPC][11] = y2[1]; //
-
-            QPointF posIni,posFin;
-            posIni.setX(x2[0]-.25);
-            posIni.setY(y2[0]+.5);
-            posFin.setX(x2[1]+.25);
-            posFin.setY(y2[1]+.5);
             QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
-            textLabel1->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-            textLabel1->position->setType(QCPItemPosition::ptPlotCoords);
-            textLabel1->position->setCoords(posIni);
+            textLabel1->setClipToAxisRect(true);
+            textLabel1->setClipAxisRect(ui->qcustomplot->axisRect());
+            textLabel1->setLayer(ui->qcustomplot->axisRect()->layer()->name());
+            textLabel1->position->setAxisRect(ui->qcustomplot->axisRect());
+            textLabel1->position->setCoords(x2[0]-.25,y2[0]+.5);
             textLabel1->setText(QString("%1 ªF").arg(QString::number(TFriPINCH_HOT[i][0])));
             textLabel1->setFont(QFont(font().family(), 8)); // make font a bit larger
+            textLabel1->setPadding(QMargins(8, 0, 0, 0));
             QCPItemText *textLabel2 = new QCPItemText(ui->qcustomplot);
-            textLabel2->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-            textLabel2->position->setType(QCPItemPosition::ptPlotCoords);
-            textLabel2->position->setCoords(posFin);
+            textLabel2->setClipToAxisRect(true);
+            textLabel2->setClipAxisRect(ui->qcustomplot->axisRect());
+            textLabel2->setLayer(ui->qcustomplot->axisRect()->layer()->name());//currentLayer());
+            textLabel2->position->setAxisRect(ui->qcustomplot->axisRect());
+            textLabel2->position->setCoords(x2[1]+.25,y2[1]+.5);
             textLabel2->setText(QString("%1 ªF").arg(QString::number(TFriPINCH_HOT[i][1])));
             textLabel2->setFont(QFont(font().family(), 8)); // make font a bit larger
-
+            textLabel2->setPadding(QMargins(8, 0, 0, 0));
             matrizPC++;
             contadorPlots++;
             y2[0] = y2[0] - 3;
@@ -695,7 +703,9 @@ void plotterDN::AlgoritmoCoorrGrafi(QVector<QVector<double>> VectorCalientesMATR
     }
     for(int i = 0 ; i < TFriPINCH_COL.size() ; i++){
         if(TFriPINCH_COL[i][0] == 0 && TFriPINCH_COL[i][1] == 0 && TFriPINCH_COL[i][2] == 0){
+            CONTADORCORRIENTES = CONTADORCORRIENTES +1;
             ui->qcustomplot->addGraph();
+            ui->qcustomplot->graph(contadorPlots)->setName("Not available");
             ui->qcustomplot->graph(contadorPlots)->setData(x2,y2);
             ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssNone));
             ui->qcustomplot->graph(contadorPlots)->setPen(QPen(Qt::black));
@@ -711,23 +721,23 @@ void plotterDN::AlgoritmoCoorrGrafi(QVector<QVector<double>> VectorCalientesMATR
             LadoFrio[matrizPC][9] = y2[0]; //
             LadoFrio[matrizPC][10] = x2[1]; //
             LadoFrio[matrizPC][11] = y2[1]; //
-
-            QPointF posMed;
-            posMed.setX((x2[0] + x2[1])/ 2);
-            posMed.setY(y2[0]+.5);
             QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
-            textLabel1->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-            textLabel1->position->setType(QCPItemPosition::ptPlotCoords);
-            textLabel1->position->setCoords(posMed);
+            textLabel1->setClipToAxisRect(true);
+            textLabel1->setClipAxisRect(ui->qcustomplot->axisRect());
+            textLabel1->setLayer(ui->qcustomplot->axisRect()->layer()->name());
+            textLabel1->position->setAxisRect(ui->qcustomplot->axisRect());
+            textLabel1->position->setCoords((x2[0] + x2[1])/ 2,y2[0]+.5);
             textLabel1->setText("Not available");
             textLabel1->setFont(QFont(font().family(), 8)); // make font a bit larger
-
+            textLabel1->setPadding(QMargins(8, 0, 0, 0));
             matrizPC++;
             contadorPlots++;
             y2[0] = y2[0] - 3;
             y2[1] = y2[1] - 3;
         }else{
+            CONTADORCORRIENTES = CONTADORCORRIENTES + 1 ;
             ui->qcustomplot->addGraph();
+            ui->qcustomplot->graph(contadorPlots)->setName(QString("Cold stream %1").arg(QString::number(CONTADORCORRIENTES)));
             ui->qcustomplot->graph(contadorPlots)->setData(x2,y2);
             ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssNone));
             ui->qcustomplot->graph(contadorPlots)->setPen(QPen(Qt::blue));
@@ -743,31 +753,34 @@ void plotterDN::AlgoritmoCoorrGrafi(QVector<QVector<double>> VectorCalientesMATR
             LadoFrio[matrizPC][9] = y2[0]; //
             LadoFrio[matrizPC][10] = x2[1]; //
             LadoFrio[matrizPC][11] = y2[1]; //
-
-            QPointF posIni,posFin;
-            posIni.setX(x2[0]-.25);
-            posIni.setY(y2[0]+.5);
-            posFin.setX(x2[1]+.25);
-            posFin.setY(y2[1]+.5);
             QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
-            textLabel1->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-            textLabel1->position->setType(QCPItemPosition::ptPlotCoords);
-            textLabel1->position->setCoords(posIni);
+            //textLabel1->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
+            textLabel1->setClipToAxisRect(true);
+            textLabel1->setClipAxisRect(ui->qcustomplot->axisRect());
+            textLabel1->setLayer(ui->qcustomplot->axisRect()->layer()->name());
+            textLabel1->position->setAxisRect(ui->qcustomplot->axisRect());
+            textLabel1->position->setCoords(x2[0]-.25,y2[0]+.5);
             textLabel1->setText(QString("%1 ªF").arg(QString::number(TFriPINCH_COL[i][0])));
             textLabel1->setFont(QFont(font().family(), 8)); // make font a bit larger
+            textLabel1->setPadding(QMargins(8, 0, 0, 0));
             QCPItemText *textLabel2 = new QCPItemText(ui->qcustomplot);
-            textLabel2->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-            textLabel2->position->setType(QCPItemPosition::ptPlotCoords);
-            textLabel2->position->setCoords(posFin);
+            //textLabel2->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
+            textLabel2->setClipToAxisRect(true);
+            textLabel2->setClipAxisRect(ui->qcustomplot->axisRect());
+            textLabel2->setLayer(ui->qcustomplot->axisRect()->layer()->name());//currentLayer());
+            textLabel2->position->setAxisRect(ui->qcustomplot->axisRect());
+            textLabel2->position->setCoords(x2[1]+.25,y2[1]+.5);
             textLabel2->setText(QString("%1 ªF").arg(QString::number(TFriPINCH_COL[i][1])));
             textLabel2->setFont(QFont(font().family(), 8)); // make font a bit larger
-
+            textLabel2->setPadding(QMargins(8, 0, 0, 0));
             matrizPC++;
             contadorPlots++;
             y2[0] = y2[0] - 3;
             y2[1] = y2[1] - 3;
         }
     }
+    contadorLADODERECHO = TFriPINCH_HOT.size() + TFriPINCH_COL.size();
+    contadorTOTALIZQYDER = contadorLADODERECHO + contadorLADOIZQUIERDO;
     ui->qcustomplot->replot();
     connect(ui->qcustomplot, SIGNAL(selectionChangedByUser()), this, SLOT(selectionChanged()));
     connect(ui->qcustomplot, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(mousePress()));
@@ -778,8 +791,6 @@ void plotterDN::AlgoritmoCoorrGrafi(QVector<QVector<double>> VectorCalientesMATR
     connect(ui->qcustomplot, SIGNAL(legendDoubleClick(QCPLegend*,QCPAbstractLegendItem*,QMouseEvent*)), this, SLOT(legendDoubleClick(QCPLegend*,QCPAbstractLegendItem*)));
     ui->qcustomplot->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->qcustomplot, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(contextMenuRequest(QPoint)));
-    qDebug() << LadoCaliente << "LadoCaliente";
-    qDebug() << LadoFrio << "Ladofrio";
 }
 
 void plotterDN::on_Legend_clicked()
@@ -804,7 +815,6 @@ bool plotterDN::comparadortemperaturas(double A, double B, double C)
 
 bool plotterDN::controlintercambio(double DTmin, double dif1, double dif2, double X1, double X2, double TobjC, double TobjF)
 {
-//    qDebug() << DTmin << dif1 << dif2 << X1 << X2 <<  TobjC << TobjF ;
     if(dif1 < DTmin){
         QMessageBox::warning(this,tr("Error"),tr("Violation of Delta T min"));
         return true;
@@ -822,6 +832,16 @@ bool plotterDN::controlintercambio(double DTmin, double dif1, double dif2, doubl
         return true;
     }
     return false;
+}
+
+bool plotterDN::algoritmoCorrienteCaliente(double Corriente)
+{
+    for(int i = 0; i < SeparacionesCalientes.size(); i++){
+        if(Corriente == SeparacionesCalientes[i][1]){
+            return true; // si encontro
+        }
+    }
+    return false; // no encontro
 }
 
 void plotterDN::AuxiliaryService()
@@ -862,11 +882,11 @@ void plotterDN::AuxiliaryService()
     GraphSelect.resize(2);
     Conexion.resize(2);
     int j = 0;
-    for(int i = 0; i < ui->qcustomplot->graphCount(); i++){
-        QCPGraph * graph = ui->qcustomplot->graph(i);
+    for(int i = 0; i < ui->qcustomplot->graphCount(); i++){ //HAY QUE CAMBAIR ESTO
+        QCPGraph * graph = ui->qcustomplot->graph(i); //MODIFICADO LOS CICLOS IF EN i+1 <=
         if(graph->selected()){
             GraphSelect[j]  = i;
-            if(i+1  <= LadoCaliente.size()){
+            if(i  < LadoCaliente.size()){
                 if(LadoCaliente[i][1] == 0 && LadoCaliente[i][2] == 0){ // es caliente inhabilitada
                     QMessageBox::warning(this,tr("Error"),tr("Error"));
                     control = true;
@@ -886,7 +906,7 @@ void plotterDN::AuxiliaryService()
                     Conexion[1] = i ; // Numero de corriente
                     break;
                 }
-            }else if(i+1 >= LadoCaliente.size() ){
+            }else if(i >= LadoCaliente.size() ){
                 if(LadoFrio[i-LadoCaliente.size()][1] == 0 && LadoFrio[i-LadoCaliente.size()][2] == 0){
                     QMessageBox::warning(this,tr("Error"),tr("Error"));
                     control = true;
@@ -910,69 +930,54 @@ void plotterDN::AuxiliaryService()
             j++;
         }
     }
-    qDebug() << Conexion;
     if(control == true){
         return;  // es decir que esta mal
     }else if(control == false){
         if(Conexion[0] == 0){ //SE REQUIERE UN SERVICIO DE ENFRIAMENTO PARA CORRIENTE CALIENTE
             // ES CALIENTE
-            qDebug() << Conexion[1];
             if(Conexion[1]  < LadoCaliente.size() ){ // LADO IZQUIERO
-                qDebug() << "1";
-                contadorSER = contadorSER + 1;
-                contadorSERCAL = contadorSERCAL + 1;
                 double corriente = Conexion[1]; // corriente caliente
                 double Q1 = LadoCaliente[corriente][6]*(LadoCaliente[corriente][4]-LadoCaliente[corriente][5]) ;
                 if(Q1 > 0){ // SE APLICA EL SERVICIO DE CALENTAMIENTO
+                    contadorSER = contadorSER + 1;
+                    contadorSERCAL = contadorSERCAL + 1;
                     QVector<double> x1,y1;
                     x1.resize(2),y1.resize(2);
                     x1[0] = LadoCaliente[corriente][10]; // x
                     y1[0] = LadoCaliente[corriente][11]; // y
                     x1[1] = LadoCaliente[corriente][10]; // x
                     y1[1] = LadoCaliente[corriente][11]; // y
-//                    qDebug() << "1";
                     QPen pen;
                     pen.setStyle(Qt::DashLine);
                     pen.setWidth(2);
                     pen.setColor(Qt::blue);
                     ui->qcustomplot->addGraph();
-                    ui->qcustomplot->graph(contadorPlots)->setName(QString("Heating service %1").arg(QString::number(contadorSERCAL)));
+                    ui->qcustomplot->graph(contadorPlots)->setName(QString("Cooling service %1").arg(QString::number(contadorSERCAL)));
                     ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
                     ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
                     ui->qcustomplot->graph(contadorPlots)->setPen(pen);
                     ui->qcustomplot->replot();
                     contadorPlots++;
-//                    qDebug() << "1";
                     //ALMACENA EN EL VECTOR SERVICIOES
                     Servicios.resize(contadorSER);
                     for(int i = 0; i < Servicios.size(); i++){
                         Servicios[i].resize(5);
                     }
-//                    qDebug() << "1";
                     Servicios[contadorSER-1][0] = corriente;
-//                    qDebug() << "1";
                     Servicios[contadorSER-1][1] = LadoCaliente[corriente][4]; // entrada caliente
-//                    qDebug() << "1";
                     Servicios[contadorSER-1][2] = LadoCaliente[corriente][5]; // salida caliente
-//                    qDebug() << "1";
                     Servicios[contadorSER-1][3] = Enfriamento[0]; // entrada caliente
-//                    qDebug() << "1";
                     Servicios[contadorSER-1][4] = Enfriamento[1]; // salida fria
-//                    qDebug() << "1";
                 }else if(Q1 <= 0){ // NO SE APLICA
                     QMessageBox::warning(this,tr("Error"),tr("Error"));
                     return;
                 }
             }else if(Conexion[1] >= LadoCaliente.size() ){ // LADO DERECHO
-                qDebug() << "2";
-                contadorSER = contadorSER + 1;
-                contadorSERCAL = contadorSERCAL + 1;
                 double corriente = Conexion[1] - LadoCaliente.size(); // corriente caliente
-                qDebug() << LadoFrio;
                 double Q1 = LadoFrio[corriente][6]*(LadoFrio[corriente][4]-LadoFrio[corriente][5]) ;
-
-                qDebug() << corriente;
                 if(Q1 > 0){
+                    contadorSER = contadorSER + 1;
+                    contadorSERCAL = contadorSERCAL + 1;
                     QVector<double> x1,y1;
                     x1.resize(2),y1.resize(2);
                     x1[0] = LadoFrio[corriente][10]; // x
@@ -984,7 +989,7 @@ void plotterDN::AuxiliaryService()
                     pen.setWidth(2);
                     pen.setColor(Qt::blue);
                     ui->qcustomplot->addGraph();
-                    ui->qcustomplot->graph(contadorPlots)->setName(QString("Heating service %1").arg(QString::number(contadorSERCAL)));
+                    ui->qcustomplot->graph(contadorPlots)->setName(QString("Cooling service %1").arg(QString::number(contadorSERCAL)));
                     ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
                     ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
                     ui->qcustomplot->graph(contadorPlots)->setPen(pen);
@@ -1007,11 +1012,11 @@ void plotterDN::AuxiliaryService()
             }
         }else if(Conexion[0] == 1){ // SE REQUIERE UN SERVICIO DE CALENTAMIENTO PARA CORRIENTE FRIAS
             if(Conexion[1]  < LadoCaliente.size() ){ // LADO IZQUIERO
-                contadorSER = contadorSER + 1;
-                contadorSERFRI = contadorSERFRI + 1;
                 double corriente = Conexion[1]; // corriente caliente
                 double Q1 = LadoCaliente[corriente][6]*(LadoCaliente[corriente][4]-LadoCaliente[corriente][5]) ;
                 if(Q1 > 0){ // SE APLICA EL SERVICIO DE CALENTAMIENTO
+                    contadorSER = contadorSER + 1;
+                    contadorSERFRI = contadorSERFRI + 1;
                     QVector<double> x1,y1;
                     x1.resize(2),y1.resize(2);
                     x1[0] = LadoCaliente[corriente][8]; // x
@@ -1044,13 +1049,11 @@ void plotterDN::AuxiliaryService()
                     return;
                 }
             }else if(Conexion[1] >= LadoCaliente.size() ){ // LADO DERECHO
-                contadorSER = contadorSER + 1;
-                contadorSERFRI = contadorSERFRI + 1;
                 double corriente = Conexion[1] - LadoCaliente.size() ; // corriente caliente
-                //qDebug() << corriente << LadoFrio[corriente][1] ;
                 double Q1 = LadoFrio[corriente][6]*(LadoFrio[corriente][4]- LadoFrio[corriente][5]) ;
-                //qDebug() << Q1;
                 if(Q1 > 0){ // SE APLICA EL SERVICIO DE CALENTAMIENTO
+                    contadorSER = contadorSER + 1;
+                    contadorSERFRI = contadorSERFRI + 1;
                     QVector<double> x1,y1;
                     x1.resize(2),y1.resize(2);
                     x1[0] = LadoFrio[corriente][8]; // x
@@ -1089,7 +1092,6 @@ void plotterDN::AuxiliaryService()
         }
     }
     qDebug() << Servicios;
-
 }
 
 void plotterDN::conectStream()
@@ -1113,8 +1115,7 @@ void plotterDN::conectStream()
     }
     int CTo2 = 0, CCo2 = 0;
     double DTmin2 = 0;
-    VecCostUniDesGri VCUD(uniforme2,diverso2,Calentamiento2,Enfriamento2,
-                          CapitalCost2,OperationCost2,DTmin2,CTo2,CCo2);
+    VecCostUniDesGri VCUD(uniforme2,diverso2,Calentamiento2,Enfriamento2,CapitalCost2,OperationCost2,DTmin2,CTo2,CCo2);
     in30 >> VCUD;
     DTmin = VCUD.getDTmin();
     FileCostos.flush();
@@ -1132,7 +1133,7 @@ void plotterDN::conectStream()
         QCPGraph * graph = ui->qcustomplot->graph(i);
         if(graph->selected()){
             GraphSelect[j]  = i;
-            if(i+1  <= LadoCaliente.size()){
+            if(i  < contadorLADOIZQUIERDO){
                 if(LadoCaliente[i][1] == 0 && LadoCaliente[i][2] == 0){ // es caliente inhabilitada
                     QMessageBox::warning(this,tr("Error"),tr("Error"));
                     control = true;
@@ -1148,7 +1149,7 @@ void plotterDN::conectStream()
                     control = false;
                     Conexion[1] = i; //  fria
                 }
-            }else if(i+1 >= LadoCaliente.size() ){
+            }else if(i >= contadorLADOIZQUIERDO && i < contadorTOTALIZQYDER ){
                 if(LadoFrio[i-LadoCaliente.size()][1] == 0 && LadoFrio[i-LadoCaliente.size()][2] == 0){
                     QMessageBox::warning(this,tr("Error"),tr("Error"));
                     control = true;
@@ -1164,13 +1165,85 @@ void plotterDN::conectStream()
                     control = false;
                     Conexion[1] = i; //  fria
                 }
+            }else if(i >= contadorTOTALIZQYDER){ //busca en el vector de separaciones
+                qDebug() << "Entro";
+                QVector<double> CALIENTE, FRIA;
+                CALIENTE.resize(4);
+                FRIA.resize(4);
+                //PRIMERO BUSCAMOS EN EL VECTOR PRINCIPAL CALIENTE
+                //BUSCAMOS EN EL VECTOR DE SEPARACIONES CALIENTES
+                //BUSCAMOS EN EL VECTOR DE PRINCIPALES FRIAS
+                //BUSCAMOS EN EL VECTOR DE SEPARACIONES FRIAS
+                for(int k = 0 ; k < ui->qcustomplot->graphCount(); k++ ){
+                    QCPGraph * graph2 = ui->qcustomplot->graph(k);
+                    qDebug() << k;
+                    if(graph2->selected()){
+                        if( k < contadorLADOIZQUIERDO ){
+                            for(int j = 0; j < LadoCaliente.size(); j++){
+                                if(LadoCaliente[j][0] == k){
+                                    CALIENTE[0] = 0;//ES PRINCIPAL        LadoCaliente[j][0]; // NUMERO DE CORRIENTE
+                                    CALIENTE[1] = LadoCaliente[j][0]; // Corriente
+                                    CALIENTE[2] = 0; //CORRIENTE MADRE
+                                    CALIENTE[3] = k;
+                                }
+                            }
+                            for(int j = 0; j < LadoCaliente.size(); j++){
+                                if(LadoCaliente[j][0] == k){
+                                    FRIA[0] = 0;
+                                    FRIA[1] = LadoCaliente[j][0] ; //ES PRINCIPAL
+                                    FRIA[2] = 0 ; //CORRIENTE MADRE
+                                    FRIA[3] = k ;
+                                }
+                            }
+                        }else if(k >= contadorLADOIZQUIERDO && k < contadorTOTALIZQYDER){
+                            for(int j = 0; j < LadoFrio.size(); j++){
+                                if(LadoFrio[j][0] == k){
+                                    CALIENTE[0] = 0;//ES PRINCIPAL        LadoCaliente[j][0]; // NUMERO DE CORRIENTE
+                                    CALIENTE[1] = LadoFrio[j][0]; // Corriente
+                                    CALIENTE[2] = 0; //CORRIENTE MADRE
+                                    CALIENTE[3] = k;
+                                }
+                            }
+                            for(int j = 0; j < LadoFrio.size(); j++){
+                                if(LadoFrio[j][0] == k){
+                                    FRIA[0] = 0;
+                                    FRIA[1] = LadoFrio[j][0] ; //ES PRINCIPAL
+                                    FRIA[2] = 0 ; //CORRIENTE MADRE
+                                    FRIA[3] = k ;
+                                }
+                            }
+                        }else if(k >= contadorTOTALIZQYDER){
+                            for(int j = 0; j < SeparacionesCalientes.size(); j++){
+                                if(SeparacionesCalientes[j][0] == k){
+                                    CALIENTE[0] = 1;  // subred de la madre caliente Numero de corriente
+                                    CALIENTE[1] = SeparacionesCalientes[j][1]; // ES SUBRED
+                                    CALIENTE[1] = 1; // CORRIENTE MADRE
+                                    CALIENTE[3] = k;
+                                }
+                            }
+                            for(int j = 0; j < SeparacionesFrias.size(); j++){
+                                if(SeparacionesFrias[j][0] == k){
+                                    FRIA[0] = 1; //subred
+                                    FRIA[1] = SeparacionesFrias[j][1] ; //ES PRINCIPAL
+                                    FRIA[2] = 1;
+                                    FRIA[3] = k ;
+                                }
+                            }
+                        }
+                    }
+                }
+                qDebug() << CALIENTE << FRIA;
+                plotsubstream(CALIENTE,FRIA);
+                //LLAMAMOS RUTINA PARA GRAFICA DE LADO IZQUIERDO O DERECHO
+
+                return; //SALIMOS TOTALMENTE DEL CICLO
             }
             j++;
         }
     }
     if(control == true){
         return;  // es decir que esta mal
-    }else if(control == false){
+    }else if(control == false){ // TODAS SON PRINCIPALES
         if(Uniones.size() == 0){ // es decir que no se ha hecho uniones
             if(Conexion[0]  < LadoCaliente.size() && Conexion[1] < LadoCaliente.size() ){
                 double Caliente = Conexion[0]; // corriente caliente
@@ -1178,10 +1251,16 @@ void plotterDN::conectStream()
                 if(LadoCaliente[Caliente][3] == 0 ){ // es principal caliente
                     if(LadoCaliente[Fria][3] == 0){ // es principal fria
                         //calculos
-                        double X1 = QInputDialog::getDouble(this, "Specification", "Output temperature for hot stream:");
-                        double X2 = -( (LadoCaliente[Caliente][6]/LadoCaliente[Fria][6])* (X1 - LadoCaliente[Caliente][4]) - LadoCaliente[Fria][5]);
-                        double dif1 = qFabs(X1 - LadoCaliente[Fria][5] );
-                        double dif2 = qFabs(LadoCaliente[Caliente][4] - X2);
+                        bool ok;
+                        double X2,dif1,dif2;
+                        double X1 = QInputDialog::getDouble(this,"Specification","Output temperature for hot stream:",0,0,9999999999,4,&ok);
+                        if(ok){
+                            X2 = -( (LadoCaliente[Caliente][6]/LadoCaliente[Fria][6])* (X1 - LadoCaliente[Caliente][4]) - LadoCaliente[Fria][5]);
+                            dif1 = qFabs(X1 - LadoCaliente[Fria][5] );
+                            dif2 = qFabs(LadoCaliente[Caliente][4] - X2);
+                        }else{
+                            return;
+                        }
                         if(controlintercambio(DTmin,dif1,dif2,X1,X2,LadoCaliente[Caliente][5],LadoCaliente[Fria][4]) == false){
                             contadorUniones = contadorUniones + 1;
                             QVector<double> x1,y1;
@@ -1199,24 +1278,24 @@ void plotterDN::conectStream()
                             pen.setWidth(2);
                             pen.setColor(Qt::black);
                             ui->qcustomplot->addGraph();
+                            ui->qcustomplot->graph(contadorPlots)->setName(QString("Exchager %1").arg(contadorUniones));
                             ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
                             ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
                             ui->qcustomplot->graph(contadorPlots)->setPen(pen);
-                            QPointF posIni,posFin;
-                            posIni.setX(x1[0] + .2);
-                            posIni.setY(y1[0] + .5);
-                            posFin.setX(x1[3] - .2);
-                            posFin.setY(y1[3] + .5);
                             QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
-                            textLabel1->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-                            textLabel1->position->setType(QCPItemPosition::ptPlotCoords);
-                            textLabel1->position->setCoords(posIni);
+                            textLabel1->setClipToAxisRect(true);
+                            textLabel1->setClipAxisRect(ui->qcustomplot->axisRect());
+                            textLabel1->setLayer(ui->qcustomplot->axisRect()->layer()->name());
+                            textLabel1->position->setAxisRect(ui->qcustomplot->axisRect());
+                            textLabel1->position->setCoords(x1[0] + .2,y1[0] + .5);
                             textLabel1->setText(QString("%1 ªF").arg(QString::number(X1)));
                             textLabel1->setFont(QFont(font().family(), 8)); // make font a bit larger
                             QCPItemText *textLabel2 = new QCPItemText(ui->qcustomplot);
-                            textLabel2->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-                            textLabel2->position->setType(QCPItemPosition::ptPlotCoords);
-                            textLabel2->position->setCoords(posFin);
+                            textLabel2->setClipToAxisRect(true);
+                            textLabel2->setClipAxisRect(ui->qcustomplot->axisRect());
+                            textLabel2->setLayer(ui->qcustomplot->axisRect()->layer()->name());
+                            textLabel2->position->setAxisRect(ui->qcustomplot->axisRect());
+                            textLabel2->position->setCoords(x1[3] - .2,y1[3] + .5);
                             textLabel2->setText(QString("%1 ªF").arg(QString::number(X2)));
                             textLabel2->setFont(QFont(font().family(), 8)); // make font a bit larger
                             ui->qcustomplot->replot();
@@ -1243,17 +1322,10 @@ void plotterDN::conectStream()
                                 LadoCaliente[i][11]= LadoCaliente[i][11]; // y
                             }
                             contadorPlots++;
+                            qDebug() << ui->qcustomplot->itemCount();
                         }else{
                             return;
                         }
-                    }else if(LadoCaliente[Fria][3] == 1){ // es subred fria
-
-                    }
-                }else if(LadoCaliente[Caliente][3] == 1){  // es subred caliente
-                    if(LadoCaliente[Fria][3] == 0){ // es principal fria
-
-                    }else if(LadoCaliente[Fria][3] == 1){ // es subred fria
-
                     }
                 }
             }else if(Conexion[0] >= LadoCaliente.size()  && Conexion[1] >= LadoCaliente.size()){
@@ -1262,10 +1334,16 @@ void plotterDN::conectStream()
                 if(LadoFrio[Caliente][3] == 0){ // es principal
                     if(LadoFrio[Fria][3] == 0){ // es principal fria
                         //calculos
-                        double X1 = QInputDialog::getDouble(this, "Specification", "Output temperature for hot stream:");
-                        double X2 = -( (LadoFrio[Caliente][6]/LadoFrio[Fria][6])* (X1 - LadoFrio[Caliente][4]) - LadoFrio[Fria][5]);
-                        double dif1 = qFabs(X1 - LadoFrio[Fria][5] );
-                        double dif2 = qFabs(LadoFrio[Caliente][4] - X2);
+                        bool ok;
+                        double X2,dif1,dif2;
+                        double X1 = QInputDialog::getDouble(this,"Specification","Output temperature for hot stream:",0,0,9999999,4,&ok);
+                        if(ok){
+                            X2 = -( (LadoFrio[Caliente][6]/LadoFrio[Fria][6])* (X1 - LadoFrio[Caliente][4]) - LadoFrio[Fria][5]);
+                            dif1 = qFabs(X1 - LadoFrio[Fria][5] );
+                            dif2 = qFabs(LadoFrio[Caliente][4] - X2);
+                        }else{
+                            return;
+                        }
                         if(controlintercambio(DTmin,dif1,dif2,X1,X2,LadoFrio[Caliente][5],LadoFrio[Fria][4]) == false){
                             contadorUniones = contadorUniones + 1;
                             QVector<double> x1,y1;
@@ -1283,24 +1361,25 @@ void plotterDN::conectStream()
                             pen.setWidth(2);
                             pen.setColor(Qt::black);
                             ui->qcustomplot->addGraph();
+                            ui->qcustomplot->graph(contadorPlots)->setName(QString("Exchager %1").arg(contadorUniones));
                             ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
                             ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
                             ui->qcustomplot->graph(contadorPlots)->setPen(pen);
-                            QPointF posIni,posFin;
-                            posIni.setX(x1[0] + .2);
-                            posIni.setY(y1[0] + .5);
-                            posFin.setX(x1[3] - .2);
-                            posFin.setY(y1[3] + .5);
                             QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
-                            textLabel1->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-                            textLabel1->position->setType(QCPItemPosition::ptPlotCoords);
-                            textLabel1->position->setCoords(posIni);
+                            textLabel1->setClipToAxisRect(true);
+                            textLabel1->setClipAxisRect(ui->qcustomplot->axisRect());
+                            textLabel1->setLayer(ui->qcustomplot->axisRect()->layer()->name());
+                            textLabel1->position->setAxisRect(ui->qcustomplot->axisRect());
+                            textLabel1->position->setCoords(x1[0] + .2,y1[0] + .5);
                             textLabel1->setText(QString("%1 ªF").arg(QString::number(X1)));
                             textLabel1->setFont(QFont(font().family(), 8)); // make font a bit larger
                             QCPItemText *textLabel2 = new QCPItemText(ui->qcustomplot);
-                            textLabel2->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-                            textLabel2->position->setType(QCPItemPosition::ptPlotCoords);
-                            textLabel2->position->setCoords(posFin);
+                            //textLabel2->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
+                            textLabel2->setClipToAxisRect(true);
+                            textLabel2->setClipAxisRect(ui->qcustomplot->axisRect());
+                            textLabel2->setLayer(ui->qcustomplot->axisRect()->layer()->name());
+                            textLabel2->position->setAxisRect(ui->qcustomplot->axisRect());
+                            textLabel2->position->setCoords(x1[3] - .2,y1[3] + .5);
                             textLabel2->setText(QString("%1 ªF").arg(QString::number(X2)));
                             textLabel2->setFont(QFont(font().family(), 8)); // make font a bit larger
                             ui->qcustomplot->replot();
@@ -1330,14 +1409,6 @@ void plotterDN::conectStream()
                         }else{
                             return;
                         }
-                    }else if(LadoFrio[Fria][3] == 1){ // es subred fria
-
-                    }
-                }else if(LadoFrio[Fria][3] == 1){ // es subred
-                    if(LadoFrio[Fria][3] == 0){ // es principal fria
-
-                    }else if(LadoFrio[Fria][3] == 1){ // es subred fria
-
                     }
                 }
             }
@@ -1350,10 +1421,16 @@ void plotterDN::conectStream()
                         if(LadoCaliente[Caliente][3] == 0 ){ // es principal caliente
                             if(LadoCaliente[Fria][3] == 0){ // es principal fria
                                 //calculos
-                                double X1 = QInputDialog::getDouble(this, "Specification", "Output temperature for hot stream:");
-                                double X2 = -( (LadoCaliente[Caliente][6]/LadoCaliente[Fria][6])* (X1 - LadoCaliente[Caliente][4]) - LadoCaliente[Fria][5]);
-                                double dif1 = qFabs(X1 - LadoCaliente[Fria][5] );
-                                double dif2 = qFabs(LadoCaliente[Caliente][4] - X2);
+                                bool ok;
+                                double X2,dif1,dif2;
+                                double X1 = QInputDialog::getDouble(this,"Specification","Output temperature for hot stream:",0,0,9999999,4,&ok);
+                                if(ok){
+                                    X2 = -( (LadoCaliente[Caliente][6]/LadoCaliente[Fria][6])* (X1 - LadoCaliente[Caliente][4]) - LadoCaliente[Fria][5]);
+                                    dif1 = qFabs(X1 - LadoCaliente[Fria][5] );
+                                    dif2 = qFabs(LadoCaliente[Caliente][4] - X2);
+                                }else{
+                                    return;
+                                }
                                 if(controlintercambio(DTmin,dif1,dif2,X1,X2,LadoCaliente[Caliente][5],LadoCaliente[Fria][4]) == false){
                                     contadorUniones = contadorUniones + 1;
                                     QVector<double> x1,y1;
@@ -1373,24 +1450,24 @@ void plotterDN::conectStream()
                                     pen.setWidth(2);
                                     pen.setColor(Qt::black);
                                     ui->qcustomplot->addGraph();
+                                    ui->qcustomplot->graph(contadorPlots)->setName(QString("Exchager %1").arg(contadorUniones));
                                     ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
                                     ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
                                     ui->qcustomplot->graph(contadorPlots)->setPen(pen);
-                                    QPointF posIni,posFin;
-                                    posIni.setX(x1[0] + .2);
-                                    posIni.setY(y1[0] + .5);
-                                    posFin.setX(x1[3] - .2);
-                                    posFin.setY(y1[3] + .5);
                                     QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
-                                    textLabel1->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-                                    textLabel1->position->setType(QCPItemPosition::ptPlotCoords);
-                                    textLabel1->position->setCoords(posIni);
+                                    textLabel1->setClipToAxisRect(true);
+                                    textLabel1->setClipAxisRect(ui->qcustomplot->axisRect());
+                                    textLabel1->setLayer(ui->qcustomplot->axisRect()->layer()->name());
+                                    textLabel1->position->setAxisRect(ui->qcustomplot->axisRect());
+                                    textLabel1->position->setCoords(x1[0] + .2,y1[0] + .5);
                                     textLabel1->setText(QString("%1 ªF").arg(QString::number(X1)));
                                     textLabel1->setFont(QFont(font().family(), 8)); // make font a bit larger
                                     QCPItemText *textLabel2 = new QCPItemText(ui->qcustomplot);
-                                    textLabel2->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-                                    textLabel2->position->setType(QCPItemPosition::ptPlotCoords);
-                                    textLabel2->position->setCoords(posFin);
+                                    textLabel2->setClipToAxisRect(true);
+                                    textLabel2->setClipAxisRect(ui->qcustomplot->axisRect());
+                                    textLabel2->setLayer(ui->qcustomplot->axisRect()->layer()->name());
+                                    textLabel2->position->setAxisRect(ui->qcustomplot->axisRect());
+                                    textLabel2->position->setCoords(x1[3] - .2,y1[3] + .5);
                                     textLabel2->setText(QString("%1 ªF").arg(QString::number(X2)));
                                     textLabel2->setFont(QFont(font().family(), 8)); // make font a bit larger
                                     ui->qcustomplot->replot();
@@ -1420,27 +1497,24 @@ void plotterDN::conectStream()
                                 }else{
                                     return;
                                 }
-                            }else if(LadoCaliente[Fria][3] == 1){ // es subred fria
-
-                            }
-                        }else if(LadoCaliente[Caliente][3] == 1){  // es subred caliente
-                            if(LadoCaliente[Fria][3] == 0){ // es principal fria
-
-                            }else if(LadoCaliente[Fria][3] == 1){ // es subred fria
-
                             }
                         }
-                        return;
                     }else if(Conexion[0] >= LadoCaliente.size()  && Conexion[1] >= LadoCaliente.size() ){
                         double Caliente = Conexion[0] - LadoCaliente.size();
                         double Fria = Conexion[1] - LadoCaliente.size();
                         if(LadoFrio[Caliente][3] == 0){ // es principal CALIENTE
                             if(LadoFrio[Fria][3] == 0){ // es principal FRIA
                                 //calculos
-                                double X1 = QInputDialog::getDouble(this, "Specification", "Output temperature for hot stream:");
-                                double X2 = -( (LadoFrio[Caliente][6]/LadoFrio[Fria][6])* (X1 - LadoFrio[Caliente][4]) - LadoFrio[Fria][5]);
-                                double dif1 = qFabs(X1 - LadoFrio[Fria][5] );
-                                double dif2 = qFabs(LadoFrio[Caliente][4] - X2);
+                                bool ok;
+                                double X2,dif1,dif2;
+                                double X1 = QInputDialog::getDouble(this,"Specification","Output temperature for hot stream:",0,0,9999999,4,&ok);
+                                if(ok){
+                                    X2 = -( (LadoFrio[Caliente][6]/LadoFrio[Fria][6])* (X1 - LadoFrio[Caliente][4]) - LadoFrio[Fria][5]);
+                                    dif1 = qFabs(X1 - LadoFrio[Fria][5] );
+                                    dif2 = qFabs(LadoFrio[Caliente][4] - X2);
+                                }else{
+                                    return;
+                                }
                                 if(controlintercambio(DTmin,dif1,dif2,X1,X2,LadoFrio[Caliente][5],LadoFrio[Fria][4]) == false){
                                     contadorUniones = contadorUniones + 1;
                                     QVector<double> x1,y1;
@@ -1460,24 +1534,24 @@ void plotterDN::conectStream()
                                     pen.setWidth(2);
                                     pen.setColor(Qt::black);
                                     ui->qcustomplot->addGraph();
+                                    ui->qcustomplot->graph(contadorPlots)->setName(QString("Exchager %1").arg(contadorUniones));
                                     ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
                                     ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
                                     ui->qcustomplot->graph(contadorPlots)->setPen(pen);
-                                    QPointF posIni,posFin;
-                                    posIni.setX(x1[0] + .2);
-                                    posIni.setY(y1[0] + .5);
-                                    posFin.setX(x1[3] - .2);
-                                    posFin.setY(y1[3] + .5);
                                     QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
-                                    textLabel1->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-                                    textLabel1->position->setType(QCPItemPosition::ptPlotCoords);
-                                    textLabel1->position->setCoords(posIni);
+                                    textLabel1->setClipToAxisRect(true);
+                                    textLabel1->setClipAxisRect(ui->qcustomplot->axisRect());
+                                    textLabel1->setLayer(ui->qcustomplot->axisRect()->layer()->name());
+                                    textLabel1->position->setAxisRect(ui->qcustomplot->axisRect());
+                                    textLabel1->position->setCoords(x1[0] + .2,y1[0] + .5);
                                     textLabel1->setText(QString("%1 ªF").arg(QString::number(X1)));
                                     textLabel1->setFont(QFont(font().family(), 8)); // make font a bit larger
                                     QCPItemText *textLabel2 = new QCPItemText(ui->qcustomplot);
-                                    textLabel2->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-                                    textLabel2->position->setType(QCPItemPosition::ptPlotCoords);
-                                    textLabel2->position->setCoords(posFin);
+                                    textLabel2->setClipToAxisRect(true);
+                                    textLabel2->setClipAxisRect(ui->qcustomplot->axisRect());
+                                    textLabel2->setLayer(ui->qcustomplot->axisRect()->layer()->name());
+                                    textLabel2->position->setAxisRect(ui->qcustomplot->axisRect());
+                                    textLabel2->position->setCoords(x1[3] - .2,y1[3] + .5);
                                     textLabel2->setText(QString("%1 ªF").arg(QString::number(X2)));
                                     textLabel2->setFont(QFont(font().family(), 8)); // make font a bit larger
                                     ui->qcustomplot->replot();
@@ -1507,17 +1581,8 @@ void plotterDN::conectStream()
                                 }else{
                                     return;
                                 }
-                            }else if(LadoFrio[Fria][3] == 1){ // es subred FRIA
-
-                            }
-                        }else if(LadoFrio[Fria][3] == 1){ // es subred CALIENTE
-                            if(LadoFrio[Fria][3] == 0){ // es principal FRIA
-
-                            }else if(LadoFrio[Fria][3] == 1){ // es subred FRIA
-
                             }
                         }
-                        return;
                     }
                 }
             } // NO HAY UNION REGISTRADA ENTONCES HACE ANALISIS
@@ -1528,10 +1593,16 @@ void plotterDN::conectStream()
                 if(LadoCaliente[Caliente][3] == 0 ){ // es principal caliente
                     if(LadoCaliente[Fria][3] == 0){ // es principal fria
                         //calculos
-                        double X1 = QInputDialog::getDouble(this, "Specification", "Output temperature for hot stream:");
-                        double X2 = -( (LadoCaliente[Caliente][6]/LadoCaliente[Fria][6])* (X1 - LadoCaliente[Caliente][4]) - LadoCaliente[Fria][5]);
-                        double dif1 = qFabs(X1 - LadoCaliente[Fria][5] );
-                        double dif2 = qFabs(LadoCaliente[Caliente][4] - X2);
+                        bool ok;
+                        double X2,dif1,dif2;
+                        double X1 = QInputDialog::getDouble(this,"Specification","Output temperature for hot stream:",0,0,9999999,4,&ok);
+                        if(ok){
+                            X2 = -( (LadoCaliente[Caliente][6]/LadoCaliente[Fria][6])* (X1 - LadoCaliente[Caliente][4]) - LadoCaliente[Fria][5]);
+                            dif1 = qFabs(X1 - LadoCaliente[Fria][5] );
+                            dif2 = qFabs(LadoCaliente[Caliente][4] - X2);
+                        }else{
+                            return;
+                        }
                         if(controlintercambio(DTmin,dif1,dif2,X1,X2,LadoCaliente[Caliente][5],LadoCaliente[Fria][4]) == false){
                             contadorUniones = contadorUniones + 1;
                             QVector<double> x1,y1;
@@ -1549,24 +1620,24 @@ void plotterDN::conectStream()
                             pen.setWidth(2);
                             pen.setColor(Qt::black);
                             ui->qcustomplot->addGraph();
+                            ui->qcustomplot->graph(contadorPlots)->setName(QString("Exchager %1").arg(contadorUniones));
                             ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
                             ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
                             ui->qcustomplot->graph(contadorPlots)->setPen(pen);
-                            QPointF posIni,posFin;
-                            posIni.setX(x1[0] + .2);
-                            posIni.setY(y1[0] + .5);
-                            posFin.setX(x1[3] - .2);
-                            posFin.setY(y1[3] + .5);
                             QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
-                            textLabel1->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-                            textLabel1->position->setType(QCPItemPosition::ptPlotCoords);
-                            textLabel1->position->setCoords(posIni);
+                            textLabel1->setClipToAxisRect(true);
+                            textLabel1->setClipAxisRect(ui->qcustomplot->axisRect());
+                            textLabel1->setLayer(ui->qcustomplot->axisRect()->layer()->name());
+                            textLabel1->position->setAxisRect(ui->qcustomplot->axisRect());
+                            textLabel1->position->setCoords(x1[0] + .2,y1[0] + .5);
                             textLabel1->setText(QString("%1 ªF").arg(QString::number(X1)));
                             textLabel1->setFont(QFont(font().family(), 8)); // make font a bit larger
                             QCPItemText *textLabel2 = new QCPItemText(ui->qcustomplot);
-                            textLabel2->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-                            textLabel2->position->setType(QCPItemPosition::ptPlotCoords);
-                            textLabel2->position->setCoords(posFin);
+                            textLabel2->setClipToAxisRect(true);
+                            textLabel2->setClipAxisRect(ui->qcustomplot->axisRect());
+                            textLabel2->setLayer(ui->qcustomplot->axisRect()->layer()->name());
+                            textLabel2->position->setAxisRect(ui->qcustomplot->axisRect());
+                            textLabel2->position->setCoords(x1[3] - .2,y1[3] + .5);
                             textLabel2->setText(QString("%1 ªF").arg(QString::number(X2)));
                             textLabel2->setFont(QFont(font().family(), 8)); // make font a bit larger
                             ui->qcustomplot->replot();
@@ -1596,14 +1667,6 @@ void plotterDN::conectStream()
                         }else{
                             return;
                         }
-                    }else if(LadoCaliente[Fria][3] == 1){ // es subred fria
-
-                    }
-                }else if(LadoCaliente[Caliente][3] == 1){  // es subred caliente
-                    if(LadoCaliente[Fria][3] == 0){ // es principal fria
-
-                    }else if(LadoCaliente[Fria][3] == 1){ // es subred fria
-
                     }
                 }
             }else if(Conexion[0] >= LadoCaliente.size()  && Conexion[1] >= LadoCaliente.size() ){
@@ -1612,10 +1675,16 @@ void plotterDN::conectStream()
                 if(LadoFrio[Caliente][3] == 0){ // es principal CALIENTE
                     if(LadoFrio[Fria][3] == 0){ // es principal FRIA
                         //calculos
-                        double X1 = QInputDialog::getDouble(this, "Specification", "Output temperature for hot stream:");
-                        double X2 = -( (LadoFrio[Caliente][6]/LadoFrio[Fria][6])* (X1 - LadoFrio[Caliente][4]) - LadoFrio[Fria][5]);
-                        double dif1 = qFabs(X1 - LadoFrio[Fria][5] );
-                        double dif2 = qFabs(LadoFrio[Caliente][4] - X2);
+                        bool ok;
+                        double X2,dif1,dif2;
+                        double X1 = QInputDialog::getDouble(this,"Specification","Output temperature for hot stream:",0,0,9999999,4,&ok);
+                        if(ok){
+                            X2 = -( (LadoFrio[Caliente][6]/LadoFrio[Fria][6])* (X1 - LadoFrio[Caliente][4]) - LadoFrio[Fria][5]);
+                            dif1 = qFabs(X1 - LadoFrio[Fria][5] );
+                            dif2 = qFabs(LadoFrio[Caliente][4] - X2);
+                        }else{
+                            return;
+                        }
                         if(controlintercambio(DTmin,dif1,dif2,X1,X2,LadoFrio[Caliente][5],LadoFrio[Fria][4]) == false){
                             contadorUniones = contadorUniones + 1;
                             QVector<double> x1,y1;
@@ -1633,24 +1702,24 @@ void plotterDN::conectStream()
                             pen.setWidth(2);
                             pen.setColor(Qt::black);
                             ui->qcustomplot->addGraph();
+                            ui->qcustomplot->graph(contadorPlots)->setName(QString("Exchager %1").arg(contadorUniones));
                             ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
                             ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
                             ui->qcustomplot->graph(contadorPlots)->setPen(pen);
-                            QPointF posIni,posFin;
-                            posIni.setX(x1[0] + .2);
-                            posIni.setY(y1[0] + .5);
-                            posFin.setX(x1[3] - .2);
-                            posFin.setY(y1[3] + .5);
                             QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
-                            textLabel1->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-                            textLabel1->position->setType(QCPItemPosition::ptPlotCoords);
-                            textLabel1->position->setCoords(posIni);
+                            textLabel1->setClipToAxisRect(true);
+                            textLabel1->setClipAxisRect(ui->qcustomplot->axisRect());
+                            textLabel1->setLayer(ui->qcustomplot->axisRect()->layer()->name());
+                            textLabel1->position->setAxisRect(ui->qcustomplot->axisRect());
+                            textLabel1->position->setCoords(x1[0] + .2,y1[0] + .5);
                             textLabel1->setText(QString("%1 ªF").arg(QString::number(X1)));
                             textLabel1->setFont(QFont(font().family(), 8)); // make font a bit larger
                             QCPItemText *textLabel2 = new QCPItemText(ui->qcustomplot);
-                            textLabel2->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-                            textLabel2->position->setType(QCPItemPosition::ptPlotCoords);
-                            textLabel2->position->setCoords(posFin);
+                            textLabel2->setClipToAxisRect(true);
+                            textLabel2->setClipAxisRect(ui->qcustomplot->axisRect());
+                            textLabel2->setLayer(ui->qcustomplot->axisRect()->layer()->name());
+                            textLabel2->position->setAxisRect(ui->qcustomplot->axisRect());
+                            textLabel2->position->setCoords(x1[3] - .2,y1[3] + .5);
                             textLabel2->setText(QString("%1 ªF").arg(QString::number(X2)));
                             textLabel2->setFont(QFont(font().family(), 8)); // make font a bit larger
                             ui->qcustomplot->replot();
@@ -1680,29 +1749,21 @@ void plotterDN::conectStream()
                         }else{
                             return;
                         }
-                    }else if(LadoFrio[Fria][3] == 1){ // es subred FRIA
-
-                    }
-                }else if(LadoFrio[Fria][3] == 1){ // es subred CALIENTE
-                    if(LadoFrio[Fria][3] == 0){ // es principal FRIA
-
-                    }else if(LadoFrio[Fria][3] == 1){ // es subred FRIA
-
                     }
                 }
-                return;
             }
         }
-
     }
 }
 
 void plotterDN::splitStream()
 {
+    QVector<double>  corriente;
+    corriente.resize(2);
     for(int i = 0; i < ui->qcustomplot->graphCount(); i++){
         QCPGraph * graph = ui->qcustomplot->graph(i);
         if(graph->selected()){
-            if(i+1 <= LadoCaliente.size()){
+            if(i < LadoCaliente.size()){
                 //se reajusta las de lado caliente
                 if(LadoCaliente[i][1] == 0 && LadoCaliente[i][2] == 0){ // es caliente inhabilitada
                     QMessageBox::warning(this,tr("Error"),tr("Error"));
@@ -1713,23 +1774,31 @@ void plotterDN::splitStream()
                     control = true;
                     break;
                 }else if(LadoCaliente[i][1] == 0 && LadoCaliente[i][2] == 1){ // es caliente habilitada
+                    corriente[0] = 0 ; // es caliente
+                    corriente[1] = i ; // numero de corriente
                     control = false;
                 }else if(LadoCaliente[i][1] == 1 && LadoCaliente[i][2] == 1){ // es fria habilitada
+                    corriente[0] = 1 ; // es caliente
+                    corriente[1] = i ; // numero de corriente
                     control = false;
                 }
-            }else if(i+1 >= LadoCaliente.size()){
+            }else if(i >= LadoCaliente.size()){
                 //se reajusta las LadoFrio
-                if(LadoFrio[i][1] == 0 && LadoFrio[i][2] == 0){
+                if(LadoFrio[i-LadoCaliente.size()][1] == 0 && LadoFrio[i-LadoCaliente.size()][2] == 0){
                     QMessageBox::warning(this,tr("Error"),tr("Error"));
                     control = true;
                     break;
-                }else if(LadoFrio[i][1] == 1 && LadoFrio[i][2] == 0){ // es fria inhabilitada
+                }else if(LadoFrio[i-LadoCaliente.size()][1] == 1 && LadoFrio[i-LadoCaliente.size()][2] == 0){ // es fria inhabilitada
                     QMessageBox::warning(this,tr("Error"),tr("Error"));
                     control = true;
                     break;
-                }else if(LadoFrio[i][1] == 0 && LadoFrio[i][2] == 1){ // es caliente habilitada
+                }else if(LadoFrio[i-LadoCaliente.size()][1] == 0 && LadoFrio[i-LadoCaliente.size()][2] == 1){ // es caliente habilitada
+                    corriente[0] = 0 ; // es caliente
+                    corriente[1] = i ; // numero de corriente
                     control = false;
-                }else if(LadoFrio[i][1] == 1 && LadoFrio[i][2] == 1){ // es fria habilitada
+                }else if(LadoFrio[i-LadoCaliente.size()][1] == 1 && LadoFrio[i-LadoCaliente.size()][2] == 1){ // es fria habilitada
+                    corriente[0] = 1 ; // es fria
+                    corriente[1] = i ; // numero de corriente
                     control = false;
                 }
             }
@@ -1738,7 +1807,235 @@ void plotterDN::splitStream()
     if(control == true){
         return;
     }else if(control == false){
+        if(corriente[1] < contadorLADOIZQUIERDO  ){ //ESTA DE LADO IZQUIERDO
+            bool ok;
+            double Divisiones = QInputDialog::getDouble(this,"Specification","Number of divisions for stream:",0,0,9999999,4,&ok);
+            if(ok){
+                bool ok2;
+                double Limite =  QInputDialog::getDouble(this,"Specification","Target for sub streams",0,0,9999999,4,&ok2);
+                if(ok2){
+                    if(corriente[0] == 0){ // es caliente
+                        double Corriente = corriente[1];
+                        contadorDivisionesCalientes = contadorDivisionesCalientes + Divisiones;
+                        SeparacionesCalientes.resize(contadorDivisionesCalientes);
+                        for(int i = 0; i < SeparacionesCalientes.size(); i++){
+                            SeparacionesCalientes[i].resize(10);
+                        }
+                        double contadorY;
+                        contadorY = 0;
+                        for(int i = contadorDivisionesCalientes - Divisiones; i < contadorDivisionesCalientes; i++){
+                            contadorSEPARACIONES = contadorSEPARACIONES + 1 ;
+                            contadorY = contadorY - .65;
+                            QVector<double> x1,y1;
+                            x1.resize(4),y1.resize(4);
+                            x1[0] = LadoCaliente[Corriente][8] + .1;// x
+                            y1[0] = LadoCaliente[Corriente][9]; // y
+                            x1[1] = LadoCaliente[Corriente][8] + .5; // x
+                            y1[1] = LadoCaliente[Corriente][9] + contadorY; // y
+                            x1[2] = LadoCaliente[Corriente][10] - .5; // x
+                            y1[2] = LadoCaliente[Corriente][11] + contadorY; // y
+                            x1[3] = LadoCaliente[Corriente][10] - .1; // x
+                            y1[3] = LadoCaliente[Corriente][11]; // y
+                            ui->qcustomplot->addGraph();
+                            ui->qcustomplot->graph(contadorPlots)->setName(QString("Sub stream %1").arg(QString::number(contadorSEPARACIONES)));
+                            ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
+                            ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssNone));
+                            ui->qcustomplot->graph(contadorPlots)->setPen(QPen(Qt::red));
+                            bool ok;
+                            double Wcp = QInputDialog::getDouble(this,"Specification",QString("Current value of Wcp: %1, select a value for sub stream:").
+                                                                 arg(QString::number(LadoCaliente[Corriente][6])),0,0,9999999999,4,&ok);
+                            if(ok){
+                                LadoCaliente[Corriente][6] = LadoCaliente[Corriente][6] - Wcp;
+                            }else{ // se divide sobre el numero de divisiones
+                                Wcp = LadoCaliente[Corriente][6]/Divisiones;
+                                LadoCaliente[Corriente][6] = LadoCaliente[Corriente][6] - Wcp;
+                            }
+                            SeparacionesCalientes[i][0] = contadorPlots; //NUMERO DE CORRIENTE PRINCIPAL
+                            SeparacionesCalientes[i][1] = Corriente; //CORRIENTE MADRE
+                            SeparacionesCalientes[i][2] = 0; //CALIENTE
+                            SeparacionesCalientes[i][3] = LadoCaliente[Corriente][4]; //Temperatura entrada
+                            SeparacionesCalientes[i][4] = Limite; //Temperatura salida
+                            SeparacionesCalientes[i][5] = Wcp; //Wcp LadoCaliente[Caliente][6]
+                            SeparacionesCalientes[i][6] = x1[1]; //x
+                            SeparacionesCalientes[i][7] = y1[1]; //y
+                            SeparacionesCalientes[i][8] = x1[2]; //x
+                            SeparacionesCalientes[i][9] = y1[2]; //y
+                            contadorPlots++;
+                        }
+                        ui->qcustomplot->replot();
+                    }else if(corriente[0] == 1){ // es fria
+                        double Corriente = corriente[1];
+                        contadorDivisionesFrias = contadorDivisionesFrias + Divisiones;
+                        SeparacionesFrias.resize(contadorDivisionesFrias);
+                        for(int i = 0; i < SeparacionesFrias.size(); i++){
+                            SeparacionesFrias[i].resize(10);
+                        }
+                        double contadorY;
+                        contadorY = 0;
+                        for(int i = contadorDivisionesFrias - Divisiones; i < contadorDivisionesFrias; i++){
+                            contadorSEPARACIONES = contadorSEPARACIONES + 1 ;
+                            contadorY = contadorY - .65;
+                            QVector<double> x1,y1;
+                            x1.resize(4),y1.resize(4);
+                            x1[0] = LadoCaliente[Corriente][8] + .1;// x
+                            y1[0] = LadoCaliente[Corriente][9]; // y
+                            x1[1] = LadoCaliente[Corriente][8] + .5; // x
+                            y1[1] = LadoCaliente[Corriente][9] + contadorY; // y
+                            x1[2] = LadoCaliente[Corriente][10] - .5; // x
+                            y1[2] = LadoCaliente[Corriente][11] + contadorY; // y
+                            x1[3] = LadoCaliente[Corriente][10] - .1; // x
+                            y1[3] = LadoCaliente[Corriente][11]; // y
+                            ui->qcustomplot->addGraph();
+                            ui->qcustomplot->graph(contadorPlots)->setName(QString("Sub stream %1").arg(QString::number(contadorSEPARACIONES)));
+                            ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
+                            ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssNone));
+                            ui->qcustomplot->graph(contadorPlots)->setPen(QPen(Qt::blue));
+                            bool ok;
+                            double Wcp = QInputDialog::getDouble(this,"Specification",QString("Current value of Wcp: %1, select a value for sub stream:").
+                                                                 arg(QString::number(LadoCaliente[Corriente][6])),0,0,9999999999,4,&ok);
+                            if(ok){
+                                LadoCaliente[Corriente][6] = LadoCaliente[Corriente][6] - Wcp;
+                            }else{ // se divide sobre el numero de divisiones
+                                Wcp = LadoCaliente[Corriente][6]/Divisiones;
+                                LadoCaliente[Corriente][6] = LadoCaliente[Corriente][6] - Wcp;
+                            }
+                            SeparacionesFrias[i][0] = contadorPlots; //NUMERO DE CORRIENTE
+                            SeparacionesFrias[i][1] = Corriente; //CORRIENTE MADRE
+                            SeparacionesFrias[i][2] = 0; //CALIENTE
+                            SeparacionesFrias[i][3] = LadoCaliente[Corriente][4]; //Temperatura entrada
+                            SeparacionesFrias[i][4] = Limite; //Temperatura salida
+                            SeparacionesFrias[i][5] = Wcp; //Wcp LadoCaliente[Caliente][6]
+                            SeparacionesFrias[i][6] = x1[1]; //x
+                            SeparacionesFrias[i][7] = y1[1]; //y
+                            SeparacionesFrias[i][8] = x1[2]; //x
+                            SeparacionesFrias[i][9] = y1[2]; //y
+                            contadorPlots++;
+                        }
+                        ui->qcustomplot->replot();
+                    }
+                }else{
+                    return;
+                }
+            }else{
+                return;
+            }
+        }else if(corriente[1] >= contadorLADOIZQUIERDO && corriente[1] < contadorTOTALIZQYDER){ //ESTA DE LADO DERECHO
+            bool ok;
+            double Divisiones = QInputDialog::getDouble(this,"Specification","Number of divisions for stream:",0,0,9999999,4,&ok);
+            if(ok){
+                bool ok2;
+                double Limite =  QInputDialog::getDouble(this,"Specification","Target for sub streams",0,0,9999999,4,&ok2);
+                if(ok2){
+                    if(corriente[0] == 0){ // es caliente
+                        double stream = corriente[1] - contadorLADODERECHO;
+                        contadorDivisionesCalientes = contadorDivisionesCalientes + Divisiones;
+                        SeparacionesCalientes.resize(contadorDivisionesCalientes);
+                        for(int i = 0; i < SeparacionesCalientes.size(); i++){
+                            SeparacionesCalientes[i].resize(10);
+                        }
+                        double contadorY;
+                        contadorY = 0;
+                        for(int i = contadorDivisionesCalientes - Divisiones; i < contadorDivisionesCalientes; i++){
+                            contadorSEPARACIONES = contadorSEPARACIONES + 1 ;
+                            contadorY = contadorY - .65;
+                            QVector<double> x1,y1;
+                            x1.resize(4),y1.resize(4);
+                            x1[0] = LadoFrio[stream][8] + .1;// x
+                            y1[0] = LadoFrio[stream][9]; // y
+                            x1[1] = LadoFrio[stream][8] + .5; // x
+                            y1[1] = LadoFrio[stream][9] + contadorY; // y
+                            x1[2] = LadoFrio[stream][10] - .5; // x
+                            y1[2] = LadoFrio[stream][11] + contadorY; // y
+                            x1[3] = LadoFrio[stream][10] - .1; // x
+                            y1[3] = LadoFrio[stream][11]; // y
+                            ui->qcustomplot->addGraph();
+                            ui->qcustomplot->graph(contadorPlots)->setName(QString("Sub stream %1").arg(QString::number(contadorSEPARACIONES)));
+                            ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
+                            ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssNone));
+                            ui->qcustomplot->graph(contadorPlots)->setPen(QPen(Qt::red));
+                            bool ok;
+                            double Wcp = QInputDialog::getDouble(this,"Specification",QString("Current value of Wcp: %1, select a value for sub stream:").
+                                                                 arg(QString::number(LadoFrio[stream][6])),0,0,9999999999,4,&ok);
+                            if(ok){
+                                LadoFrio[stream][6] = LadoFrio[stream][6] - Wcp;
+                            }else{ // se divide sobre el numero de divisiones
+                                Wcp = LadoFrio[stream][6]/Divisiones;
+                                LadoFrio[stream][6] = LadoFrio[stream][6] - Wcp;
+                            }
+                            SeparacionesCalientes[i][0] = contadorPlots; //NUMERO DE CORRIENTE PRINCIPAL
+                            SeparacionesCalientes[i][1] = stream; //CORRIENTE MADRE
+                            SeparacionesCalientes[i][2] = 0; //CALIENTE
+                            SeparacionesCalientes[i][3] = LadoFrio[stream][4]; //Temperatura entrada
+                            SeparacionesCalientes[i][4] = Limite; //Temperatura salida
+                            SeparacionesCalientes[i][5] = Wcp; //Wcp LadoCaliente[Caliente][6]
+                            SeparacionesCalientes[i][6] = x1[1]; //x
+                            SeparacionesCalientes[i][7] = y1[1]; //y
+                            SeparacionesCalientes[i][8] = x1[2]; //x
+                            SeparacionesCalientes[i][9] = y1[2]; //y
+                            contadorPlots++;
+                        }
+                        ui->qcustomplot->replot();
+                    }else if(corriente[0] == 1){ // es fria
+                        double stream = corriente[1] - contadorLADODERECHO;
+                        contadorDivisionesFrias = contadorDivisionesFrias + Divisiones;
+                        SeparacionesFrias.resize(contadorDivisionesFrias);
+                        for(int i = 0; i < SeparacionesFrias.size(); i++){
+                            SeparacionesFrias[i].resize(10);
+                        }
+                        double contadorY;
+                        contadorY = 0;
+                        for(int i = contadorDivisionesFrias - Divisiones; i < contadorDivisionesFrias; i++){
+                            contadorSEPARACIONES = contadorSEPARACIONES + 1 ;
+                            contadorY = contadorY - .65;
+                            QVector<double> x1,y1;
+                            x1.resize(4),y1.resize(4);
+                            x1[0] = LadoFrio[stream][8] + .1;// x
+                            y1[0] = LadoFrio[stream][9]; // y
+                            x1[1] = LadoFrio[stream][8] + .5; // x
+                            y1[1] = LadoFrio[stream][9] + contadorY; // y
+                            x1[2] = LadoFrio[stream][10] - .5; // x
+                            y1[2] = LadoFrio[stream][11] + contadorY; // y
+                            x1[3] = LadoFrio[stream][10] - .1; // x
+                            y1[3] = LadoFrio[stream][11]; // y
+                            ui->qcustomplot->addGraph();
+                            ui->qcustomplot->graph(contadorPlots)->setName(QString("Sub stream %1").arg(QString::number(contadorSEPARACIONES)));
+                            ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
+                            ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssNone));
+                            ui->qcustomplot->graph(contadorPlots)->setPen(QPen(Qt::blue));
 
+                            bool ok;
+                            double Wcp = QInputDialog::getDouble(this,"Specification",QString("Current value of Wcp: %1, select a value for sub stream:").
+                                                                 arg(QString::number(LadoFrio[stream][6])),0,0,9999999999,4,&ok);
+                            if(ok){
+                                LadoFrio[stream][6] = LadoFrio[stream][6] - Wcp;
+                            }else{ // se divide sobre el numero de divisiones
+                                Wcp = LadoFrio[stream][6]/Divisiones;
+                                LadoFrio[stream][6] = LadoFrio[stream][6] - Wcp;
+                            }
+                            SeparacionesFrias[i][0] = contadorPlots; //NUMERO DE CORRIENTE PRINCIPAL
+                            SeparacionesFrias[i][1] = stream; //CORRIENTE MADRE
+                            SeparacionesFrias[i][2] = 0; //CALIENTE
+                            SeparacionesFrias[i][3] = LadoFrio[stream][4]; //Temperatura entrada
+                            SeparacionesFrias[i][4] = Limite; //Temperatura salida
+                            SeparacionesFrias[i][5] = Wcp; //Wcp LadoCaliente[Caliente][6]
+                            SeparacionesFrias[i][6] = x1[1]; //x
+                            SeparacionesFrias[i][7] = y1[1]; //y
+                            SeparacionesFrias[i][8] = x1[2]; //x
+                            SeparacionesFrias[i][9] = y1[2]; //y
+                            contadorPlots++;
+                        }
+                        ui->qcustomplot->replot();
+                    }
+
+                }else{
+                    return;
+                }
+            }else{
+                return;
+            }
+        }else if(corriente[1] >= contadorTOTALIZQYDER){//TAMBIEN SE DEBE DE HACER POR SI UNA UNION SE QUIERE DIVIDIR AUN AUN MAS
+
+        }
     }
 }
 
@@ -1793,7 +2090,7 @@ void plotterDN::conectdefault()
         QCPGraph * graph = ui->qcustomplot->graph(i);
         if(graph->selected()){
             GraphSelect[j]  = i;
-            if(i+1  <= LadoCaliente.size()){
+            if(i  < LadoCaliente.size()){
                 if(LadoCaliente[i][1] == 0 && LadoCaliente[i][2] == 0){ // es caliente inhabilitada
                     QMessageBox::warning(this,tr("Error"),tr("Error"));
                     control = true;
@@ -1809,7 +2106,7 @@ void plotterDN::conectdefault()
                     control = false;
                     Conexion[1] = i; //  fria
                 }
-            }else if(i+1 >= LadoCaliente.size() ){
+            }else if(i >= LadoCaliente.size() ){
                 if(LadoFrio[i-LadoCaliente.size()][1] == 0 && LadoFrio[i-LadoCaliente.size()][2] == 0){
                     QMessageBox::warning(this,tr("Error"),tr("Error"));
                     control = true;
@@ -1852,6 +2149,8 @@ void plotterDN::conectdefault()
                           X2 = (Q2/ LadoCaliente[Fria][6]) + LadoCaliente[Fria][5];
                           dif1 = qFabs(X1 - LadoCaliente[Fria][5] );
                           dif2 = qFabs(LadoCaliente[Caliente][4] - X2);
+                        }else{
+                            return;
                         }
                         if(controlintercambio(DTmin,dif1,dif2,X1,X2,LadoCaliente[Caliente][5],LadoCaliente[Fria][4]) == false){
                             contadorUniones = contadorUniones + 1;
@@ -1870,24 +2169,24 @@ void plotterDN::conectdefault()
                             pen.setWidth(2);
                             pen.setColor(Qt::black);
                             ui->qcustomplot->addGraph();
+                            ui->qcustomplot->graph(contadorPlots)->setName(QString("Exchager %1").arg(contadorUniones));
                             ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
                             ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
                             ui->qcustomplot->graph(contadorPlots)->setPen(pen);
-                            QPointF posIni,posFin;
-                            posIni.setX(x1[0] + .2);
-                            posIni.setY(y1[0] + .5);
-                            posFin.setX(x1[3] - .2);
-                            posFin.setY(y1[3] + .5);
                             QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
-                            textLabel1->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-                            textLabel1->position->setType(QCPItemPosition::ptPlotCoords);
-                            textLabel1->position->setCoords(posIni);
+                            textLabel1->setClipToAxisRect(true);
+                            textLabel1->setClipAxisRect(ui->qcustomplot->axisRect());
+                            textLabel1->setLayer(ui->qcustomplot->axisRect()->layer()->name());
+                            textLabel1->position->setAxisRect(ui->qcustomplot->axisRect());
+                            textLabel1->position->setCoords(x1[0] + .2,y1[0] + .5);
                             textLabel1->setText(QString("%1 ªF").arg(QString::number(X1)));
                             textLabel1->setFont(QFont(font().family(), 8)); // make font a bit larger
                             QCPItemText *textLabel2 = new QCPItemText(ui->qcustomplot);
-                            textLabel2->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-                            textLabel2->position->setType(QCPItemPosition::ptPlotCoords);
-                            textLabel2->position->setCoords(posFin);
+                            textLabel2->setClipToAxisRect(true);
+                            textLabel2->setClipAxisRect(ui->qcustomplot->axisRect());
+                            textLabel2->setLayer(ui->qcustomplot->axisRect()->layer()->name());//currentLayer());
+                            textLabel2->position->setAxisRect(ui->qcustomplot->axisRect());
+                            textLabel2->position->setCoords(x1[3] - .2,y1[3] + .5);
                             textLabel2->setText(QString("%1 ªF").arg(QString::number(X2)));
                             textLabel2->setFont(QFont(font().family(), 8)); // make font a bit larger
                             ui->qcustomplot->replot();
@@ -1945,6 +2244,8 @@ void plotterDN::conectdefault()
                           X2 = (Q2/ LadoFrio[Fria][6]) + LadoFrio[Fria][5];
                           dif1 = qFabs(X1 - LadoFrio[Fria][5] );
                           dif2 = qFabs(LadoFrio[Caliente][4] - X2);
+                        }else{
+                            return;
                         }
                         if(controlintercambio(DTmin,dif1,dif2,X1,X2,LadoFrio[Caliente][5],LadoFrio[Fria][4]) == false){
                             contadorUniones = contadorUniones + 1;
@@ -1963,24 +2264,24 @@ void plotterDN::conectdefault()
                             pen.setWidth(2);
                             pen.setColor(Qt::black);
                             ui->qcustomplot->addGraph();
+                            ui->qcustomplot->graph(contadorPlots)->setName(QString("Exchager %1").arg(contadorUniones));
                             ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
                             ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
                             ui->qcustomplot->graph(contadorPlots)->setPen(pen);
-                            QPointF posIni,posFin;
-                            posIni.setX(x1[0] + .2);
-                            posIni.setY(y1[0] + .5);
-                            posFin.setX(x1[3] - .2);
-                            posFin.setY(y1[3] + .5);
                             QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
-                            textLabel1->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-                            textLabel1->position->setType(QCPItemPosition::ptPlotCoords);
-                            textLabel1->position->setCoords(posIni);
+                            textLabel1->setClipToAxisRect(true);
+                            textLabel1->setClipAxisRect(ui->qcustomplot->axisRect());
+                            textLabel1->setLayer(ui->qcustomplot->axisRect()->layer()->name());
+                            textLabel1->position->setAxisRect(ui->qcustomplot->axisRect());
+                            textLabel1->position->setCoords(x1[0] + .2,y1[0] + .5);
                             textLabel1->setText(QString("%1 ªF").arg(QString::number(X1)));
                             textLabel1->setFont(QFont(font().family(), 8)); // make font a bit larger
                             QCPItemText *textLabel2 = new QCPItemText(ui->qcustomplot);
-                            textLabel2->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-                            textLabel2->position->setType(QCPItemPosition::ptPlotCoords);
-                            textLabel2->position->setCoords(posFin);
+                            textLabel2->setClipToAxisRect(true);
+                            textLabel2->setClipAxisRect(ui->qcustomplot->axisRect());
+                            textLabel2->setLayer(ui->qcustomplot->axisRect()->layer()->name());
+                            textLabel2->position->setAxisRect(ui->qcustomplot->axisRect());
+                            textLabel2->position->setCoords(x1[3] - .2,y1[3] + .5);
                             textLabel2->setText(QString("%1 ªF").arg(QString::number(X2)));
                             textLabel2->setFont(QFont(font().family(), 8)); // make font a bit larger
                             ui->qcustomplot->replot();
@@ -2043,6 +2344,8 @@ void plotterDN::conectdefault()
                                     X2 = (Q2/ LadoCaliente[Fria][6]) + LadoCaliente[Fria][5];
                                     dif1 = qFabs(X1 - LadoCaliente[Fria][5] );
                                     dif2 = qFabs(LadoCaliente[Caliente][4] - X2);
+                                }else{
+                                    return;
                                 }
                                 if(controlintercambio(DTmin,dif1,dif2,X1,X2,LadoCaliente[Caliente][5],LadoCaliente[Fria][4]) == false){
                                     contadorUniones = contadorUniones + 1;
@@ -2063,24 +2366,24 @@ void plotterDN::conectdefault()
                                     pen.setWidth(2);
                                     pen.setColor(Qt::black);
                                     ui->qcustomplot->addGraph();
+                                    ui->qcustomplot->graph(contadorPlots)->setName(QString("Exchager %1").arg(contadorUniones));
                                     ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
                                     ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
                                     ui->qcustomplot->graph(contadorPlots)->setPen(pen);
-                                    QPointF posIni,posFin;
-                                    posIni.setX(x1[0] + .2);
-                                    posIni.setY(y1[0] + .5);
-                                    posFin.setX(x1[3] - .2);
-                                    posFin.setY(y1[3] + .5);
                                     QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
-                                    textLabel1->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-                                    textLabel1->position->setType(QCPItemPosition::ptPlotCoords);
-                                    textLabel1->position->setCoords(posIni);
+                                    textLabel1->setClipToAxisRect(true);
+                                    textLabel1->setClipAxisRect(ui->qcustomplot->axisRect());
+                                    textLabel1->setLayer(ui->qcustomplot->axisRect()->layer()->name());
+                                    textLabel1->position->setAxisRect(ui->qcustomplot->axisRect());
+                                    textLabel1->position->setCoords(x1[0] + .2, y1[0] + .5);
                                     textLabel1->setText(QString("%1 ªF").arg(QString::number(X1)));
                                     textLabel1->setFont(QFont(font().family(), 8)); // make font a bit larger
                                     QCPItemText *textLabel2 = new QCPItemText(ui->qcustomplot);
-                                    textLabel2->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-                                    textLabel2->position->setType(QCPItemPosition::ptPlotCoords);
-                                    textLabel2->position->setCoords(posFin);
+                                    textLabel2->setClipToAxisRect(true);
+                                    textLabel2->setClipAxisRect(ui->qcustomplot->axisRect());
+                                    textLabel2->setLayer(ui->qcustomplot->axisRect()->layer()->name());
+                                    textLabel2->position->setAxisRect(ui->qcustomplot->axisRect());
+                                    textLabel2->position->setCoords(x1[3] - .2,y1[3] + .5);
                                     textLabel2->setText(QString("%1 ªF").arg(QString::number(X2)));
                                     textLabel2->setFont(QFont(font().family(), 8)); // make font a bit larger
                                     ui->qcustomplot->replot();
@@ -2139,6 +2442,8 @@ void plotterDN::conectdefault()
                                   X2 = (Q2/ LadoFrio[Fria][6]) + LadoFrio[Fria][5];
                                   dif1 = qFabs(X1 - LadoFrio[Fria][5] );
                                   dif2 = qFabs(LadoFrio[Caliente][4] - X2);
+                                }else{
+                                    return;
                                 }
                                 if(controlintercambio(DTmin,dif1,dif2,X1,X2,LadoFrio[Caliente][5],LadoFrio[Fria][4]) == false){
                                     contadorUniones = contadorUniones + 1;
@@ -2159,24 +2464,24 @@ void plotterDN::conectdefault()
                                     pen.setWidth(2);
                                     pen.setColor(Qt::black);
                                     ui->qcustomplot->addGraph();
+                                    ui->qcustomplot->graph(contadorPlots)->setName(QString("Exchager %1").arg(contadorUniones));
                                     ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
                                     ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
                                     ui->qcustomplot->graph(contadorPlots)->setPen(pen);
-                                    QPointF posIni,posFin;
-                                    posIni.setX(x1[0] + .2);
-                                    posIni.setY(y1[0] + .5);
-                                    posFin.setX(x1[3] - .2);
-                                    posFin.setY(y1[3] + .5);
                                     QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
-                                    textLabel1->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-                                    textLabel1->position->setType(QCPItemPosition::ptPlotCoords);
-                                    textLabel1->position->setCoords(posIni);
+                                    textLabel1->setClipToAxisRect(true);
+                                    textLabel1->setClipAxisRect(ui->qcustomplot->axisRect());
+                                    textLabel1->setLayer(ui->qcustomplot->axisRect()->layer()->name());
+                                    textLabel1->position->setAxisRect(ui->qcustomplot->axisRect());
+                                    textLabel1->position->setCoords(x1[0] + .2, y1[0] + .5);
                                     textLabel1->setText(QString("%1 ªF").arg(QString::number(X1)));
                                     textLabel1->setFont(QFont(font().family(), 8)); // make font a bit larger
                                     QCPItemText *textLabel2 = new QCPItemText(ui->qcustomplot);
-                                    textLabel2->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-                                    textLabel2->position->setType(QCPItemPosition::ptPlotCoords);
-                                    textLabel2->position->setCoords(posFin);
+                                    textLabel2->setClipToAxisRect(true);
+                                    textLabel2->setClipAxisRect(ui->qcustomplot->axisRect());
+                                    textLabel2->setLayer(ui->qcustomplot->axisRect()->layer()->name());
+                                    textLabel2->position->setAxisRect(ui->qcustomplot->axisRect());
+                                    textLabel2->position->setCoords(x1[3] - .2, y1[3] + .5);
                                     textLabel2->setText(QString("%1 ªF").arg(QString::number(X2)));
                                     textLabel2->setFont(QFont(font().family(), 8)); // make font a bit larger
                                     ui->qcustomplot->replot();
@@ -2240,6 +2545,8 @@ void plotterDN::conectdefault()
                             X2 = (Q2/ LadoCaliente[Fria][6]) + LadoCaliente[Fria][5];
                             dif1 = qFabs(X1 - LadoCaliente[Fria][5] );
                             dif2 = qFabs(LadoCaliente[Caliente][4] - X2);
+                        }else{
+                            return;
                         }
                         if(controlintercambio(DTmin,dif1,dif2,X1,X2,LadoCaliente[Caliente][5],LadoCaliente[Fria][4]) == false){
                             contadorUniones = contadorUniones + 1;
@@ -2253,37 +2560,29 @@ void plotterDN::conectdefault()
                             y1[2] = LadoCaliente[Caliente][11] - 1; // y
                             x1[3] = LadoCaliente[Fria][10] - .4; // x
                             y1[3] = LadoCaliente[Fria][11]; // y
-                            x1[0] = LadoCaliente[Caliente][8] + .4; // x
-                            y1[0] = LadoCaliente[Caliente][9]; // y
-                            x1[1] = LadoCaliente[Caliente][8] + .4; // x
-                            y1[1] = LadoCaliente[Caliente][9] - 1; // y
-                            x1[2] = LadoCaliente[Caliente][10] - .4; // x
-                            y1[2] = LadoCaliente[Caliente][11] - 1; // y
-                            x1[3] = LadoCaliente[Fria][10] - .4; // x
-                            y1[3] = LadoCaliente[Fria][11]; // y
                             QPen pen;
                             pen.setStyle(Qt::DashLine);
                             pen.setWidth(2);
                             pen.setColor(Qt::black);
                             ui->qcustomplot->addGraph();
+                            ui->qcustomplot->graph(contadorPlots)->setName(QString("Exchager %1").arg(contadorUniones));
                             ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
                             ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
                             ui->qcustomplot->graph(contadorPlots)->setPen(pen);
-                            QPointF posIni,posFin;
-                            posIni.setX(x1[0] + .2);
-                            posIni.setY(y1[0] + .5);
-                            posFin.setX(x1[3] - .2);
-                            posFin.setY(y1[3] + .5);
                             QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
-                            textLabel1->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-                            textLabel1->position->setType(QCPItemPosition::ptPlotCoords);
-                            textLabel1->position->setCoords(posIni);
+                            textLabel1->setClipToAxisRect(true);
+                            textLabel1->setClipAxisRect(ui->qcustomplot->axisRect());
+                            textLabel1->setLayer(ui->qcustomplot->axisRect()->layer()->name());
+                            textLabel1->position->setAxisRect(ui->qcustomplot->axisRect());
+                            textLabel1->position->setCoords(x1[0] + .2,y1[0] + .5);
                             textLabel1->setText(QString("%1 ªF").arg(QString::number(X1)));
                             textLabel1->setFont(QFont(font().family(), 8)); // make font a bit larger
                             QCPItemText *textLabel2 = new QCPItemText(ui->qcustomplot);
-                            textLabel2->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-                            textLabel2->position->setType(QCPItemPosition::ptPlotCoords);
-                            textLabel2->position->setCoords(posFin);
+                            textLabel2->setClipToAxisRect(true);
+                            textLabel2->setClipAxisRect(ui->qcustomplot->axisRect());
+                            textLabel2->setLayer(ui->qcustomplot->axisRect()->layer()->name());
+                            textLabel2->position->setAxisRect(ui->qcustomplot->axisRect());
+                            textLabel2->position->setCoords(x1[3] - .2,y1[3] + .5);
                             textLabel2->setText(QString("%1 ªF").arg(QString::number(X2)));
                             textLabel2->setFont(QFont(font().family(), 8)); // make font a bit larger
                             ui->qcustomplot->replot();
@@ -2341,6 +2640,8 @@ void plotterDN::conectdefault()
                           X2 = (Q2/ LadoFrio[Fria][6]) + LadoFrio[Fria][5];
                           dif1 = qFabs(X1 - LadoFrio[Fria][5] );
                           dif2 = qFabs(LadoFrio[Caliente][4] - X2);
+                        }else{
+                            return;
                         }
                         if(controlintercambio(DTmin,dif1,dif2,X1,X2,LadoFrio[Caliente][5],LadoFrio[Fria][4]) == false){
                             contadorUniones = contadorUniones + 1;
@@ -2359,24 +2660,24 @@ void plotterDN::conectdefault()
                             pen.setWidth(2);
                             pen.setColor(Qt::black);
                             ui->qcustomplot->addGraph();
+                            ui->qcustomplot->graph(contadorPlots)->setName(QString("Exchager %1").arg(contadorUniones));
                             ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
                             ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
                             ui->qcustomplot->graph(contadorPlots)->setPen(pen);
-                            QPointF posIni,posFin;
-                            posIni.setX(x1[0] + .2);
-                            posIni.setY(y1[0] + .5);
-                            posFin.setX(x1[3] - .2);
-                            posFin.setY(y1[3] + .5);
                             QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
-                            textLabel1->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-                            textLabel1->position->setType(QCPItemPosition::ptPlotCoords);
-                            textLabel1->position->setCoords(posIni);
+                            textLabel1->setClipToAxisRect(true);
+                            textLabel1->setClipAxisRect(ui->qcustomplot->axisRect());
+                            textLabel1->setLayer(ui->qcustomplot->axisRect()->layer()->name());
+                            textLabel1->position->setAxisRect(ui->qcustomplot->axisRect());
+                            textLabel1->position->setCoords(x1[0] + .2,y1[0] + .5);
                             textLabel1->setText(QString("%1 ªF").arg(QString::number(X1)));
                             textLabel1->setFont(QFont(font().family(), 8)); // make font a bit larger
                             QCPItemText *textLabel2 = new QCPItemText(ui->qcustomplot);
-                            textLabel2->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-                            textLabel2->position->setType(QCPItemPosition::ptPlotCoords);
-                            textLabel2->position->setCoords(posFin);
+                            textLabel2->setClipToAxisRect(true);
+                            textLabel2->setClipAxisRect(ui->qcustomplot->axisRect());
+                            textLabel2->setLayer(ui->qcustomplot->axisRect()->layer()->name());
+                            textLabel2->position->setAxisRect(ui->qcustomplot->axisRect());
+                            textLabel2->position->setCoords(x1[3] - .2,y1[3] + .5);
                             textLabel2->setText(QString("%1 ªF").arg(QString::number(X2)));
                             textLabel2->setFont(QFont(font().family(), 8)); // make font a bit larger
                             ui->qcustomplot->replot();
@@ -2418,6 +2719,155 @@ void plotterDN::conectdefault()
                 }
             }
         }
+    }
+}
+
+void plotterDN::plotsubstream(QVector<double> Caliente, QVector<double> Fria)
+{
+    qDebug() << "Emtro";
+    qDebug() << Caliente << Fria;
+    if(Caliente[3] < contadorLADOIZQUIERDO){
+        double subfria;
+        for(int i = 0; i < SeparacionesFrias.size() ; i++){
+            if(SeparacionesFrias[i][0] == i){
+                subfria = i;
+                break;
+            }
+        }
+        QVector<double> x1,y1;
+        x1.resize(4),y1.resize(4);
+        double CorrienteCaliente = Caliente[3];
+        if(algoritmoCorrienteCaliente( Caliente[1] ) == true){ // empieza despues de la separacion
+            double Cal;
+            for(int i = 0; i < SeparacionesCalientes.size(); i++){
+                if(SeparacionesCalientes[i][1] == Caliente[3] ){
+                    Cal = i;
+                    break;
+                }
+            }
+            x1[0] = SeparacionesCalientes[Cal][8] + .2; // x
+            y1[0] = SeparacionesCalientes[Cal][9]; // y
+            x1[1] = SeparacionesCalientes[Cal][8] + .2; // x
+            y1[1] = SeparacionesCalientes[Cal][9] - 1; // y
+            x1[2] = SeparacionesFrias[subfria][10] - .4; // x
+            y1[2] = SeparacionesFrias[subfria][11] - 1; // y
+            x1[3] = SeparacionesFrias[subfria][10] - .4; // x
+            y1[3] = SeparacionesFrias[subfria][11]; // y
+        }else{//las coordenadas
+            x1[0] = LadoCaliente[CorrienteCaliente][8] + .4; // x
+            y1[0] = LadoCaliente[CorrienteCaliente][9]; // y
+            x1[1] = LadoCaliente[CorrienteCaliente][8] + .4; // x
+            y1[1] = LadoCaliente[CorrienteCaliente][9] - 1; // y
+            x1[2] = LadoCaliente[CorrienteCaliente][10] - .4; // x
+            y1[2] = LadoCaliente[CorrienteCaliente][11] - 1; // y
+            x1[3] = SeparacionesFrias[subfria][10] - .4; // x
+            y1[3] = SeparacionesFrias[subfria][11]; // y
+        }
+        contadorUniones = contadorUniones + 1;
+        QPen pen;
+        pen.setStyle(Qt::DashLine);
+        pen.setWidth(2);
+        pen.setColor(Qt::black);
+        ui->qcustomplot->addGraph();
+        ui->qcustomplot->graph(contadorPlots)->setName(QString("Exchager %1").arg(contadorUniones));
+        ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
+        ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
+        ui->qcustomplot->graph(contadorPlots)->setPen(pen);
+        ui->qcustomplot->replot();
+    }else if(Caliente[3] >= contadorLADOIZQUIERDO && Caliente[3] < contadorTOTALIZQYDER){ // ESTA DE LADO DERECHO
+        double subfria;
+        for(int i = 0; i < SeparacionesFrias.size() ; i++){
+            if(SeparacionesFrias[i][0] == i){
+                subfria = i;
+            }
+        }
+
+    }else if(Caliente[3] >= contadorTOTALIZQYDER){ // PROVIENE DE UNA SUN CORRIENTE LA UNION AQUI DEBO DE PROGRAMAR
+        double subcaliente;
+        qDebug() << "1";
+        for(int i = 0; i < SeparacionesCalientes.size() ; i++){
+            if(SeparacionesCalientes[i][0] == Caliente[1] ){
+                subcaliente = i;
+                break;
+            }
+        }
+        QVector<double> x1,y1;
+        x1.resize(4),y1.resize(4);
+        if(Fria[0] == 0){ // es A PRINCIPAL
+            double friat  = Fria[3];
+            if(Fria[3] < contadorLADOIZQUIERDO){ //lado izquierda PRINCIAPL
+                x1[0] = SeparacionesCalientes[subcaliente][6] + .2; // x
+                y1[0] = SeparacionesCalientes[subcaliente][7]; // y
+                x1[1] = SeparacionesCalientes[subcaliente][6] + .2; // x
+                y1[1] = SeparacionesCalientes[subcaliente][7] - 1; // y
+                x1[2] = LadoCaliente[friat][10] - .2; // x
+                y1[2] = SeparacionesCalientes[subcaliente][7] - 1; // y
+                x1[3] = LadoCaliente[friat][10] - .2; // x
+                y1[3] = LadoCaliente[friat][11]; // y
+            }else if(Fria[3] >= contadorLADOIZQUIERDO && Fria[3] < contadorTOTALIZQYDER){ // lado derecho PRINCIPAL
+                x1[0] = SeparacionesCalientes[subcaliente][6] + .2; // x
+                y1[0] = SeparacionesCalientes[subcaliente][7]; // y
+                x1[1] = SeparacionesCalientes[subcaliente][6] + .2; // x
+                y1[1] = SeparacionesCalientes[subcaliente][7] - 1; // y
+                x1[2] = LadoFrio[friat][10] - .2; // x
+                y1[2] = SeparacionesCalientes[subcaliente][7] - 1; // y
+                x1[3] = LadoFrio[friat][10] - .2; // x
+                y1[3] = LadoFrio[friat][11]; // y
+            }/*else if(Fria[3] >= contadorTOTALIZQYDER){ // ES SUBRED
+
+            }*/
+        }else if(Fria[0] == 1){ // es a subred
+            double subfria;
+            for(int i = 0; i < SeparacionesFrias.size() ; i++){
+                if(SeparacionesFrias[i][0] == Fria[1]){
+                    subfria = i;
+                    break;
+                }
+            }
+            x1[0] = SeparacionesCalientes[subcaliente][6] + .2; // x
+            y1[0] = SeparacionesCalientes[subcaliente][7]; // y
+            x1[1] = SeparacionesCalientes[subcaliente][6] + .2; // x
+            y1[1] = SeparacionesCalientes[subcaliente][7] - 1; // y
+            x1[2] = SeparacionesCalientes[subcaliente][8] - .4; // x
+            y1[2] = SeparacionesCalientes[subcaliente][9] - 1; // y
+            x1[3] = SeparacionesFrias[subfria][10] - .4; // x
+            y1[3] = SeparacionesFrias[subfria][11] ; // y
+        }
+
+
+//        QVector<double> x1,y1;
+//        x1.resize(4),y1.resize(4);
+//        double CorrienteCaliente = Caliente[3];
+//        if(algoritmoCorrienteCaliente( Caliente[1] ) == true){ // empieza despues de la separacion
+//            double Cal;
+//            for(int i = 0; i < SeparacionesCalientes.size(); i++){
+//                if(SeparacionesCalientes[i][1] == Caliente[3] ){
+//                    Cal = i;
+//                    break;
+//                }
+//            }
+//        }else{//las coordenadas
+//            x1[0] = LadoCaliente[CorrienteCaliente][8] + .4; // x
+//            y1[0] = LadoCaliente[CorrienteCaliente][9]; // y
+//            x1[1] = LadoCaliente[CorrienteCaliente][8] + .4; // x
+//            y1[1] = LadoCaliente[CorrienteCaliente][9] - 1; // y
+//            x1[2] = LadoCaliente[CorrienteCaliente][10] - .4; // x
+//            y1[2] = LadoCaliente[CorrienteCaliente][11] - 1; // y
+//            x1[3] = SeparacionesFrias[subfria][10] - .4; // x
+//            y1[3] = SeparacionesFrias[subfria][11]; // y
+//        }
+        contadorUniones = contadorUniones + 1;
+        QPen pen;
+        pen.setStyle(Qt::DashLine);
+        pen.setWidth(2);
+        pen.setColor(Qt::black);
+        ui->qcustomplot->addGraph();
+        ui->qcustomplot->graph(contadorPlots)->setName(QString("Exchager %1").arg(contadorUniones));
+        ui->qcustomplot->graph(contadorPlots)->setData(x1,y1);
+        ui->qcustomplot->graph(contadorPlots)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
+        ui->qcustomplot->graph(contadorPlots)->setPen(pen);
+        ui->qcustomplot->replot();
+
     }
 }
 

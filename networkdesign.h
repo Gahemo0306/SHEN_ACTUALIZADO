@@ -39,6 +39,8 @@ private slots:
     void on_capitalcost_cellChanged();
     void on_operationcost_cellChanged();
 
+    void on_tabWidget_tabCloseRequested(int index);
+
 private:
     Ui::NetworkDesign *ui;
     Jscene *scene;

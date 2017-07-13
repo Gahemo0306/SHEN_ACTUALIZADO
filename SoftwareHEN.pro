@@ -46,7 +46,8 @@ SOURCES += main.cpp\
     costtargeting.cpp \
     networkdesign.cpp \
     jscene.cpp \
-    plotterdn.cpp
+    plotterdn.cpp \
+    dialog.cpp
 
 HEADERS  += ventanaprincipal.h \
     unidadesentrada.h \
@@ -69,7 +70,8 @@ HEADERS  += ventanaprincipal.h \
     costtargeting.h \
     networkdesign.h \
     jscene.h \
-    plotterdn.h
+    plotterdn.h \
+    dialog.h
 
 FORMS    += ventanaprincipal.ui \
     unidadesentrada.ui \
@@ -87,7 +89,8 @@ FORMS    += ventanaprincipal.ui \
     areatargeting.ui \
     costtargeting.ui \
     networkdesign.ui \
-    plotterdn.ui
+    plotterdn.ui \
+    dialog.ui
 
 RESOURCES += resources.qrc
 

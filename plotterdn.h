@@ -34,17 +34,19 @@ private slots:
     void splitStream();
     void hideItemText();
     void conectdefault();
+    void plotsubstream(QVector<double> Caliente, QVector<double> Fria);
     bool comparadortemperaturas(double A,double B,double C);
     bool controlintercambio(double DTmin, double dif1,double dif2, double X1,double X2,double TobjC,double TobjF);
+    bool algoritmoCorrienteCaliente(double Corriente);
 private:
     Ui::plotterDN *ui;
     QStringList titulos;
     QVector<double> TS,TE,WCP,H,Enfriamento,Calentamiento;
-    QVector<QVector<double>> LadoCaliente, LadoFrio, Uniones , Servicios;
-    int NumUniones,contadorPlots,contadorUniones;
-    double contadorSERCAL,contadorSERFRI,contadorSER;
-    int CTo,CCo;
-    double DTmin, K , espaciadoruniones;
+    QVector<QVector<double>> LadoCaliente, LadoFrio, Uniones , Servicios, SeparacionesCalientes, SeparacionesFrias;
+    int NumUniones,contadorPlots,contadorUniones,CTo,CCo;
+    double contadorSERCAL,contadorSERFRI,contadorSER,contadorSEPARACIONES, DTmin, K , espaciadoruniones;
+    double contadorLADOIZQUIERDO,contadorLADODERECHO,contadorTOTALIZQYDER;
+    double contadorDivisionesCalientes, contadorDivisionesFrias, contadorDivisionesTotal;
     bool uniforme,diverso,SI,SIS,control;
 };
 
