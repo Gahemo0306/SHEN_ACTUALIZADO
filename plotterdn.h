@@ -31,13 +31,47 @@ private slots:
     void on_Legend_clicked();
     void AuxiliaryService();
     void conectStream();
-    void splitStream();
+
     void hideItemText();
     void conectdefault();
     void plotsubstream(QVector<double> Caliente, QVector<double> Fria);
+    //PRIMERA OPCION - IZQUIERAA
+    void IZQ_PrimeraOPC_Caliente_SI_0_FRIA_SI_0(double DTmin,double Caliente,double Fria ,double espaciadoruniones);
+    void IZQ_PrimeraOPC_sinSeparacionPrincipales(double DTmin, double Caliente, double Fria, double espaciadoruniones);
+    void IZQ_PrimeraOPC_Caliente_SI_0_FRIA_SI_1(double DTmin, double Caliente, double Fria, double espaciadoruniones);
+    void IZQ_PrimeraOPC_Caliente_SI_1_FRIA_SI_0(double DTmin, double Caliente, double Fria, double espaciadoruniones);
+    void IZQ_PrimeraOPC_Caliente_SI_1_FRIA_SI_1(double DTmin, double Caliente, double Fria, double espaciadoruniones);
+    void IZQ_PrimeraOPC_Caliente_SI_0_FRIA_NO_X(double DTmin, double Caliente, double Fria, double espaciadoruniones);
+    void IZQ_PrimeraOPC_Caliente_SI_1_FRIA_NO_X(double DTmin, double Caliente, double Fria, double espaciadoruniones);
+    void IZQ_PrimeraOPC_Caliente_NO_X_FRIA_SI_0(double DTmin, double Caliente, double Fria, double espaciadoruniones);
+    void IZQ_PrimeraOPC_Caliente_NO_X_FRIA_SI_1(double DTmin, double Caliente, double Fria, double espaciadoruniones);
+    bool controlintercambioIZQ(double DTmin, double dif1,double dif2, double X1,double X2,double TobjC,double TobjF);
+    // PRIMERA OPCION - DERECHA
+    void DER_PrimeraOPC_Caliente_SI_0_FRIA_SI_0(double DTmin,double Caliente,double Fria, double espaciadoruniones);
+    void DER_PrimeraOPC_sinSeparacionPrincipales(double DTmin, double Caliente, double Fria, double espaciadoruniones);
+    void DER_PrimeraOPC_Caliente_SI_0_FRIA_SI_1(double DTmin, double Caliente, double Fria, double espaciadoruniones);
+    void DER_PrimeraOPC_Caliente_SI_1_FRIA_SI_0(double DTmin, double Caliente, double Fria, double espaciadoruniones);
+    void DER_PrimeraOPC_Caliente_SI_1_FRIA_SI_1(double DTmin, double Caliente, double Fria, double espaciadoruniones);
+    void DER_PrimeraOPC_Caliente_SI_0_FRIA_NO_X(double DTmin, double Caliente, double Fria, double espaciadoruniones);
+    void DER_PrimeraOPC_Caliente_SI_1_FRIA_NO_X(double DTmin, double Caliente, double Fria, double espaciadoruniones);
+    void DER_PrimeraOPC_Caliente_NO_X_FRIA_SI_0(double DTmin, double Caliente, double Fria, double espaciadoruniones);
+    void DER_PrimeraOPC_Caliente_NO_X_FRIA_SI_1(double DTmin, double Caliente, double Fria, double espaciadoruniones);
+    bool controlintercambioDER(double DTmin, double dif1,double dif2, double X1,double X2,double TobjC,double TobjF);
+    //DETECTOR DE QUE PASO LA MITAD DE LA LINEA DE CORRIENTE
+    bool ifpasomitadIZQ(double posicionCal, double posicionFri);
+    bool ifpasomitadDER(double posicionCal, double posicionFri);
+    //SEPARAR CORRIENTES
+    void splitStream();
+    void SeparacionesCalIZQ(double Corriente, double Divisiones);
+    void SeparacionesFriIZQ(double Corriente, double Divisiones);
+    void SeparacionesCalDER(double Corriente, double Divisiones);
+    void SeparacionesFriDER(double Corriente, double Divisiones);
     bool comparadortemperaturas(double A,double B,double C);
-    bool controlintercambio(double DTmin, double dif1,double dif2, double X1,double X2,double TobjC,double TobjF);
     bool algoritmoCorrienteCaliente(double Corriente);
+    bool ifissplittedCAL(double Corriente);
+    bool ifissplittedFRI(double Corriente);
+    void on_pushButton_clicked();
+
 private:
     Ui::plotterDN *ui;
     QStringList titulos;
