@@ -800,7 +800,18 @@ private:
 QDataStream &operator<<(QDataStream &out32, const VecDesigBool &VecDB);
 QDataStream &operator>>(QDataStream &in32, VecDesigBool &VecDB);
 
-
+class Grid{
+public:
+    Grid(QVector<QVector<double>> Uniones, QVector<QVector<double>> Servicios);
+    QVector<QVector<double>> getUniones();
+    QVector<QVector<double>> getServicios();
+    friend QDataStream &operator<<(QDataStream &out33, const Grid &VecGrid);
+    friend QDataStream &operator>>(QDataStream &in33,Grid &VecGrid);
+private:
+    QVector<QVector<double>> MUniones,MServicios;
+};
+QDataStream &operator<<(QDataStream &out33, const Grid &VecGrid);
+QDataStream &operator>>(QDataStream &in33, Grid &VecGrid);
 
 
 #endif // DUVALORACTION_H

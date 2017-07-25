@@ -53,5 +53,6 @@
 #define BOOL_DESIGNGRID_FILENAME "./bdg,bin"
 #define UNIFORM_DESIGNGRID_FILENAME "./udg.bin"
 #define DIVERSE_DESIGNGRID_FILENAME "./ddg.bin"
+#define GRID_SAVE_FILENAME "./gs.bin"
 
 #endif // VALORACTION_H

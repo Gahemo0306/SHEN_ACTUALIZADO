@@ -26,7 +26,7 @@ Summary::Summary(QWidget *parent) :
     QDataStream in26(&FileMadre);
     in26.setVersion(QDataStream::Qt_5_4);
     TabAnali = -1;
-    Ventanamadre = 5;
+    Ventanamadre = -1;
     TabAnalisis TA(TabAnali,Ventanamadre);
     in26 >> TA;
     Ventanamadre = TA.getVentanamadre();

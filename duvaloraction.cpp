@@ -2837,3 +2837,29 @@ QDataStream &operator>>(QDataStream &in32, VecDesigBool &VecDB)
 {
     return in32 >> VecDB.Muniforme >> VecDB.Mdiverso;
 }
+
+Grid::Grid(QVector<QVector<double> > Uniones, QVector<QVector<double> > Servicios)
+{
+    MUniones = Uniones;
+    MServicios = Servicios;
+}
+
+QVector<QVector<double> > Grid::getUniones()
+{
+    return MUniones;
+}
+
+QVector<QVector<double> > Grid::getServicios()
+{
+    return MServicios;
+}
+
+QDataStream &operator<<(QDataStream &out33, const Grid &VecGrid)
+{
+    return out33 << VecGrid.MServicios << VecGrid.MUniones;
+}
+
+QDataStream &operator>>(QDataStream &in33, Grid &VecGrid)
+{
+    return in33 >> VecGrid.MServicios >> VecGrid.MUniones;
+}
