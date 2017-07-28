@@ -25,13 +25,13 @@ Summary::Summary(QWidget *parent) :
     }
     QDataStream in26(&FileMadre);
     in26.setVersion(QDataStream::Qt_5_4);
-    TabAnali = -1;
-    Ventanamadre = 5;
-    TabAnalisis TA(TabAnali,Ventanamadre);
+    int mTabAnali = -1;
+    int mVentanamadre = -1;
+    TabAnalisis TA(mTabAnali,mVentanamadre);
     in26 >> TA;
     Ventanamadre = TA.getVentanamadre();
     TabAnali = TA.getTabAnalisis();
-    qDebug() << Ventanamadre << TabAnali;
+    //qDebug() << Ventanamadre << TabAnali;
     if(Ventanamadre == 1){ // VENTANA ANALISIS PERSONALIZADO
         if(TabAnali == 0){ // uniforme
             QFile F(INFO_A_P_UNIFORME);
@@ -749,24 +749,31 @@ Summary::Summary(QWidget *parent) :
             F.close();
         }
     }else if(Ventanamadre == 4){ // VENTANA DE LA GRID
-        QFile FileGrid(UNIDADES_FILENAME);
+        QFile FileGrid(GRID_SAVE_FILENAME);
         if (!FileGrid.open(QIODevice::ReadOnly)){
             QMessageBox::warning(this,tr("Error"),tr("Error"));
             return;
         }
         QDataStream in33(&FileGrid);
         in33.setVersion(QDataStream::Qt_5_4);
-        QVector<QVector<double>> MUniones,MServicios,Uniones,Servicios;
+        QVector<QVector<double>> MUniones,MServicios;
+        QVector<double> MEnergiaServicios, MEnergiaUniones ,EnergiaServicios,EnergiaUniones;
+        MEnergiaServicios.resize(1);
+        MEnergiaUniones.resize(1);
         MUniones.resize(1);
         MServicios.resize(1);
         for(int i = 0; i < MUniones.size(); i++){
             MUniones[i].resize(2);
             MServicios[i].resize(2);
         }
-        Grid vecgrid(MUniones,MServicios);
+        Grid vecgrid(MUniones,MServicios,MEnergiaServicios ,MEnergiaUniones);
         in33 >> vecgrid;
         Uniones = vecgrid.getUniones();
         Servicios = vecgrid.getServicios();
+        EnergiaServicios = vecgrid.getEnergiaServicios();
+        EnergiaUniones = vecgrid.getEnergiaUniones();
+        ui->treeWidget->setColumnCount(1);
+        ui->treeWidget->setHeaderLabel("Information available:");
         QString LISTA1;
         QStringList LISTA2;
         LISTA1 = "Area prediction";
@@ -779,8 +786,115 @@ Summary::Summary(QWidget *parent) :
         LISTA2.clear();
         FileGrid.flush();
         FileGrid.close();
-    }else if(Ventanamadre == 5){
-        qDebug() << "nada selec";
+        QFile FileBools(BOOL_DESIGNGRID_FILENAME);
+        if (!FileBools.open(QIODevice::ReadOnly)){
+            QMessageBox::warning(this,tr("Error"),tr("Error"));
+            return;
+        }
+        QDataStream in32(&FileBools);
+        in32.setVersion(QDataStream::Qt_5_4);
+        bool Muniforme = false, Mdiverso = false;
+        VecDesigBool VDB(Muniforme,Mdiverso);
+        in32 >> VDB;
+        uniforme = VDB.getUniforme();
+        diverso = VDB.getDiverso();
+        if(uniforme == true){
+            QFile FileCostos(UNIFORM_DESIGNGRID_FILENAME);
+            if (!FileCostos.open(QIODevice::ReadOnly)){
+                QMessageBox::warning(this,tr("Error"),tr("Error"));
+                return;
+            }
+            QDataStream in30(&FileCostos);
+            in30.setVersion(QDataStream::Qt_5_4);
+            bool Muniforme = false;
+            bool Mdiverso = false;
+            double MDTmin = 0;
+            int MCTo = 0,MCCo = 0;
+            QVector<double> MEnfriamento,MCalentamiento,MTS,MTE,MWCP,MH;
+            MTS.resize(1);
+            MTE.resize(1);
+            MWCP.resize(1);
+            MH.resize(1);
+            MEnfriamento.resize(1);
+            MCalentamiento.resize(1);
+            QVector<QVector<double>> MCapitalCost;
+            QVector<double> MOperationCost;
+            MCapitalCost.resize(1);
+            for(int i = 0; i < MCapitalCost.size() ;i++){
+                MCapitalCost[i].resize(1);
+            }
+            MOperationCost.resize(1);
+            VecCostUniDesGri VCUD(Muniforme,Mdiverso,MTS,MTE,MWCP,MH,MCalentamiento,MEnfriamento,MCapitalCost,MOperationCost,MDTmin,MCTo,MCCo);
+            in30 >> VCUD;
+            TS = VCUD.getTS();
+            TE = VCUD.getTE();
+            WCP = VCUD.getWCP();
+            H = VCUD.getH();
+            uniforme = VCUD.getUniforme();
+            diverso = VCUD.getDiverso();
+            if(uniforme == true){
+                TabAnali = 0;
+            }else if(diverso == true){
+                TabAnali = 1;
+            }
+            Calentamiento = VCUD.getCalentamiento();
+            Enfriamento = VCUD.getEnfriamento();
+            CapitalCost = VCUD.getCapitalCost();
+            OperationCost = VCUD.getOperationCost();
+            Min = VCUD.getDTmin();
+            CTo = VCUD.getCTo();
+            CCo = VCUD.getCCo();
+            FileCostos.flush();
+            FileCostos.close();
+        }else if(diverso == true){
+            QFile FileCostos(DIVERSE_DESIGNGRID_FILENAME);
+            if (!FileCostos.open(QIODevice::ReadOnly)){
+                QMessageBox::warning(this,tr("Error"),tr("Error"));
+                return;
+            }
+            QDataStream in31(&FileCostos);
+            in31.setVersion(QDataStream::Qt_5_4);
+            bool Muniforme = false;
+            bool Mdiverso = false;
+            double MDTmin = 0, MK = 0;
+            QVector<double> MEnfriamento,MCalentamiento,MTS,MTE,MWCP,MH;
+            MTS.resize(1);
+            MTE.resize(1);
+            MWCP.resize(1);
+            MH.resize(1);
+            MEnfriamento.resize(1);
+            MCalentamiento.resize(1);
+            QVector<QVector<double>> MCapitalCost;
+            QVector<double> MOperationCost;
+            MCapitalCost.resize(1);
+            for(int i = 0; i < MCapitalCost.size() ;i++){
+                MCapitalCost[i].resize(1);
+            }
+            MOperationCost.resize(1);
+            VecCostDivDesGri VCDD(Muniforme,Mdiverso,MTS,MTE,MWCP,MH,MCalentamiento,MEnfriamento,MCapitalCost,MOperationCost,MDTmin,MK);
+            in31 >> VCDD;
+            uniforme = VCDD.getUniforme();
+            diverso = VCDD.getDiverso();
+            TS = VCDD.getTS();
+            TE = VCDD.getTE();
+            WCP = VCDD.getWCP();
+            H = VCDD.getH();
+            Calentamiento = VCDD.getCalentamiento();
+            Enfriamento = VCDD.getEnfriamento();
+            CapitalCost = VCDD.getCapitalCost();
+            OperationCost = VCDD.getOperationCost();
+            Min = VCDD.getDTmin();
+            CTo = 0;
+            CCo = 0;
+            K = VCDD.getk();
+            FileCostos.flush();
+            FileCostos.close();
+        }
+        FileBools.flush();
+        FileBools.close();
+    }else if(Ventanamadre == 0){
+        ui->treeWidget->setColumnCount(1);
+        ui->treeWidget->setHeaderLabel("Information not available");
     }
     FileMadre.flush();
     FileMadre.close();
@@ -1532,6 +1646,52 @@ void Summary::desplegar_info(QString text)
             item_select_datapoint = ui->treeWidget->itemAbove(clicked)->text(column);
             DataPoints(item_select_datapoint);
         }
+    }else if(Ventanamadre == 4){
+        if(text == "Area prediction" || text == "DTm log" || text == "Areas" || text == "Enthalpy"){
+            if(uniforme == true){
+                ui->tablewidget->clear();
+                ui->tablewidget->setVisible(true);
+                QStringList Headers;
+                Headers << "INT1" << "INT2" << "INT3" << "INT4" << "DeltaT1" << "DeltaT2"
+                        << "DTmlog" << "Enthalpy" << "Areas";
+                ui->tablewidget->setColumnCount(9);
+                ui->tablewidget->setHorizontalHeaderLabels(Headers);
+                double DTmin = Min;
+                areas_grid_uniforme(DTmin,text);
+            }else if(diverso == true){
+                ui->tablewidget->clear();
+                ui->tablewidget->setVisible(true);
+                QStringList Headers;
+                Headers << "INT1" << "INT2" << "INT3" << "INT4"  << "DTmlog" << "Enthalpy" << "Areas";
+                ui->tablewidget->setColumnCount(7);
+                ui->tablewidget->setHorizontalHeaderLabels(Headers);
+                double DTmin = Min;
+                double k = K;
+                areas_grid_diversa(DTmin,k,text);
+            }
+        }else if(text == "Cost prediction" || text == "Agglomerates" || text == "Capital cost" ||
+                 text == "Operational cost" || text =="Total cost"){
+            if(uniforme == true){
+                ui->tablewidget->clear();
+                ui->tablewidget->setVisible(true);
+                QStringList Headers;
+                Headers << "Area Agglomerate" << "Energy Agglomerate" << "Capital cost" << "Operational cost" << "Total cost" ;
+                ui->tablewidget->setColumnCount(5);
+                ui->tablewidget->setHorizontalHeaderLabels(Headers);
+                double DTmin = Min;
+                costos_grid_uniforme(DTmin,text);
+            }else if(diverso == true){
+                ui->tablewidget->clear();
+                ui->tablewidget->setVisible(true);
+                QStringList Headers;
+                Headers << "Area Agglomerate" << "Energy Agglomerate" << "Capital cost" << "Operational cost" << "Total cost" ;
+                ui->tablewidget->setColumnCount(5);
+                ui->tablewidget->setHorizontalHeaderLabels(Headers);
+                double DTmin = Min;
+                duoble k = K;
+                costos_grid_diversa(DTmin,k,text);
+            }
+        }
     }
     connect(ui->qcustomplot, SIGNAL(selectionChangedByUser()), this, SLOT(selectionChanged()));
     // connect slots that takes care that when an axis is selected, only that direction can be dragged and zoomed:
@@ -1550,6 +1710,262 @@ void Summary::desplegar_info(QString text)
     // setup policy and connect slot for context menu popup:
     ui->qcustomplot->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->qcustomplot, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(contextMenuRequest(QPoint)));
+}
+
+void Summary::areas_grid_uniforme(double DTmin, QString text)
+{
+    Grid_Areaa_Uniforme plot(TS,TE,WCP,H,Calentamiento,Enfriamento,Uniones,Servicios,CTo,CCo);
+    QVector<double> Areas = plot.getVectorAreas();
+    QVector<double> Entalpia = plot.getVectorEntalpia();
+    QVector<double> DTmed = plot.getDTmed();
+    QVector<double> DT1 = plot.getDT1();
+    QVector<double> DT2 = plot.getDT2();
+    QVector<QVector<double>> Int = plot.getINTERVALOS_AGRUPADOS();
+    ui->tablewidget->setRowCount(Areas.size());
+    int row = ui->tablewidget->rowCount();
+    QStringList Rows;
+    for(int i = 0; i < row; i++){
+        Rows << "DTmin:  " + QString::number(DTmin);
+    }
+    ui->tablewidget->setVerticalHeaderLabels(Rows);
+    double val1, val2, val3,val4,val5,val6,val7,val8,val9;
+    int j=0;
+    for(int i =0; i < row ; i++){
+        val1 = Int[j][0];
+        val2 = Int[j][1];
+        val3 = Int[j][2];
+        val4 = Int[j][3];
+        val5 = DT1[j];
+        val6 = DT2[j];
+        val7 = DTmed[j];
+        val8 = Entalpia[j];
+        val9 = Areas[j];
+        ui->tablewidget->setItem(i,0, new QTableWidgetItem(QString::number(val1)));
+        ui->tablewidget->setItem(i,1, new QTableWidgetItem(QString::number(val2)));
+        ui->tablewidget->setItem(i,2, new QTableWidgetItem(QString::number(val3)));
+        ui->tablewidget->setItem(i,3, new QTableWidgetItem(QString::number(val4)));
+        ui->tablewidget->setItem(i,4, new QTableWidgetItem(QString::number(val5)));
+        ui->tablewidget->setItem(i,5, new QTableWidgetItem(QString::number(val6)));
+        ui->tablewidget->setItem(i,6, new QTableWidgetItem(QString::number(val7)));
+        ui->tablewidget->setItem(i,7, new QTableWidgetItem(QString::number(val8)));
+        ui->tablewidget->setItem(i,8, new QTableWidgetItem(QString::number(val9)));
+        j=j+1;
+    }
+    if(text == "DTm log"){
+        for(int i =0; i < row ; i++){
+            ui->tablewidget->item(i,6)->setBackground(Qt::red); // areas
+        }
+    }else if(text == "Enthalpy"){
+        for(int i =0; i < row ; i++){
+            ui->tablewidget->item(i,7)->setBackground(Qt::blue); // areas
+        }
+    }else if(text == "Areas"){
+        for(int i =0; i < row ; i++){
+            ui->tablewidget->item(i,8)->setBackground(Qt::yellow); // areas
+        }
+    }
+}
+
+void Summary::areas_grid_diversa(double DTmin, double k, QString text)
+{
+    float punto1 = 0.5, punto2 = 10;
+    Grid_Areas_Diversa plot(TS,TE,WCP,H,Calentamiento,Enfriamento,
+                            Uniones,Servicios,k,DTmin,punto1,punto2);
+    QVector<QVector<double>> Intervalos = plot.getINTERVALOS_AGRUPADOS();
+    QVector<double> Areas = plot.getVectorAreas();
+    QVector<double> Entalpia = plot.getVectorEntalpia();
+    QVector<double> DTmedlog = plot.getDeltaTLM();
+    double valuek = plot.getK();
+    ui->tablewidget->setRowCount(Areas.size());
+    int row = ui->tablewidget->rowCount();
+    QStringList Rows;
+    for(int i = 0; i < row; i++){
+        Rows << "DTmin:" + QString::number(DTmin) + "& K:" + QString::number(valuek);
+    }
+    ui->tablewidget->setVerticalHeaderLabels(Rows);
+    double val1, val2, val3,val4,val5,val6,val7;
+    int j=0;
+    for(int i = 0; i < row ; i++){
+        val1 = Intervalos[j][0];
+        val2 = Intervalos[j][1];
+        val3 = Intervalos[j][2];
+        val4 = Intervalos[j][3];
+        val5 = DTmedlog[j];
+        val6 = Entalpia[j];
+        val7 = Areas[j];
+        ui->tablewidget->setItem(i,0, new QTableWidgetItem(QString::number(val1)));
+        ui->tablewidget->setItem(i,1, new QTableWidgetItem(QString::number(val2)));
+        ui->tablewidget->setItem(i,2, new QTableWidgetItem(QString::number(val3)));
+        ui->tablewidget->setItem(i,3, new QTableWidgetItem(QString::number(val4)));
+        ui->tablewidget->setItem(i,4, new QTableWidgetItem(QString::number(val5)));
+        ui->tablewidget->setItem(i,5, new QTableWidgetItem(QString::number(val6)));
+        ui->tablewidget->setItem(i,6, new QTableWidgetItem(QString::number(val7)));
+        j=j+1;
+    }
+    if(text == "DTm log"){
+        for(int i = 0; i < row ; i++){
+            ui->tablewidget->item(i,4)->setBackground(Qt::red); // areas
+        }
+    }else if(text == "Enthalpy"){
+        for(int i = 0; i < row ; i++){
+            ui->tablewidget->item(i,5)->setBackground(Qt::blue); // areas
+        }
+    }else if(text == "Areas"){
+        for(int i = 0; i < row ; i++){
+            ui->tablewidget->item(i,6)->setBackground(Qt::yellow); // areas
+        }
+    }
+}
+
+void Summary::costos_grid_uniforme(double DTmin, QString text)
+{
+    //Plot_Costos_vs_Areas_Uniforme plot(TS,TE,WCP,H,Calentamiento,Enfriamento,CapitalCost,OperationCost,DTmin,CTo,CCo,SI,SIS);
+    Grid_Costos_Uniforme plot(TS,TE,WCP,H,Calentamiento,CapitalCost,OperationCost,Enfriamento,Uniones,Servicios,CTo,CCo,SI,SIS);
+    double MOpeCosC = plot.getOpeCosC();
+    double MOpeCosH = plot.getOpeCosH();
+    double MCapCos3 = plot.getCapCos3();
+    double MCapCos2 = plot.getCapCos2();
+    double MCapCos1 = plot.getCapCos1();
+    double MAH = plot.getAH();
+    double MQH = plot.getQH();
+    double MAR = plot.getAR();
+    double MQR = plot.getQR();
+    double MAC = plot.getAC();
+    double MQC = plot.getQC();
+    QVector<double> AreaAglomerados, EnergiaAglomerados,VecCapitalCost,VecOperationCost,TotalCost;
+    AreaAglomerados.resize(3),EnergiaAglomerados.resize(3), VecCapitalCost.resize(3),VecOperationCost.resize(3),TotalCost.resize(3);
+    AreaAglomerados[0] = MAC;
+    AreaAglomerados[1] = MAR;
+    AreaAglomerados[2] = MAH;
+    EnergiaAglomerados[0] = MQC;
+    EnergiaAglomerados[1] = MQR;
+    EnergiaAglomerados[2] = MQH;
+    VecCapitalCost[0] = MCapCos1;
+    VecCapitalCost[1] = MCapCos2;
+    VecCapitalCost[2] = MCapCos3;
+    VecOperationCost[0] = MOpeCosC;
+    VecOperationCost[1] = 0;
+    VecOperationCost[2] = MOpeCosH;
+    TotalCost[0] = VecCapitalCost[0] + VecOperationCost[0];
+    TotalCost[1] = VecCapitalCost[1];
+    TotalCost[2] = VecCapitalCost[2] + VecOperationCost[2];
+    ui->tablewidget->setRowCount(AreaAglomerados.size());
+    int row = ui->tablewidget->rowCount();
+    QStringList Rows;
+    for(int i = 0; i < row; i++){
+        Rows << "DTmin:  " + QString::number(DTmin);
+    }
+    ui->tablewidget->setVerticalHeaderLabels(Rows);
+    double val1, val2, val3,val4,val5;
+    int j=0;
+    for(int i = 0; i < row ; i++){
+        val1 = AreaAglomerados[j];
+        val2 = EnergiaAglomerados[j];
+        val3 = VecCapitalCost[j];
+        val4 = VecOperationCost[j];
+        val5 = TotalCost[j];
+        ui->tablewidget->setItem(i,0, new QTableWidgetItem(QString::number(val1)));
+        ui->tablewidget->setItem(i,1, new QTableWidgetItem(QString::number(val2)));
+        ui->tablewidget->setItem(i,2, new QTableWidgetItem(QString::number(val3)));
+        ui->tablewidget->setItem(i,3, new QTableWidgetItem(QString::number(val4)));
+        ui->tablewidget->setItem(i,4, new QTableWidgetItem(QString::number(val5)));
+        j++;
+    }
+    if(text == "Agglomerates"){
+        for(int i =0; i < row ; i++){
+            ui->tablewidget->item(i,0)->setBackground(Qt::red); // areas
+            ui->tablewidget->item(i,1)->setBackground(Qt::red); // areas
+        }
+    }else if(text == "Capital cost"){
+        for(int i =0; i < row ; i++){
+            ui->tablewidget->item(i,2)->setBackground(Qt::blue); // areas
+        }
+    }else if(text == "Operational cost"){
+        for(int i =0; i < row ; i++){
+            ui->tablewidget->item(i,3)->setBackground(Qt::yellow); // areas
+        }
+    }else if(text =="Total cost"){
+        for(int i =0; i < row ; i++){
+            ui->tablewidget->item(i,4)->setBackground(Qt::yellow); // areas
+        }
+    }
+}
+
+void Summary::costos_grid_diversa(double DTmin, double k, QString text)
+{
+    float punto1 = 0.5;
+    float punto2 = 10;
+    Grid_Costos_Diversa plot(TS,TE,WCP,H,Calentamiento,CapitalCost,OperationCost,
+                             Enfriamento,Uniones,Servicios,SI,SIS,k,DTmin,punto1,punto2);
+    double MOpeCosC = plot.getOpeCosC();
+    double MOpeCosH = plot.getOpeCosH();
+    double MCapCos3 = plot.getCapCos3();
+    double MCapCos2 = plot.getCapCos2();
+    double MCapCos1 = plot.getCapCos1();
+    double MAH = plot.getAH();
+    double MQH = plot.getQH();
+    double MAR = plot.getAR();
+    double MQR = plot.getQR();
+    double MAC = plot.getAC();
+    double MQC = plot.getQC();
+    QVector<double> AreaAglomerados, EnergiaAglomerados,VecCapitalCost,VecOperationCost,TotalCost;
+    AreaAglomerados.resize(3),EnergiaAglomerados.resize(3), VecCapitalCost.resize(3),VecOperationCost.resize(3),TotalCost.resize(3);
+    AreaAglomerados[0] = MAC;
+    AreaAglomerados[1] = MAR;
+    AreaAglomerados[2] = MAH;
+    EnergiaAglomerados[0] = MQC;
+    EnergiaAglomerados[1] = MQR;
+    EnergiaAglomerados[2] = MQH;
+    VecCapitalCost[0] = MCapCos1;
+    VecCapitalCost[1] = MCapCos2;
+    VecCapitalCost[2] = MCapCos3;
+    VecOperationCost[0] = MOpeCosC;
+    VecOperationCost[1] = 0;
+    VecOperationCost[2] = MOpeCosH;
+    TotalCost[0] = VecCapitalCost[0] + VecOperationCost[0];
+    TotalCost[1] = VecCapitalCost[1];
+    TotalCost[2] = VecCapitalCost[2] + VecOperationCost[2];
+    ui->tablewidget->setRowCount(AreaAglomerados.size());
+    int row = ui->tablewidget->rowCount();
+    QStringList Rows;
+    for(int i = 0; i < row; i++){
+        Rows << "DTmin:  " + QString::number(DTmin);
+    }
+    ui->tablewidget->setVerticalHeaderLabels(Rows);
+    double val1, val2, val3,val4,val5;
+    int j=0;
+    for(int i = 0; i < row ; i++){
+        val1 = AreaAglomerados[j];
+        val2 = EnergiaAglomerados[j];
+        val3 = VecCapitalCost[j];
+        val4 = VecOperationCost[j];
+        val5 = TotalCost[j];
+        ui->tablewidget->setItem(i,0, new QTableWidgetItem(QString::number(val1)));
+        ui->tablewidget->setItem(i,1, new QTableWidgetItem(QString::number(val2)));
+        ui->tablewidget->setItem(i,2, new QTableWidgetItem(QString::number(val3)));
+        ui->tablewidget->setItem(i,3, new QTableWidgetItem(QString::number(val4)));
+        ui->tablewidget->setItem(i,4, new QTableWidgetItem(QString::number(val5)));
+        j++;
+    }
+    if(text == "Agglomerates"){
+        for(int i =0; i < row ; i++){
+            ui->tablewidget->item(i,0)->setBackground(Qt::red); // areas
+            ui->tablewidget->item(i,1)->setBackground(Qt::red); // areas
+        }
+    }else if(text == "Capital cost"){
+        for(int i =0; i < row ; i++){
+            ui->tablewidget->item(i,2)->setBackground(Qt::blue); // areas
+        }
+    }else if(text == "Operational cost"){
+        for(int i =0; i < row ; i++){
+            ui->tablewidget->item(i,3)->setBackground(Qt::yellow); // areas
+        }
+    }else if(text =="Total cost"){
+        for(int i =0; i < row ; i++){
+            ui->tablewidget->item(i,4)->setBackground(Qt::yellow); // areas
+        }
+    }
+
 }
 
 void Summary::tablaproblema_estatico_uniforme(double DTmin, QString text)
@@ -5474,7 +5890,7 @@ void Summary::on_pushButton_clicked()
         text.append("<p>").append("     Project directed by: Dr. Arturo Jimenez Gutierrez     ").append("</p>");
         text.append("<p>").append("     Contributors: Ing. Gabriel Hernàndez Morales     ").append("</p>");
         text.append("<p>").append("                                                      ").append("</p>");
-        if(Ventanamadre == 1 || Ventanamadre == 2 || Ventanamadre == 3){
+        if(Ventanamadre == 1 || Ventanamadre == 2 || Ventanamadre == 3 || Ventanamadre == 4){
             if(item_select =="Problem table" || item_select == "Minimal hot utility"
                     || item_select == "Minimal cold utility" || item_select == "Location of the pinch point"){
                 if(TabAnali == 0 || TabAnali == 1){ //uniforme y diversa
@@ -6871,7 +7287,7 @@ void Summary::on_pushButton_clicked()
 QString Summary::espaceadorcalculos(QString text,QString row,int j )
 {
     QString espace;
-    if(Ventanamadre == 1 || Ventanamadre == 2 || Ventanamadre == 3){ // VENTANA ANALISIS PERSONALIZADO
+    if(Ventanamadre == 1 || Ventanamadre == 2 || Ventanamadre == 3 || Ventanamadre == 4){ // VENTANA ANALISIS PERSONALIZADO
         if(text =="Problem table" || text == "Minimal hot utility"
                 || text == "Minimal cold utility" || text == "Location of the pinch point"){
             if(TabAnali == 0 || TabAnali == 1 || TabAnali == 2){ // todas las metodologias
@@ -7016,7 +7432,7 @@ QString Summary::espaceadorcalculos(QString text,QString row,int j )
 QStringList Summary::unidadestablas(QString item_select)
 {
     QStringList lista;
-    if(Ventanamadre == 1 || Ventanamadre == 2 || Ventanamadre == 3){ // VENTANA ANALISIS PERSONALIZADO
+    if(Ventanamadre == 1 || Ventanamadre == 2 || Ventanamadre == 3 || Ventanamadre == 4){ // VENTANA ANALISIS PERSONALIZADO
         if(item_select =="Problem table" || item_select == "Minimal hot utility"
                 || item_select == "Minimal cold utility" || item_select == "Location of the pinch point"){
             if(TabAnali == 0 || TabAnali == 1 || TabAnali == 2){ // todas las metodologias
@@ -7181,9 +7597,8 @@ void Summary::titleDoubleClick(QMouseEvent* event)
   Q_UNUSED(event)
   if (QCPTextElement *title = qobject_cast<QCPTextElement*>(sender()))
   {
-    // Set the plot title by double clicking on it
     bool ok;
-    QString newTitle = QInputDialog::getText(this, "QCustomPlot example", "New plot title:", QLineEdit::Normal, title->text(), &ok);
+    QString newTitle = QInputDialog::getText(this, "Specification", "New plot title:", QLineEdit::Normal, title->text(), &ok);
     if (ok)
     {
       title->setText(newTitle);
@@ -7194,11 +7609,10 @@ void Summary::titleDoubleClick(QMouseEvent* event)
 
 void Summary::axisLabelDoubleClick(QCPAxis *axis, QCPAxis::SelectablePart part)
 {
-  // Set an axis label by double clicking on it
   if (part == QCPAxis::spAxisLabel) // only react when the actual axis label is clicked, not tick label or axis backbone
   {
     bool ok;
-    QString newLabel = QInputDialog::getText(this, "QCustomPlot example", "New axis label:", QLineEdit::Normal, axis->label(), &ok);
+    QString newLabel = QInputDialog::getText(this, "Specification", "New axis label:", QLineEdit::Normal, axis->label(), &ok);
     if (ok)
     {
       axis->setLabel(newLabel);
@@ -7209,13 +7623,12 @@ void Summary::axisLabelDoubleClick(QCPAxis *axis, QCPAxis::SelectablePart part)
 
 void Summary::legendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *item)
 {
-  // Rename a graph by double clicking on its legend item
   Q_UNUSED(legend)
-  if (item) // only react if item was clicked (user could have clicked on border padding of legend where there is no item, then item is 0)
+  if (item)
   {
     QCPPlottableLegendItem *plItem = qobject_cast<QCPPlottableLegendItem*>(item);
     bool ok;
-    QString newName = QInputDialog::getText(this, "QCustomPlot example", "New graph name:", QLineEdit::Normal, plItem->plottable()->name(), &ok);
+    QString newName = QInputDialog::getText(this, "Specification", "New graph name:", QLineEdit::Normal, plItem->plottable()->name(), &ok);
     if (ok)
     {
       plItem->plottable()->setName(newName);
@@ -7226,35 +7639,18 @@ void Summary::legendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *item)
 
 void Summary::selectionChanged()
 {
-    /*
-     normally, axis base line, axis tick labels and axis labels are selectable separately, but we want
-     the user only to be able to select the axis as a whole, so we tie the selected states of the tick labels
-     and the axis base line together. However, the axis label shall be selectable individually.
-
-     The selection state of the left and right axes shall be synchronized as well as the state of the
-     bottom and top axes.
-
-     Further, we want to synchronize the selection of the graphs with the selection state of the respective
-     legend item belonging to that graph. So the user can select a graph by either clicking on the graph itself
-     or on its legend item.
-    */
-
-    // make top and bottom axes be selected synchronously, and handle axis and tick labels as one selectable object:
     if (ui->qcustomplot->xAxis->selectedParts().testFlag(QCPAxis::spAxis) || ui->qcustomplot->xAxis->selectedParts().testFlag(QCPAxis::spTickLabels) ||
         ui->qcustomplot->xAxis2->selectedParts().testFlag(QCPAxis::spAxis) || ui->qcustomplot->xAxis2->selectedParts().testFlag(QCPAxis::spTickLabels))
     {
       ui->qcustomplot->xAxis2->setSelectedParts(QCPAxis::spAxis|QCPAxis::spTickLabels);
       ui->qcustomplot->xAxis->setSelectedParts(QCPAxis::spAxis|QCPAxis::spTickLabels);
     }
-    // make left and right axes be selected synchronously, and handle axis and tick labels as one selectable object:
     if (ui->qcustomplot->yAxis->selectedParts().testFlag(QCPAxis::spAxis) || ui->qcustomplot->yAxis->selectedParts().testFlag(QCPAxis::spTickLabels) ||
         ui->qcustomplot->yAxis2->selectedParts().testFlag(QCPAxis::spAxis) || ui->qcustomplot->yAxis2->selectedParts().testFlag(QCPAxis::spTickLabels))
     {
       ui->qcustomplot->yAxis2->setSelectedParts(QCPAxis::spAxis|QCPAxis::spTickLabels);
       ui->qcustomplot->yAxis->setSelectedParts(QCPAxis::spAxis|QCPAxis::spTickLabels);
     }
-
-    // synchronize selection of graphs with selection of corresponding legend items:
     for (int i=0; i<ui->qcustomplot->graphCount(); ++i)
     {
       QCPGraph *graph = ui->qcustomplot->graph(i);
@@ -7269,9 +7665,6 @@ void Summary::selectionChanged()
 
 void Summary::mousePress()
 {
-  // if an axis is selected, only allow the direction of that axis to be dragged
-  // if no axis is selected, both directions may be dragged
-
   if (ui->qcustomplot->xAxis->selectedParts().testFlag(QCPAxis::spAxis))
     ui->qcustomplot->axisRect()->setRangeDrag(ui->qcustomplot->xAxis->orientation());
   else if (ui->qcustomplot->yAxis->selectedParts().testFlag(QCPAxis::spAxis))
@@ -7282,9 +7675,6 @@ void Summary::mousePress()
 
 void Summary::mouseWheel()
 {
-  // if an axis is selected, only allow the direction of that axis to be zoomed
-  // if no axis is selected, both directions may be zoomed
-
   if (ui->qcustomplot->xAxis->selectedParts().testFlag(QCPAxis::spAxis))
     ui->qcustomplot->axisRect()->setRangeZoom(ui->qcustomplot->xAxis->orientation());
   else if (ui->qcustomplot->yAxis->selectedParts().testFlag(QCPAxis::spAxis))
@@ -7310,7 +7700,7 @@ void Summary::contextMenuRequest(QPoint pos)
 
 void Summary::moveLegend()
 {
-  if (QAction* contextAction = qobject_cast<QAction*>(sender())) // make sure this slot is really called by a context menu action, so it carries the data we need
+  if (QAction* contextAction = qobject_cast<QAction*>(sender()))
   {
     bool ok;
     int dataInt = contextAction->data().toInt(&ok);

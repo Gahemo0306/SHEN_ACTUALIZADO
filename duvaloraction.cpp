@@ -2466,10 +2466,6 @@ infoapboth::infoapboth(QVector<double> &Checkboxes, bool estatico, bool incremen
     MMax = Max;
     MInc = Inc;
     MK = K;
-    MTS.resize(TS.size());
-    MTE.resize(TE.size());
-    MWCP.resize(WCP.size());
-    MH.resize(H.size());
     MCTo = CTo;
     MCCo = CCo;
     MCalentamiento.resize(Calentamiento.size());
@@ -2480,6 +2476,10 @@ infoapboth::infoapboth(QVector<double> &Checkboxes, bool estatico, bool incremen
         MCapitalCost[j].resize(columns);
     }
     MOperationCost.resize(OperationCost.size());
+    MTS.resize(TS.size());
+    MTE.resize(TE.size());
+    MWCP.resize(WCP.size());
+    MH.resize(H.size());
     for(int i = 0; i < TS.size(); i++){
         MTS[i] = TS[i];
     }
@@ -2639,10 +2639,27 @@ QDataStream &operator>>(QDataStream &in29, savehelp &savehel)
     return in29 >> savehel.MHelp;
 }
 
-VecCostUniDesGri::VecCostUniDesGri(bool uniforme, bool diverso, QVector<double> &Calentamiento, QVector<double> &Enfriamento, QVector<QVector<double> > &CapitalCost, QVector<double> &OperationCost, double DTmin, int CTo, int CCo)
+VecCostUniDesGri::VecCostUniDesGri(bool uniforme, bool diverso, QVector<double> &TS, QVector<double> &TE, QVector<double> &WCP,
+                                   QVector<double> &H, QVector<double> &Calentamiento, QVector<double> &Enfriamento, QVector<QVector<double> > &CapitalCost, QVector<double> &OperationCost, double DTmin, int CTo, int CCo)
 {
     Muniforme = uniforme;
     Mdiverso = diverso;
+    MTS.resize(TS.size());
+    MTE.resize(TE.size());
+    MWCP.resize(WCP.size());
+    MH.resize(H.size());
+    for(int i = 0; i < TS.size(); i++){
+        MTS[i] = TS[i];
+    }
+    for(int i = 0; i < TE.size(); i++){
+        MTE[i] = TE[i];
+    }
+    for(int i = 0; i < WCP.size(); i++){
+        MWCP[i] = WCP[i];
+    }
+    for(int i = 0; i < H.size(); i++){
+        MH[i] = H[i];
+    }
     MDTmin = DTmin;
     MCTo = CTo;
     MCCo = CCo;
@@ -2669,6 +2686,26 @@ VecCostUniDesGri::VecCostUniDesGri(bool uniforme, bool diverso, QVector<double> 
     for(int i = 0; i < OperationCost.size(); i++){
         MOperationCost[i] = OperationCost[i];
     }
+}
+
+QVector<double> VecCostUniDesGri::getTS() const
+{
+    return MTS;
+}
+
+QVector<double> VecCostUniDesGri::getTE() const
+{
+    return MTE;
+}
+
+QVector<double> VecCostUniDesGri::getWCP() const
+{
+    return MWCP;
+}
+
+QVector<double> VecCostUniDesGri::getH() const
+{
+    return MH;
 }
 
 bool VecCostUniDesGri::getUniforme() const
@@ -2718,21 +2755,38 @@ QVector<double> VecCostUniDesGri::getOperationCost() const
 
 QDataStream &operator<<(QDataStream &out30, const VecCostUniDesGri &VCUD)
 {
-    return out30 << VCUD.MCalentamiento << VCUD.MCapitalCost << VCUD.MCCo << VCUD.MCTo << VCUD.Mdiverso << VCUD.MDTmin
+    return out30 << VCUD.MTS << VCUD.MTE << VCUD.MWCP << VCUD.MH << VCUD.MCalentamiento << VCUD.MCapitalCost << VCUD.MCCo << VCUD.MCTo << VCUD.Mdiverso << VCUD.MDTmin
                  << VCUD.MEnfriamento << VCUD.MOperationCost << VCUD.Muniforme;
 }
 
 QDataStream &operator>>(QDataStream &in30, VecCostUniDesGri &VCUD)
 {
-    return in30 >> VCUD.MCalentamiento >> VCUD.MCapitalCost >> VCUD.MCCo >> VCUD.MCTo >> VCUD.Mdiverso >> VCUD.MDTmin
+    return in30 >> VCUD.MTS >> VCUD.MTE >> VCUD.MWCP >> VCUD.MH >> VCUD.MCalentamiento >> VCUD.MCapitalCost >> VCUD.MCCo >> VCUD.MCTo >> VCUD.Mdiverso >> VCUD.MDTmin
                 >> VCUD.MEnfriamento >> VCUD.MOperationCost >> VCUD.Muniforme;
 }
 
-VecCostDivDesGri::VecCostDivDesGri(bool uniforme, bool diverso, QVector<double> &Calentamiento, QVector<double> &Enfriamento,
+VecCostDivDesGri::VecCostDivDesGri(bool uniforme, bool diverso, QVector<double> TS, QVector<double> TE, QVector<double> WCP,
+                                   QVector<double> H, QVector<double> &Calentamiento, QVector<double> &Enfriamento,
                                    QVector<QVector<double> > &CapitalCost, QVector<double> &OperationCost, double DTmin, double k)
 {
     Muniforme = uniforme;
     Mdiverso = diverso;
+    MTS.resize(TS.size());
+    MTE.resize(TE.size());
+    MWCP.resize(WCP.size());
+    MH.resize(H.size());
+    for(int i = 0; i < TS.size(); i++){
+        MTS[i] = TS[i];
+    }
+    for(int i = 0; i < TE.size(); i++){
+        MTE[i] = TE[i];
+    }
+    for(int i = 0; i < WCP.size(); i++){
+        MWCP[i] = WCP[i];
+    }
+    for(int i = 0; i < H.size(); i++){
+        MH[i] = H[i];
+    }
     MDTmin = DTmin;
     Mk = k;
     MCalentamiento.resize(Calentamiento.size());
@@ -2770,6 +2824,26 @@ bool VecCostDivDesGri::getDiverso() const
     return Mdiverso;
 }
 
+QVector<double> VecCostDivDesGri::getTS() const
+{
+    return MTS;
+}
+
+QVector<double> VecCostDivDesGri::getTE() const
+{
+    return MTE;
+}
+
+QVector<double> VecCostDivDesGri::getWCP() const
+{
+    return MWCP;
+}
+
+QVector<double> VecCostDivDesGri::getH() const
+{
+    return MH;
+}
+
 double VecCostDivDesGri::getDTmin() const
 {
     return MDTmin;
@@ -2802,13 +2876,13 @@ QVector<double> VecCostDivDesGri::getOperationCost() const
 
 QDataStream &operator<<(QDataStream &out31, const VecCostDivDesGri &VCDD)
 {
-    return out31 << VCDD.MCalentamiento << VCDD.MCapitalCost << VCDD.Mdiverso << VCDD.MDTmin << VCDD.Mk
+    return out31 << VCDD.MTS << VCDD.MTE << VCDD.MWCP << VCDD.MH << VCDD.MCalentamiento << VCDD.MCapitalCost << VCDD.Mdiverso << VCDD.MDTmin << VCDD.Mk
                  << VCDD.MEnfriamento << VCDD.MOperationCost << VCDD.Muniforme;
 }
 
 QDataStream &operator>>(QDataStream &in31, VecCostDivDesGri &VCDD)
 {
-    return in31  >> VCDD.MCalentamiento >> VCDD.MCapitalCost >> VCDD.Mdiverso >> VCDD.MDTmin >> VCDD.Mk
+    return in31  >> VCDD.MTS >> VCDD.MTE >> VCDD.MWCP >> VCDD.MH >> VCDD.MCalentamiento >> VCDD.MCapitalCost >> VCDD.Mdiverso >> VCDD.MDTmin >> VCDD.Mk
                  >> VCDD.MEnfriamento >> VCDD.MOperationCost >> VCDD.Muniforme;
 }
 
@@ -2838,10 +2912,34 @@ QDataStream &operator>>(QDataStream &in32, VecDesigBool &VecDB)
     return in32 >> VecDB.Muniforme >> VecDB.Mdiverso;
 }
 
-Grid::Grid(QVector<QVector<double> > Uniones, QVector<QVector<double> > Servicios)
+Grid::Grid(QVector<QVector<double> > Uniones, QVector<QVector<double> > Servicios, QVector<double> EnergiaServicios, QVector<double> EnergiaUniones)
 {
-    MUniones = Uniones;
-    MServicios = Servicios;
+    qDebug() << Uniones << Servicios;
+    MUniones.resize(Uniones.size());
+    MServicios.resize(Servicios.size());
+    int columns = Uniones[0].size();
+    for(int i = 0; i < Uniones.size(); i++){
+        MUniones[i].resize(columns);
+    }
+    columns = Servicios[0].size();
+    for(int i = 0; i < Servicios.size(); i++){
+        MServicios[i].resize(columns);
+    }
+    columns = Uniones[0].size();
+    for(int i = 0; i < Uniones.size(); i++){
+        for(int j = 0; j < columns; j++){
+            MUniones[i][j] = Uniones[i][j];
+        }
+    }
+    columns = Servicios[0].size();
+    for(int i = 0; i < Servicios.size(); i++){
+        for(int j = 0; j < columns; j++){
+            MServicios[i][j] = Servicios[i][j];
+        }
+    }
+    MEnergiaServicios.resize(EnergiaServicios.size());
+    MEnergiaUniones.resize(EnergiaUniones.size());
+    qDebug() << MUniones << MServicios;
 }
 
 QVector<QVector<double> > Grid::getUniones()
@@ -2854,12 +2952,23 @@ QVector<QVector<double> > Grid::getServicios()
     return MServicios;
 }
 
+QVector<double> Grid::getEnergiaServicios()
+{
+    return MEnergiaServicios;
+}
+
+QVector<double> Grid::getEnergiaUniones()
+{
+    return MEnergiaUniones;
+}
+
 QDataStream &operator<<(QDataStream &out33, const Grid &VecGrid)
 {
-    return out33 << VecGrid.MServicios << VecGrid.MUniones;
+    return out33 << VecGrid.MEnergiaServicios << VecGrid.MEnergiaUniones << VecGrid.MServicios << VecGrid.MUniones;
 }
 
 QDataStream &operator>>(QDataStream &in33, Grid &VecGrid)
 {
-    return in33 >> VecGrid.MServicios >> VecGrid.MUniones;
+    return in33 >> VecGrid.MEnergiaServicios >> VecGrid.MEnergiaUniones >> VecGrid.MServicios >> VecGrid.MUniones;
 }
+

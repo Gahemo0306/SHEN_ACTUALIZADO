@@ -35,6 +35,19 @@ VentanaPrincipal::VentanaPrincipal(QWidget *parent) :
     setCentralWidget(ui->mdiArea);
     setWindowTitle("Software Heat Exchanger Network ");
     loadSubWindowPrincipal(new UnidadesEntrada(this));
+    QFile FileMadre(TAB_A_P);
+        if (!FileMadre.open(QIODevice::WriteOnly)){
+            QMessageBox::warning(this,tr("Error"),tr("Error"));
+        return;
+    }
+    QDataStream out26(&FileMadre);
+    out26.setVersion(QDataStream::Qt_5_4);
+    int mTabAnali = 0;
+    int mVentanamadre = 0;
+    TabAnalisis TA(mTabAnali,mVentanamadre);
+    out26 << TA;
+    FileMadre.flush();
+    FileMadre.close();
 }
 
 VentanaPrincipal::~VentanaPrincipal()

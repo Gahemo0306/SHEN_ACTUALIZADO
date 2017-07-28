@@ -42,6 +42,11 @@ private slots:
     void costos_incremento_diverso(double DTmin, double k, QString text, float punto1,float punto2);
     void costos_estatico_both(double DTmin,double k , QString text,float punto1,float punto2);
     void costos_incremento_both(double DTmin,double k , QString text,float punto1,float punto2);
+    //OPERACIONES
+    void areas_grid_uniforme(double DTmin, QString text);
+    void areas_grid_diversa(double DTmin, double k, QString text);
+    void costos_grid_uniforme(double DTmin, QString text);
+    void costos_grid_diversa(double DTmin, double k, QString text);
     //GRAFICOS
     void grafico_HCC_estatico_uniforme();
     void grafico_CCC_estatico_uniforme();
@@ -123,12 +128,12 @@ private:
     QTreeWidgetItem *clicked;
     int TabAnali,Ventanamadre;
     double Max,Min,Inc,K1,K;
-    bool estatico,incremento,SI,SIS;
+    bool estatico,incremento,uniforme,diverso,SI,SIS;
     int VENTANAMADRE,CTo,CCo,CONTADORFILAS;
     int CONTADORBOTH;
     QStringList titulos,CONTADORROWS;
     QVector<double> Checkboxes, TS,TE,WCP,H,Enfriamento,Calentamiento,OperationCost;
-    QVector<QVector<double>> CapitalCost;
+    QVector<QVector<double>> CapitalCost, Uniones,Servicios;
 };
 
 #endif // SUMMARY_H

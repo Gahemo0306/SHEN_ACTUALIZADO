@@ -630,7 +630,7 @@ QDataStream &operator>>(QDataStream &in25, infoapuniforme &checkboxes);
 class TabAnalisis
 {
 public:
-    TabAnalisis(int TabAnalisis, int Ventanamadre);
+    TabAnalisis(int TabAnalisis = -1, int Ventanamadre = -1);
     int getTabAnalisis();
     int getVentanamadre();
     friend QDataStream &operator<<(QDataStream &out26, const TabAnalisis &TA);
@@ -733,9 +733,15 @@ class VecCostUniDesGri
 {
 public:
     VecCostUniDesGri(bool uniforme, bool diverso,
-                    QVector<double> &Calentamiento, QVector<double> &Enfriamento,
-                    QVector<QVector<double> > &CapitalCost, QVector<double> &OperationCost,
+                     QVector<double> &TS, QVector<double> &TE, QVector<double> &WCP,
+                     QVector<double> &H,
+                     QVector<double> &Calentamiento, QVector<double> &Enfriamento,
+                     QVector<QVector<double> > &CapitalCost, QVector<double> &OperationCost,
                     double DTmin, int CTo, int CCo);
+    QVector<double> getTS() const;
+    QVector<double> getTE() const;
+    QVector<double> getWCP() const;
+    QVector<double> getH() const;
     bool getUniforme() const;
     bool getDiverso() const;
     double getDTmin() const;
@@ -750,7 +756,7 @@ public:
 private:
     bool Muniforme,Mdiverso;
     double MDTmin, MCTo, MCCo;
-    QVector<double> MCalentamiento;
+    QVector<double> MCalentamiento,MTS,MTE,MWCP,MH;
     QVector<double> MEnfriamento,MOperationCost;
     QVector<QVector<double>> MCapitalCost;
 };
@@ -762,9 +768,15 @@ class VecCostDivDesGri
 {
 public:
     VecCostDivDesGri(bool uniforme, bool diverso,
-                    QVector<double> &Calentamiento, QVector<double> &Enfriamento,
-                    QVector<QVector<double> > &CapitalCost, QVector<double> &OperationCost,
+                     QVector<double> TS, QVector<double> TE, QVector<double> WCP,
+                     QVector<double> H,
+                     QVector<double> &Calentamiento, QVector<double> &Enfriamento,
+                     QVector<QVector<double> > &CapitalCost, QVector<double> &OperationCost,
                     double DTmin, double k);
+    QVector<double> getTS() const;
+    QVector<double> getTE() const;
+    QVector<double> getWCP() const;
+    QVector<double> getH() const;
     bool getUniforme() const;
     bool getDiverso() const;
     double getDTmin() const;
@@ -778,7 +790,7 @@ public:
 private:
     bool Muniforme,Mdiverso;
     double MDTmin, Mk;
-    QVector<double> MCalentamiento;
+    QVector<double> MCalentamiento,MTS,MTE,MWCP,MH;
     QVector<double> MEnfriamento,MOperationCost;
     QVector<QVector<double>> MCapitalCost;
 };
@@ -802,13 +814,17 @@ QDataStream &operator>>(QDataStream &in32, VecDesigBool &VecDB);
 
 class Grid{
 public:
-    Grid(QVector<QVector<double>> Uniones, QVector<QVector<double>> Servicios);
+    Grid(QVector<QVector<double>> Uniones, QVector<QVector<double>> Servicios,
+         QVector<double> EnergiaServicios, QVector<double> EnergiaUniones);
     QVector<QVector<double>> getUniones();
     QVector<QVector<double>> getServicios();
+    QVector<double> getEnergiaServicios();
+    QVector<double> getEnergiaUniones();
     friend QDataStream &operator<<(QDataStream &out33, const Grid &VecGrid);
     friend QDataStream &operator>>(QDataStream &in33,Grid &VecGrid);
 private:
     QVector<QVector<double>> MUniones,MServicios;
+    QVector<double> MEnergiaServicios,MEnergiaUniones;
 };
 QDataStream &operator<<(QDataStream &out33, const Grid &VecGrid);
 QDataStream &operator>>(QDataStream &in33, Grid &VecGrid);

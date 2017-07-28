@@ -208,6 +208,7 @@ void NetworkDesign::RADIOBUTTONS()
             QStringList Lista1,Lista2,Lista3;
             ui->comboBoxTemp->clear();
             ui->comboBoxFilm->clear();
+            ui->comboBoxUOP->clear();
             Lista1 << "Select one..." << "Kelvin (°K)" << "Farenheit (°F)" << "Celsius (°C)" << "Ranking (°R)";
             Lista2 << "Select one..." << "Btu/hr ft^2 °F" << "CHU/hr ft^2 °F";
             Lista3 << "Select one..." << "US $ / Btu" << "US $ / CHU";
@@ -218,6 +219,7 @@ void NetworkDesign::RADIOBUTTONS()
             QStringList Lista1,Lista2,Lista3;
             ui->comboBoxTemp->clear();
             ui->comboBoxFilm->clear();
+            ui->comboBoxUOP->clear();
             Lista1 << "Select one..." << "Kelvin (°K)" << "Farenheit (°F)" << "Celsius (°C)" << "Ranking (°R)";
             Lista2 << "Select one..." << "W/m^2 °K" << "W/m^2 °C";
             Lista3 << "Select one..." << "US $ / KW" << "US $ / ";
@@ -240,6 +242,32 @@ void NetworkDesign::accionguardar()
     if(confirmartablas() == true){
         return;
     }
+    QFile Fwork(WORKSPACE_FILENAME);
+    if (!Fwork.open(QIODevice::ReadOnly)){
+        QMessageBox::warning(this,tr("Error"),tr("Error"));
+        return;
+    }
+    QDataStream in2(&Fwork);
+    in2.setVersion(QDataStream::Qt_5_4);
+    QVector<QVector<double>> prueba;
+    int filas = 10; // default
+    int columnas = 10; //defalt
+    prueba.resize(filas);
+    for(int i = 0; i < filas; i++)
+    {
+        prueba[i].resize(columnas);
+    }
+    Workspace MATRIZ(prueba);
+    in2>> MATRIZ;
+    QVector<QVector<double>> Matriz = MATRIZ.getMatriz();
+    QVector<double> TS(Matriz.size()),TE(Matriz.size());
+    QVector<double> WCP(Matriz.size()),H(Matriz.size());
+    for(int i = 0; i < Matriz.size();i++){
+        TS[i] = Matriz[i][0];
+        TE[i] = Matriz[i][1];
+        WCP[i] = Matriz[i][2];
+        H[i] = Matriz[i][3];
+    }
     QFile FileUnidades(UNIDADES_FILENAME);
     if (!FileUnidades.open(QIODevice::ReadOnly)){
         QMessageBox::warning(this,tr("Error"),tr("Error"));
@@ -250,10 +278,17 @@ void NetworkDesign::accionguardar()
     Unidades units;
     in3 >> units;
     int UTemp = units.getUTemp();
+    int UWcp = units.getUWcp();
     bool SI = units.getSI();
     bool SIS = units.getSIS();
+    units.ConvertirUnidades(TS,TE,WCP,SI,SIS,UTemp,UWcp);
+    TS = units.getST();
+    TE = units.getTT();
+    WCP = units.getCp();
     FileUnidades.flush();
     FileUnidades.close();
+    Fwork.flush();
+    Fwork.close();
     int ncols,CTo,CCo;
     ncols = ui->Services->columnCount();
     QVector<double> Enfriamento,Calentamiento,Enf,Cal;
@@ -330,7 +365,7 @@ void NetworkDesign::accionguardar()
         }
         QDataStream out30(&FileCostos);
         out30.setVersion(QDataStream::Qt_5_4);
-        VecCostUniDesGri VCUD(uniforme,diverso,Calentamiento,Enfriamento,CapitalCost,OperationCost,DTmin,CTo,CCo);
+        VecCostUniDesGri VCUD(uniforme,diverso,TS,TE,WCP,H,Calentamiento,Enfriamento,CapitalCost,OperationCost,DTmin,CTo,CCo);
         out30 << VCUD;
         FileCostos.flush();
         FileCostos.close();
@@ -342,7 +377,7 @@ void NetworkDesign::accionguardar()
         }
         QDataStream out31(&FileCostos);
         out31.setVersion(QDataStream::Qt_5_4);
-        VecCostDivDesGri VCDD(uniforme,diverso,Calentamiento,Enfriamento,CapitalCost,OperationCost,DTmin,K);
+        VecCostDivDesGri VCDD(uniforme,diverso,TS,TE,WCP,H,Calentamiento,Enfriamento,CapitalCost,OperationCost,DTmin,K);
         out31 << VCDD;
         FileCostos.flush();
         FileCostos.close();

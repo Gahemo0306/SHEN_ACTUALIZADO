@@ -339,12 +339,12 @@ Plot_curvascompuestasajustadas::Plot_curvascompuestasajustadas(QVector<double> T
     {
         if(Tsupply[i] >= Ttarget[i])
         {
-            VectorCalientesCp << Tsupply[i] << Ttarget[i] << Cp[i] ;//<< h[i];
+            VectorCalientesCp << Tsupply[i] << Ttarget[i] << Cp[i];// << h[i];
             VectorCalientes << Tsupply[i] << Ttarget[i];
         }
         if(Tsupply[i] <= Ttarget[i])
         {
-            VectorFriasCp << Tsupply[i] << Ttarget[i] << Cp[i] ;//<< h[i];
+            VectorFriasCp << Tsupply[i] << Ttarget[i] << Cp[i]; // << h[i];
             VectorFrias << Tsupply[i] << Ttarget[i];
         }
         j++;
@@ -1743,7 +1743,7 @@ Plot_Dtmin_vs_Areas::Plot_Dtmin_vs_Areas(QVector<double> Tsupply, QVector<double
     }
     Entalpia.resize(nfils);
     for( i = 0; i < nfils ; i++){
-         Entalpia[i] = SUMCalcal[i] + SUMCalfri[i];
+        Entalpia[i] = SUMCalcal[i] + SUMCalfri[i];
     }
     int r1CAL = SUMA_inter_sercal;
     int r2FRI = SUMA_inter_serfri;
@@ -7370,3 +7370,2252 @@ double Plot_Costos_vs_Min_Divera::getQC()
     return MQC;
 }
 
+
+Grid_Areaa_Uniforme::Grid_Areaa_Uniforme(QVector<double> Tsupply, QVector<double> Ttarget, QVector<double> Cp, QVector<double> h,
+                                         QVector<double> Calentamiento, QVector<double> Enfriamento,
+                                         QVector<QVector<double> > Uniones, QVector<QVector<double> > Servicios, int CTo, int CCo)
+{
+    QVector<double> VectorCalientes, VectorCalientesCp;
+    QVector<double> VectorFrias,VectorFriasCp, VCCurvas,VFCurvas;
+    int i,j,n,nfils,ncols,Pares,contador,k;
+    n = Tsupply.size();
+    for (i = 0; i < n ; ++i)
+    {
+        if(Tsupply[i] >= Ttarget[i])
+        {
+            VectorCalientesCp << Tsupply[i] << Ttarget[i] << Cp[i] << h[i];
+            VectorCalientes << Tsupply[i] << Ttarget[i];
+        }
+        if(Tsupply[i] <= Ttarget[i])
+        {
+            VectorFriasCp << Tsupply[i] << Ttarget[i] << Cp[i] << h[i];
+            VectorFrias << Tsupply[i] << Ttarget[i];
+        }
+        j++;
+    }
+    QVector < QVector <double> > VectorCalientesMATRIZ;
+    Pares = VectorCalientesCp.size();
+    nfils = Pares/4;
+    ncols = 4;
+    VectorCalientesMATRIZ.resize(nfils);
+    for(i = 0; i< VectorCalientesMATRIZ.size(); i++)
+    {
+        VectorCalientesMATRIZ[i].resize(ncols);
+    }
+    contador = 0;
+    for(int i = 0; i < VectorCalientesMATRIZ.size(); i++)
+    {
+        for(int j = 0; j < VectorCalientesMATRIZ.at(i).size(); j++)
+        {
+            VectorCalientesMATRIZ[i][j] = VectorCalientesCp[contador];
+            contador++;
+        }
+    }
+    QVector < QVector <double > > VectorFriasMATRIZ;
+    Pares = VectorFriasCp.size();
+    nfils = Pares/4;
+    ncols = 4;
+    VectorFriasMATRIZ.resize(nfils);
+    for(i = 0; i<  VectorFriasMATRIZ.size(); i++)
+    {
+        VectorFriasMATRIZ[i].resize(ncols);
+    }
+    contador = 0;
+    for(i = 0; i <  VectorFriasMATRIZ.size(); i++)
+    {
+        for(j = 0; j <  VectorFriasMATRIZ.at(i).size(); j++)
+        {
+            VectorFriasMATRIZ[i][j] = VectorFriasCp[contador];
+            contador++;
+        }
+    }
+    QVector<QVector<double>> INTERVALOS_AGRUPADOS;
+    nfils = Uniones.size() + Servicios.size();
+    ncols = 4;
+    INTERVALOS_AGRUPADOS.resize(nfils);
+    MINTERVALOS_AGRUPADOS.resize(nfils);
+    //MINTERVALOS_AGRUPADOS.resize(nfils);
+    for ( i = 0; i < nfils ; i++){
+        INTERVALOS_AGRUPADOS[i].resize(ncols);
+        MINTERVALOS_AGRUPADOS[i].resize(ncols);
+    }
+    contador = 0;
+    ncols = 4;
+    for(int i = contador; i < Uniones.size() ; i++){
+        k = 4;
+        for(int j = 0; j < ncols ; j ++){
+            INTERVALOS_AGRUPADOS[i][j] = Uniones[i][k]; //POSICION DE LAS UNIONES
+            MINTERVALOS_AGRUPADOS[i][j] = Uniones[i][k];
+            k++;
+        }
+    }
+    contador = Uniones.size();
+    int total = Uniones.size() + Servicios.size();
+    ncols = 4;
+    int l = 0;
+    for(int i = contador ;  i < total; i++){
+        k = 2;
+        for(int j = 0; j < ncols; j++){
+            INTERVALOS_AGRUPADOS[i][j] = Servicios[l][k] ;
+            MINTERVALOS_AGRUPADOS[i][j] = Servicios[l][k] ;
+            k++;
+        }
+        l++;
+    }
+    QVector<QVector<double>> Entalpia;
+    nfils = Uniones.size() + Servicios.size();
+    Entalpia.resize(nfils);
+    for(int i = 0; i < Entalpia.size(); i++){
+        Entalpia[i].resize(4);
+    }
+    contador = 0;
+    for(int i = contador; i < Uniones.size() ; i ++){
+        Entalpia[i][0] = 2 ; // ES UNA UNION
+        Entalpia[i][1] = Uniones[i][8]; //CARGA ENERGETICA
+        Entalpia[i][2] = Uniones[i][10]; //H CAL
+        Entalpia[i][3] = Uniones[i][12]; //H FRI
+    }
+    contador = Uniones.size();
+    k = 0;
+    for(int i = contador; i < total; i++){
+        Entalpia[i][0] = Servicios[k][1];
+        Entalpia[i][1] = Servicios[k][6];
+        Entalpia[i][2] = Servicios[k][7] ; // H CORRIENTE Cal o Fri
+        if(Servicios[k][1] == 0 ){
+            Entalpia[i][3] = Calentamiento[2];
+        }else if(Servicios[k][1] == 1){
+            Entalpia[i][3] = Enfriamento[2];
+        }
+        k++;
+    }
+    double Delta2,Delta1;
+    QVector<double> DTm;
+    int r1 = INTERVALOS_AGRUPADOS.size();
+    DTm.resize(r1);
+    MDTmed.resize(r1);
+    MDelta1.resize(r1);
+    MDelta2.resize(r1);
+    if(CTo==1){
+        for(i=0; i < r1; i++){
+            Delta2= qFabs(INTERVALOS_AGRUPADOS[i][0]-INTERVALOS_AGRUPADOS[i][3]);
+            Delta1= qFabs(INTERVALOS_AGRUPADOS[i][1]-INTERVALOS_AGRUPADOS[i][2]);
+            DTm[i] = qFabs((Delta2-Delta1)/(log(Delta2/Delta1)));
+            if(DTm[i] != DTm[i]){
+                DTm[i] = (qFabs(Delta2) + qFabs(Delta1))/ 2;
+            }
+            MDelta1[i] = Delta1;
+            MDelta2[i] = Delta2;
+            MDTmed[i] = DTm[i];
+        }
+    }else if(CCo==1){
+//        for(i=0; i < r1; i++){
+//            Delta2= qFabs(INTERVALOS_AGRUPADOS[i][3]-INTERVALOS_AGRUPADOS[i][1]);
+//            Delta1= qFabs(INTERVALOS_AGRUPADOS[i][0]-INTERVALOS_AGRUPADOS[i][2]);
+//            DTm[i] = qFabs((Delta2-Delta1)/(log(Delta2/Delta1)));
+//            if(DTm[i] != DTm[i]){
+//                DTm[i] = (qFabs(Delta2) + qFabs(Delta1))/ 2;
+//            }
+//            MDelta1[i] = Delta1;
+//            MDelta2[i] = Delta2;
+//            MDTmed[i] = DTm[i];
+//        }
+    }
+    QVector<double> EntalpiaCalculada;
+    EntalpiaCalculada.resize(Entalpia.size());
+    MVectorEntalpia.resize(Entalpia.size());
+    for(int i = 0; i < Entalpia.size(); i++){
+        EntalpiaCalculada[i] = Entalpia[i][1]/Entalpia[i][2]  + Entalpia[i][1]/Entalpia[i][3];
+        MVectorEntalpia[i] = EntalpiaCalculada[i];
+    }
+    QVector<double> Areas;
+    Areas.resize(EntalpiaCalculada.size());
+    MVectorAreas.resize(EntalpiaCalculada.size());
+    for ( i = 0 ; i < EntalpiaCalculada.size(); i++){
+        Areas[i] = EntalpiaCalculada[i] / DTm[i];
+        MVectorAreas[i] = Areas[i];
+    }
+    MAREAS = std::accumulate(Areas.begin(),Areas.end(),0);
+}
+
+double Grid_Areaa_Uniforme::getAREAS()
+{
+    return MAREAS;
+}
+
+QVector<double> Grid_Areaa_Uniforme::getVectorAreas()
+{
+    return MVectorAreas;
+}
+
+QVector<double> Grid_Areaa_Uniforme::getVectorEntalpia()
+{
+    return MVectorEntalpia;
+}
+
+QVector<double> Grid_Areaa_Uniforme::getDTmed()
+{
+    return MDTmed;
+}
+
+QVector<double> Grid_Areaa_Uniforme::getDT1()
+{
+    return MDelta1;
+}
+
+QVector<double> Grid_Areaa_Uniforme::getDT2()
+{
+    return MDelta2;
+}
+
+QVector<QVector<double> > Grid_Areaa_Uniforme::getINTERVALOS_AGRUPADOS()
+{
+    return MINTERVALOS_AGRUPADOS;
+}
+
+Pre_Grid_UNIFORME::Pre_Grid_UNIFORME(QVector<double> Tsupply, QVector<double> Ttarget,
+                   QVector<double> Cp, QVector<double> h, double DTmin)
+{
+    QVector<double> VectorCalientes, VectorCalientesCp;
+    QVector<double> VectorFrias,VectorFriasCp, VCCurvas,VFCurvas;
+    int i,j,n,nfils,ncols,Pares,contador,k;
+    n = Tsupply.size();
+    for (i = 0; i < n ; ++i)
+    {
+        if(Tsupply[i] >= Ttarget[i])
+        {
+            VectorCalientesCp << Tsupply[i] << Ttarget[i] << Cp[i] << h[i];
+            VectorCalientes << Tsupply[i] << Ttarget[i];
+        }
+        if(Tsupply[i] <= Ttarget[i])
+        {
+            VectorFriasCp << Tsupply[i] << Ttarget[i] << Cp[i] << h[i];
+            VectorFrias << Tsupply[i] << Ttarget[i];
+        }
+        j++;
+    }
+    QVector < QVector <double> > VectorCalientesMATRIZ;
+    Pares = VectorCalientesCp.size();
+    nfils = Pares/4;
+    ncols = 4;
+    VectorCalientesMATRIZ.resize(nfils);
+    MVectorCalientesMATRIZ.resize(nfils);
+    for(i = 0; i< VectorCalientesMATRIZ.size(); i++)
+    {
+        MVectorCalientesMATRIZ[i].resize(ncols);
+        VectorCalientesMATRIZ[i].resize(ncols);
+    }
+    contador = 0;
+    for(int i = 0; i < VectorCalientesMATRIZ.size(); i++)
+    {
+        for(int j = 0; j < VectorCalientesMATRIZ.at(i).size(); j++)
+        {
+            MVectorCalientesMATRIZ[i][j] = VectorCalientesCp[contador];
+            VectorCalientesMATRIZ[i][j] = VectorCalientesCp[contador];
+            contador++;
+        }
+    }
+    QVector < QVector <double > > VectorFriasMATRIZ;
+    Pares = VectorFriasCp.size();
+    nfils = Pares/4;
+    ncols = 4;
+    VectorFriasMATRIZ.resize(nfils);
+    MVectorFriasMATRIZ.resize(nfils);
+    for(i = 0; i<  VectorFriasMATRIZ.size(); i++)
+    {
+        VectorFriasMATRIZ[i].resize(ncols);
+        MVectorFriasMATRIZ[i].resize(ncols);
+    }
+    contador = 0;
+    for(i = 0; i <  VectorFriasMATRIZ.size(); i++)
+    {
+        for(j = 0; j <  VectorFriasMATRIZ.at(i).size(); j++)
+        {
+            MVectorFriasMATRIZ[i][j] = VectorFriasCp[contador];
+            VectorFriasMATRIZ[i][j] = VectorFriasCp[contador];
+            contador++;
+        }
+    }
+    QVector < QVector <double > > VCC,VFC;
+    Pares = VectorCalientes.size();
+    nfils = Pares/2;
+    ncols = 2;
+    VCC.resize(nfils);
+    for(i = 0; i <  nfils; i++)
+    {
+        VCC[i].resize(ncols);
+    }
+    k=0;
+    for(i = 0; i < nfils; i++){
+        VCC[i][0] = VectorCalientes[k];
+        k++;
+        VCC[i][1] = VectorCalientes[k];
+        k++;
+    }
+    Pares = VectorFrias.size();
+    nfils = Pares/2;
+    ncols = 2;
+    VFC.resize(nfils);
+    for(i = 0; i <  nfils; i++)
+    {
+        VFC[i].resize(ncols);
+    }
+    k=0;
+    for(i = 0; i < nfils; i++){
+        VFC[i][0] = VectorFrias[k];
+        k++;
+        VFC[i][1] = VectorFrias[k];
+        k++;
+    }
+    std::sort(VectorCalientes.begin(),VectorCalientes.end());
+    std::sort(VectorFrias.begin(),VectorFrias.end());
+    VCCurvas = VectorCalientes;
+    VFCurvas = VectorFrias;
+    QVector<double> VectorCalientesNuevo,VectorFriasNuevo;
+    VectorCalientesNuevo.resize(VectorCalientes.size());
+    k = VectorCalientes.size() - 1 ;
+    for( i = 0; i < VectorCalientes.size(); i++){
+        VectorCalientesNuevo[k] = VectorCalientes[i];
+        --k;
+    }
+    k = VectorFrias.size() - 1;
+    VectorFriasNuevo.resize(VectorFrias.size());
+    for( i = 0; i < VectorFrias.size(); i++){
+        VectorFriasNuevo[k] = VectorFrias[i];
+        --k;
+    }
+    n = VCCurvas.size();
+    for (i = 0; i < n; ++i){
+        for(j = 0; j < n; ++j){
+            if(i==j){
+            }else{
+                if (VCCurvas[i] == VCCurvas[j] ){
+                    QVector<double> VCCurvaslos;
+                    for (i = 0; i < j ; i++){
+                        VCCurvaslos << VCCurvas[i];
+                    }
+                    QVector<double> VCCurvashi;
+                    for (j = j + 1 ; j < n ; j++){
+                        VCCurvashi << VCCurvas[j];
+                    }
+                    VCCurvas.clear();
+                    VCCurvas = VCCurvaslos + VCCurvashi;
+                    VCCurvaslos.clear();
+                    VCCurvashi.clear();
+                    i=0;
+                    n = VCCurvas.size();
+                }
+            }
+        }
+    }
+    n = VFCurvas.size();
+    //ELIMINAR DUPLICADOS DE CORRIENTES FRIAS
+    for (i = 0; i < n; ++i){
+        for(j = 0; j < n; ++j){
+            if(i==j){
+            }else{
+                if (VFCurvas[i] == VFCurvas[j] ){
+                    QVector<double> VFCurvaslos;
+                    for (i = 0; i < j ; i++){
+                        VFCurvaslos << VFCurvas[i];
+                    }
+                    QVector<double> VFCurvashi;
+                    for (j = j + 1 ; j < n ; j++){
+                        VFCurvashi << VFCurvas[j];
+                    }
+                    VFCurvas.clear();
+                    VFCurvas = VFCurvaslos + VFCurvashi;
+                    VFCurvaslos.clear();
+                    VFCurvashi.clear();
+                    i=0;
+                    n = VFCurvas.size();
+                }
+            }
+        }
+    }
+    QVector<double> VCCurvasT = VCCurvas;
+    QVector<double> VFCurvasT = VFCurvas;
+    // SE FORMA LA MATRIZ DE RANGOS CALIENTES
+    QVector < QVector < double > > RangosCalientes;
+    n = VCCurvas.size();
+    nfils = n-1;
+    ncols = 3;
+    RangosCalientes.resize(nfils);
+    for(int i = 0; i< RangosCalientes.size(); i++)
+    {
+        RangosCalientes[i].resize(ncols);
+    }
+    for(int i = 0; i < RangosCalientes.size(); i++)
+    {
+        if(i <= (n-2)){
+            RangosCalientes[i][0] = VCCurvas[i] ;
+            RangosCalientes[i][1] = VCCurvas[i+1] ;
+            RangosCalientes[i][2] = qFabs(VCCurvas[i+1]-VCCurvas[i]);
+        }
+    }
+    // SE FORMA LA MATRIZ DE RANGOS FRIAS
+    QVector < QVector < double > > RangosFrias;
+    n = VFCurvas.size();
+    nfils = n-1,
+    ncols = 3;
+    RangosFrias.resize(nfils);
+    for(int i = 0; i< RangosFrias.size(); i++)
+    {
+        RangosFrias[i].resize(ncols);
+    }
+    for(int i = 0; i < RangosFrias.size(); i++)
+    {
+        if(i <= (n-2)){
+            RangosFrias[i][0] = VFCurvas[i] ;
+            RangosFrias[i][1] = VFCurvas[i+1] ;
+            RangosFrias[i][2] = qFabs(VFCurvas[i+1]-VFCurvas[i]);
+        }
+    }
+    QVector < QVector < double > > sumCpCal;
+    n = VCCurvas.size() - 1;;
+    nfils = n;
+    ncols = VectorCalientesMATRIZ.size();//n; //corregido
+    sumCpCal.resize(nfils);
+    for(i = 0; i< sumCpCal.size(); i++)
+    {
+        sumCpCal[i].resize(ncols);
+    }
+    int l = 0;
+    int m = VectorCalientesMATRIZ.size();
+    for(i = 0; i < n ; i++)
+    {
+        int k=0;
+        for(j = 0; j < m ; j++){
+            if(VCCurvas[i]<= VectorCalientesMATRIZ[j][0]-.1 && VCCurvas[i]>= VectorCalientesMATRIZ[j][1]-.1)
+            {
+                sumCpCal[l][k] = VectorCalientesMATRIZ[j][2];
+            }else{
+                sumCpCal[l][k] = 0;
+            }
+            k++;
+        }
+        l++;
+    }
+    // SUMCPFRI
+    QVector < QVector < double > > sumCpFri;
+    n = VFCurvas.size() - 1;
+    nfils = n;
+    ncols = VectorFriasMATRIZ.size();
+    sumCpFri.resize(nfils);
+    for(i = 0; i< sumCpFri.size(); i++)
+    {
+        sumCpFri[i].resize(ncols);
+    }
+    int l1=0;
+    m = VectorFriasMATRIZ.size();
+    for(i = 0; i < n ; i++)
+    {
+        int k1=0;
+        for(j = 0; j < m ; j++){
+            if(VFCurvas[i]>= VectorFriasMATRIZ[j][0]-.1 && VFCurvas[i]<= VectorFriasMATRIZ[j][1]-.1 )
+            {
+                sumCpFri[l1][k1] = VectorFriasMATRIZ[j][2];
+            }else{
+                sumCpFri[l1][k1] = 0;
+            }
+            k1++;
+        }
+        l1++;
+    }
+    //MODIFICADO
+    QVector<double> CpcurvaHot;
+    CpcurvaHot.resize(sumCpCal.size());
+    n = sumCpCal.size();
+    for(i = 0; i < n ; i++){
+        CpcurvaHot[i] = 0;
+        for(j = 0 ; j < sumCpCal[0].size();j++){
+            CpcurvaHot[i] = CpcurvaHot[i] + sumCpCal[i][j];
+        }
+    }
+    QVector<double> CpcurvaCold;
+    CpcurvaCold.resize(sumCpFri.size());
+    n = sumCpFri.size();
+    for(i = 0; i < n ; i++){
+        CpcurvaCold[i] = 0;
+        for(j = 0 ; j < sumCpFri[0].size();j++){
+            CpcurvaCold[i] = CpcurvaCold[i] + sumCpFri[i][j];
+        }
+    }
+    QVector<double> Val1;
+    n = CpcurvaCold.size();
+    for(i=0; i < n ; i++){
+        Val1 << RangosFrias[i][2] * CpcurvaCold[i];
+    }
+    QVector<double> Val2;
+    n = CpcurvaHot.size();
+    for(i=0; i < n ; i++){
+        Val2 << RangosCalientes[i][2] * CpcurvaHot[i];
+    }
+    QVector<QVector<double>> PUNTOSCF, PUNTOSCC;
+    // PUNTOS CORRIENTES FRIAS
+    n = RangosFrias.size();
+    nfils = n;
+    ncols = 4;
+    PUNTOSCF.resize(nfils);
+    for(i = 0; i < nfils; i++)
+    {
+        PUNTOSCF[i].resize(ncols);
+    }
+    for(i = 0; i < n ; i++)
+    {
+        PUNTOSCF[i][0] = RangosFrias[i][0];
+        PUNTOSCF[i][1] = RangosFrias[i][1];
+        PUNTOSCF[i][2] = RangosFrias[i][2];
+        PUNTOSCF[i][3] = RangosFrias[i][2]*CpcurvaCold[i];
+    }
+    // PUNTOS CORRIENTES CALIENNTES
+    n = RangosCalientes.size();
+    nfils = n;
+    ncols = 4;
+    PUNTOSCC.resize(nfils);
+    for(i = 0; i < nfils; i++){
+        PUNTOSCC[i].resize(ncols);
+    }
+    for(i = 0 ; i < n; i++){
+        PUNTOSCC[i][0] = RangosCalientes[i][0];
+        PUNTOSCC[i][1] = RangosCalientes[i][1];
+        PUNTOSCC[i][2] = RangosCalientes[i][2];
+        PUNTOSCC[i][3] = RangosCalientes[i][2]*CpcurvaHot[i];
+    }
+    // HASTA AQUI ES PARA CURVAS COMPUESTAS
+    QVector<QVector<double>> VectorCalientesTmin;
+    VectorCalientesTmin.resize(VCCurvasT.size());
+    nfils = VCCurvasT.size();
+    ncols = 2;
+    for(i = 0; i < nfils; i++){
+        VectorCalientesTmin[i].resize(ncols);
+    }
+    k = VCCurvasT.size()-1;
+    for(i = 0; i < nfils; i++){
+        VectorCalientesTmin[i][0] = VCCurvasT[k]-DTmin;
+        VectorCalientesTmin[i][1] = VCCurvasT[k];
+        --k;
+    }
+    QVector<QVector<double>> VectorFriasTmin;
+    VectorFriasTmin.resize(VFCurvasT.size());
+    nfils = VFCurvasT.size();
+    ncols = 2;
+    for(i = 0; i < nfils; i++){
+        VectorFriasTmin[i].resize(ncols);
+    }
+    k = VFCurvasT.size()-1;
+    for(i = 0; i < nfils; i++){
+        VectorFriasTmin[i][0] = VFCurvasT[k];
+        VectorFriasTmin[i][1] = VFCurvasT[k]+DTmin;
+        --k;
+    }
+    QVector<QVector<double>> VectorCorrientesTotal;
+    nfils = VCCurvasT.size() + VFCurvasT.size();
+    ncols = 2;
+    VectorCorrientesTotal.resize(nfils);
+    MVectorCorrientesTotal.resize(nfils);
+    for(i = 0; i < nfils ; i++){
+        VectorCorrientesTotal[i].resize(ncols);
+        MVectorCorrientesTotal[i].resize(ncols);
+    }
+    j=0;
+    k=0;
+    for(i = 0; i < nfils ; i++){
+        if(i < VectorCalientesTmin.size()){
+            VectorCorrientesTotal[i][0] = VectorCalientesTmin[j][0];
+            VectorCorrientesTotal[i][1] = VectorCalientesTmin[j][1];
+            ++j;
+        }else{
+            VectorCorrientesTotal[i][0] = VectorFriasTmin[k][0];
+            VectorCorrientesTotal[i][1] = VectorFriasTmin[k][1];
+            ++k;
+        }
+    }
+    std::sort(VectorCorrientesTotal.begin(),VectorCorrientesTotal.end());
+    QVector<QVector<double>> VectorCorrientesTotalOrdenar;
+    nfils = VectorCorrientesTotal.size();
+    ncols = 2;
+    VectorCorrientesTotalOrdenar.resize(nfils);
+    for(i = 0; i < nfils ; i++){
+        VectorCorrientesTotalOrdenar[i].resize(ncols);
+    }
+    k = VectorCorrientesTotal.size()-1;
+    for(i = 0; i < nfils ; i++){
+        VectorCorrientesTotalOrdenar[i][0] = VectorCorrientesTotal[k][0];
+        VectorCorrientesTotalOrdenar[i][1] = VectorCorrientesTotal[k][1];
+        --k;
+    }
+    VectorCorrientesTotal = VectorCorrientesTotalOrdenar;
+    MVectorCorrientesTotal = VectorCorrientesTotal;
+    int r3 = VectorCorrientesTotal.size();
+    int r4 = VCC.size();
+    //FORMAR LA MATRIZ PARA SUMCPCAL
+    QVector<QVector<double>> sumCpCalTab;
+    nfils = VectorCorrientesTotal.size()-1;
+    ncols = VCC.size();//2;
+    sumCpCalTab.resize(nfils);
+    for( i = 0; i < nfils; i++){
+        sumCpCalTab[i].resize(ncols);
+    }
+    l = 0;
+    for( i = 1; i < r3; ++i){
+        k = 0;
+        for(j = 0; j < r4; ++j){
+            if(VectorCorrientesTotal[i][1] <= VCC[j][0]-.1 && VectorCorrientesTotal[i][1] >= VCC[j][1]-.1 ){
+                sumCpCalTab[l][k] = VectorCalientesMATRIZ[j][2];
+            }else{
+                sumCpCalTab[l][k] = 0.0 ;
+            }
+            ++k;
+        }
+        ++l;
+    }
+    QVector<QVector<double>> sumCpFriTab;
+    nfils = VectorCorrientesTotal.size()-1;
+    ncols = VFC.size();//2;
+    sumCpFriTab.resize(nfils);
+    for( i = 0; i < nfils; i++){
+        sumCpFriTab[i].resize(ncols);
+    }
+    l = 0;
+    int r5 = VFC.size();
+    for( i = 1; i < r3; ++i){
+        k = 0;
+        for(j = 0; j < r5; ++j){
+            if(VectorCorrientesTotal[i][0] <= VFC[j][1]-.1 && VectorCorrientesTotal[i][0] >= VFC[j][0]-.1 ){
+                sumCpFriTab[l][k] = VectorFriasMATRIZ[j][2];
+            }else{
+                sumCpFriTab[l][k] = 0.0 ;
+            }
+            ++k;
+        }
+        ++l;
+    }
+    QVector<double> SumatoriaCP,SumatoriaCPCAL,SumatoriaCPFRI;
+    nfils = VectorCorrientesTotal.size()-1;
+    SumatoriaCP.resize(nfils);
+    SumatoriaCPCAL.resize(nfils);
+    SumatoriaCPFRI.resize(nfils);
+    for(i = 0; i < nfils ; i++){
+        SumatoriaCPCAL[i] = 0;
+        for(j = 0 ; j < sumCpCalTab[0].size();j++){
+            SumatoriaCPCAL[i] = SumatoriaCPCAL[i] + sumCpCalTab[i][j];
+        }
+    }
+    for(i = 0; i < nfils ; i++){
+        SumatoriaCPFRI[i] = 0;
+        for(j = 0 ; j < sumCpFriTab[0].size(); j++){
+            SumatoriaCPFRI[i] = SumatoriaCPFRI[i] + sumCpFriTab[i][j];
+        }
+    }
+    for(i = 0; i < nfils ; i++){
+        SumatoriaCP[i] = SumatoriaCPFRI[i] - SumatoriaCPCAL[i] ;
+    }
+    QVector<double> DifTemperaturas;
+    nfils = VectorCorrientesTotal.size()-1;
+    DifTemperaturas.resize(nfils);
+    j = 1;
+    for(i = 0; i < VectorCorrientesTotal.size() ; ++i){
+        if (j < VectorCorrientesTotal.size()){
+            DifTemperaturas[i] = VectorCorrientesTotal[i][1] - VectorCorrientesTotal[j][1];
+            ++j;
+        }else if(j == VectorCorrientesTotal.size()){
+            break;
+        }
+    }
+    QVector<double> Deficit;
+    nfils = DifTemperaturas.size();
+    Deficit.resize(DifTemperaturas.size());
+    MDeficit.resize(DifTemperaturas.size());
+    for( i = 0 ; i < nfils; ++i){
+        Deficit[i] = DifTemperaturas[i] * SumatoriaCP[i];
+        MDeficit[i] = Deficit[i];
+    }
+    int Ldef = Deficit.size();
+    QVector<QVector<double>> VecHeatFlow;
+    QVector<double> VAL1,VAL2;
+    nfils = DifTemperaturas.size();
+    ncols = 2;
+    VecHeatFlow.resize(nfils);
+    MVecHeatFlow.resize(nfils);
+    VAL1.resize(nfils+1);
+    VAL2.resize(nfils);
+    for(i = 0; i < nfils ; i++){
+        VecHeatFlow[i].resize(ncols);
+        MVecHeatFlow[i].resize(ncols);
+    }
+    VAL1[0]=0;
+    for(i = 0; i < Ldef ; i++){
+        VAL2[i] = VAL1[i] - Deficit[i];
+        VAL1[i+1] = VAL2[i];
+        VecHeatFlow[i][0] = VAL1[i]; // Val1
+        VecHeatFlow[i][1] = VAL2[i]; // Val2
+        MVecHeatFlow[i][0] = VecHeatFlow[i][0];
+        MVecHeatFlow[i][1] = VecHeatFlow[i][1];
+    }
+    double min = *std::min_element(VAL2.begin(),VAL2.end());
+    VAL1.clear();
+    VAL2.clear();
+    VAL1.resize(nfils+1);
+    VAL2.resize(nfils);
+    QVector<QVector<double>> VecAdjHeatFlow;
+    nfils = DifTemperaturas.size();
+    ncols = 2;
+    VecAdjHeatFlow.resize(nfils);
+    MVecAdjHeatFlow.resize(nfils);
+    for(i = 0; i < nfils ; i++){
+        VecAdjHeatFlow[i].resize(ncols);
+        MVecAdjHeatFlow[i].resize(ncols);
+    }
+    VAL1[0]= qFabs(min);
+    for(i = 0; i < Ldef ; i++){
+        VAL2[i] = VAL1[i] - Deficit[i];
+        VAL1[i+1] = VAL2[i];
+        VecAdjHeatFlow[i][0] = VAL1[i]; // Val1
+        VecAdjHeatFlow[i][1] = VAL2[i]; // Val2 ;
+        MVecAdjHeatFlow[i][0] = VecAdjHeatFlow[i][0];
+        MVecAdjHeatFlow[i][1] = VecAdjHeatFlow[i][1];
+    }
+    // PUNTOS DE LA CURVAS COMPUESTAS
+    QVector<double> PuntosCurvasC,PuntosCurvasF;
+    n = PUNTOSCC.size();
+    PuntosCurvasC.resize(PUNTOSCC.size()+1);
+    PuntosCurvasC[0] = 0;
+    for(i = 0 ; i < n; i++){
+        PuntosCurvasC[i+1] = PuntosCurvasC[i] + PUNTOSCC[i][3];
+    }
+    n = PUNTOSCF.size();
+    PuntosCurvasF.resize(PUNTOSCF.size()+1);
+    //double max = *std::max_element(VAL2.begin(),VAL2.end());
+    double max = VecAdjHeatFlow[VecAdjHeatFlow.size()-1][1];
+    PuntosCurvasF[0] = max ;
+    for(i = 0; i < n; i++){
+        PuntosCurvasF[i+1] = PuntosCurvasF[i] + PUNTOSCF[i][3];
+    }
+    MCCENTALPIA.resize(PuntosCurvasC.size());
+    MCCTEMPERATURAS.resize(VCCurvas.size());
+    for ( int i = 0 ; i < PuntosCurvasC.size() ; i++){
+        MCCENTALPIA[i] = PuntosCurvasC[i];
+        MCCTEMPERATURAS[i] = VCCurvas[i];
+    }
+    MCFENTALPIAAJUSTADA.resize(PuntosCurvasF.size());
+    MCFTEMPERATURASAJUSTADA.resize(VFCurvas.size());
+    for ( int i = 0 ; i < PuntosCurvasF.size() ; i++){
+        MCFENTALPIAAJUSTADA[i] = PuntosCurvasF[i];
+        MCFTEMPERATURASAJUSTADA[i] = VFCurvas[i];
+    }
+}
+
+QVector<double> Pre_Grid_UNIFORME::getCCENTALPIA()
+{
+    return MCCENTALPIA;
+}
+
+QVector<double> Pre_Grid_UNIFORME::getCCTEMPERATURAS()
+{
+    return MCCTEMPERATURAS;
+}
+
+QVector<double> Pre_Grid_UNIFORME::getCFENTALPIAAJUSTADAS()
+{
+    return MCFENTALPIAAJUSTADA;
+}
+
+QVector<double> Pre_Grid_UNIFORME::getCFTEMPERATURASAJUSTADAS()
+{
+    return MCFTEMPERATURASAJUSTADA;
+}
+
+QVector<QVector<double> > Pre_Grid_UNIFORME::getVectorCorrientesTotal()
+{
+    return MVectorCorrientesTotal;
+}
+
+QVector<QVector<double> > Pre_Grid_UNIFORME::getVecHeatFlow()
+{
+    return MVecHeatFlow;
+}
+
+QVector<QVector<double> > Pre_Grid_UNIFORME::getVecAdjHeatFlow()
+{
+    return MVecAdjHeatFlow;
+}
+
+QVector<double> Pre_Grid_UNIFORME::getDeficit()
+{
+    return MDeficit;
+}
+
+QVector<QVector<double> > Pre_Grid_UNIFORME::getVectorCalientesMATRIZ()
+{
+    return MVectorCalientesMATRIZ;
+}
+
+QVector<QVector<double> > Pre_Grid_UNIFORME::getVectorFriasMATRIZ()
+{
+    return MVectorFriasMATRIZ;
+}
+
+Grid_Costos_Uniforme::Grid_Costos_Uniforme(QVector<double> Tsupply, QVector<double> Ttarget, QVector<double> Cp,
+                                           QVector<double> h, QVector<double> Calentamiento,
+                                           QVector<QVector<double> > CapitalCost, QVector<double> OperationCost,
+                                           QVector<double> Enfriamento, QVector<QVector<double> > Uniones,
+                                           QVector<QVector<double> > Servicios, int CTo, int CCo, bool SI, bool SIS)
+{
+    QVector<double> VectorCalientes, VectorCalientesCp;
+    QVector<double> VectorFrias,VectorFriasCp, VCCurvas,VFCurvas;
+    int i,j,n,nfils,ncols,Pares,contador,k;
+    n = Tsupply.size();
+    for (i = 0; i < n ; ++i)
+    {
+        if(Tsupply[i] >= Ttarget[i])
+        {
+            VectorCalientesCp << Tsupply[i] << Ttarget[i] << Cp[i] << h[i];
+            VectorCalientes << Tsupply[i] << Ttarget[i];
+        }
+        if(Tsupply[i] <= Ttarget[i])
+        {
+            VectorFriasCp << Tsupply[i] << Ttarget[i] << Cp[i] << h[i];
+            VectorFrias << Tsupply[i] << Ttarget[i];
+        }
+        j++;
+    }
+    QVector < QVector <double> > VectorCalientesMATRIZ;
+    Pares = VectorCalientesCp.size();
+    nfils = Pares/4;
+    ncols = 4;
+    VectorCalientesMATRIZ.resize(nfils);
+    for(i = 0; i< VectorCalientesMATRIZ.size(); i++)
+    {
+        VectorCalientesMATRIZ[i].resize(ncols);
+    }
+    contador = 0;
+    for(int i = 0; i < VectorCalientesMATRIZ.size(); i++)
+    {
+        for(int j = 0; j < VectorCalientesMATRIZ.at(i).size(); j++)
+        {
+            VectorCalientesMATRIZ[i][j] = VectorCalientesCp[contador];
+            contador++;
+        }
+    }
+    QVector < QVector <double > > VectorFriasMATRIZ;
+    Pares = VectorFriasCp.size();
+    nfils = Pares/4;
+    ncols = 4;
+    VectorFriasMATRIZ.resize(nfils);
+    for(i = 0; i<  VectorFriasMATRIZ.size(); i++)
+    {
+        VectorFriasMATRIZ[i].resize(ncols);
+    }
+    contador = 0;
+    for(i = 0; i <  VectorFriasMATRIZ.size(); i++)
+    {
+        for(j = 0; j <  VectorFriasMATRIZ.at(i).size(); j++)
+        {
+            VectorFriasMATRIZ[i][j] = VectorFriasCp[contador];
+            contador++;
+        }
+    }
+    QVector<QVector<double>> INTERVALOS_AGRUPADOS;
+    nfils = Uniones.size() + Servicios.size();
+    ncols = 4;
+    INTERVALOS_AGRUPADOS.resize(nfils);
+    for ( i = 0; i < nfils ; i++){
+        INTERVALOS_AGRUPADOS[i].resize(ncols);
+    }
+    contador = 0;
+    ncols = 4;
+    for(int i = contador; i < Uniones.size() ; i++){
+        k = 4;
+        for(int j = 0; j < ncols ; j ++){
+            INTERVALOS_AGRUPADOS[i][j] = Uniones[i][k];
+            k++;
+        }
+    }
+    contador = Uniones.size();
+    int total = Uniones.size() + Servicios.size();
+    ncols = 4;
+    int l = 0;
+    for(int i = contador ;  i < total; i++){
+        k = 2;
+        for(int j = 0; j < ncols; j++){
+            INTERVALOS_AGRUPADOS[i][j] = Servicios[l][k] ;
+            k++;
+        }
+        l++;
+    }
+    QVector<QVector<double>> Entalpia;
+    nfils = Uniones.size() + Servicios.size();
+    Entalpia.resize(nfils);
+    for(int i = 0; i < Entalpia.size(); i++){
+        Entalpia[i].resize(4);
+    }
+    contador = 0;
+    for(int i = contador; i < Uniones.size() ; i ++){
+        Entalpia[i][0] = 2 ; // ES UNA UNION
+        Entalpia[i][1] = Uniones[i][8]; //CARGA ENERGETICA
+        Entalpia[i][2] = Uniones[i][10]; //H CAL
+        Entalpia[i][3] = Uniones[i][12]; //H FRI
+    }
+    contador = Uniones.size();
+    k = 0;
+    for(int i = contador; i < total; i++){
+        Entalpia[i][0] = Servicios[k][1];
+        Entalpia[i][1] = Servicios[k][6];
+        Entalpia[i][2] = Servicios[k][7] ; // H CORRIENTE Cal o Fri
+        if(Servicios[k][1] == 0 ){
+            Entalpia[i][3] = Calentamiento[2];
+        }else if(Servicios[k][1] == 1){
+            Entalpia[i][3] = Enfriamento[2];
+        }
+        k++;
+    }
+    double Delta2,Delta1;
+    QVector<double> DTm;
+    int r1 = INTERVALOS_AGRUPADOS.size();
+    DTm.resize(r1);
+    if(CTo==1){
+        for(i=0; i < r1; i++){
+            Delta2= qFabs(INTERVALOS_AGRUPADOS[i][0]-INTERVALOS_AGRUPADOS[i][3]);
+            Delta1= qFabs(INTERVALOS_AGRUPADOS[i][1]-INTERVALOS_AGRUPADOS[i][2]);
+            DTm[i] = qFabs((Delta2-Delta1)/(log(Delta2/Delta1)));
+            if(DTm[i] != DTm[i]){
+                DTm[i] = (qFabs(Delta2) + qFabs(Delta1))/ 2;
+            }
+        }
+    }else if(CCo==1){
+//        for(i=0; i < r1; i++){
+//            Delta2= qFabs(INTERVALOS_AGRUPADOS[i][3]-INTERVALOS_AGRUPADOS[i][1]);
+//            Delta1= qFabs(INTERVALOS_AGRUPADOS[i][0]-INTERVALOS_AGRUPADOS[i][2]);
+//            DTm[i] = qFabs((Delta2-Delta1)/(log(Delta2/Delta1)));
+//            if(DTm[i] != DTm[i]){
+//                DTm[i] = (qFabs(Delta2) + qFabs(Delta1))/ 2;
+//            }
+//        }
+    }
+    QVector<double> EntalpiaCalculada;
+    EntalpiaCalculada.resize(Entalpia.size());
+    for(int i = 0; i < Entalpia.size(); i++){
+        EntalpiaCalculada[i] = Entalpia[i][1]/Entalpia[i][2]  + Entalpia[i][1]/Entalpia[i][3];
+    }
+    QVector<double> Areas;
+    Areas.resize(EntalpiaCalculada.size());
+    for ( i = 0 ; i < EntalpiaCalculada.size(); i++){
+        Areas[i] = EntalpiaCalculada[i] / DTm[i];
+    }
+    //AGLOMERADO DE AREA
+    double AC = 0, QC = 0;
+    MQC = 0, MAC = 0;
+    double AR = 0, QR = 0;
+    MAR = 0, MQR = 0;
+    double AH = 0, QH = 0;
+    MAH = 0, MQH = 0;
+    for(int i = 0; i < EntalpiaCalculada.size() ; i++){
+        if(Entalpia[i][0] == 2){ //RECUPERACION
+            AR = AR + Areas[i];
+            QR = QR + Entalpia[i][1];
+            MAR = MAR + Areas[i];
+            MQR = MQR + Entalpia[i][1];
+        }else if(Entalpia[i][0] == 0){ //CALENTAMIENTO
+            AH = AH + Areas[i];
+            QR = QR + Entalpia[i][1];
+            MAH = MAH + Areas[i];
+            MQH = MQH + Entalpia[i][1];
+        }else if(Entalpia[i][0] == 1){ // ENFRIAMENTO
+            AC = AC + Areas[i];
+            QC = QC + Entalpia[i][1];
+            MAC = MAC + Areas[i];
+            MQC = MQC + Entalpia[i][1];
+        }
+    }
+    nfils = CapitalCost[0].size();
+    if(nfils == 5){
+        //COSTOS DE CAPITAL ANUALIZADOS
+        double Xfactor = pow(1+ CapitalCost[0][3] ,CapitalCost[0][4]);
+        double FactorAnual =( CapitalCost[0][3]* Xfactor )/( Xfactor - 1);
+        double CapCos1 = (CapitalCost[0][0] + CapitalCost[0][1]* pow(AC,CapitalCost[0][2])) * FactorAnual;
+        MCapCos1 = CapCos1;
+        Xfactor = pow(1+ CapitalCost[1][3] ,CapitalCost[1][4]);
+        FactorAnual =( CapitalCost[1][3]* Xfactor )/( Xfactor - 1);
+        double CapCos2 =( CapitalCost[1][0] + CapitalCost[1][1]* pow(AR,CapitalCost[1][2]))* FactorAnual;
+        MCapCos2 = CapCos2;
+        Xfactor = pow(1+ CapitalCost[2][3] ,CapitalCost[2][4]);
+        FactorAnual =( CapitalCost[2][3]* Xfactor )/( Xfactor - 1);
+        double CapCos3 =( CapitalCost[2][0] + CapitalCost[2][1]* pow(AH,CapitalCost[2][2]))* FactorAnual;
+        MCapCos3 = CapCos3;
+        MCostoCapitalTotal = CapCos1 + CapCos2 + CapCos3;
+        //COSTOS DE OPERACION
+        if(SI == true){
+            double OpeCosC =  QC * (24 * 364) * OperationCost[0]; // Calentamiento
+            double OpeCosH =  QH * (24 * 364) * OperationCost[1]; // Enfriamiento
+            MOpeCosC = OpeCosC;
+            MOpeCosH = MOpeCosH;
+            MCostoOperacionTotal = OpeCosC + OpeCosH;
+        }else if(SIS == true){
+            //double OpeCosC =  QC * (24 * 364) * OperationCost[0]; // Calentamiento
+            //double OpeCosH =  QH * (24 * 364) * OperationCost[1]; // Enfriamiento
+        }
+        MCostoTotal = MCostoOperacionTotal + MCostoCapitalTotal ;
+    }else if(nfils == 4){
+
+    }
+}
+
+double Grid_Costos_Uniforme::getCostoTotal()
+{
+    return MCostoTotal;
+}
+
+double Grid_Costos_Uniforme::getCostoOperacionTotal()
+{
+    return MCostoOperacionTotal;
+}
+
+double Grid_Costos_Uniforme::getCostoCapitalTotal()
+{
+    return MCostoCapitalTotal;
+}
+
+double Grid_Costos_Uniforme::getOpeCosC()
+{
+    return MOpeCosC;
+}
+
+double Grid_Costos_Uniforme::getOpeCosH()
+{
+    return MOpeCosH;
+}
+
+double Grid_Costos_Uniforme::getCapCos3()
+{
+    return MCapCos3;
+}
+
+double Grid_Costos_Uniforme::getCapCos2()
+{
+    return MCapCos2;
+}
+
+double Grid_Costos_Uniforme::getCapCos1()
+{
+    return MCapCos1;
+}
+
+double Grid_Costos_Uniforme::getAH()
+{
+    return MAH;
+}
+
+double Grid_Costos_Uniforme::getAR()
+{
+    return MAR;
+}
+
+double Grid_Costos_Uniforme::getAC()
+{
+    return MAC;
+}
+
+double Grid_Costos_Uniforme::getQH()
+{
+    return MQH;
+}
+
+double Grid_Costos_Uniforme::getQR()
+{
+    return MQR;
+}
+
+double Grid_Costos_Uniforme::getQC()
+{
+    return MQC;
+}
+
+Pre_Grid_DIVERSO::Pre_Grid_DIVERSO(QVector<double> Tsupply, QVector<double> Ttarget, QVector<double> Cp,
+                                   QVector<double> h, double DTmin, double K, float punto1, float punto2)
+{
+    int i,j,n,nfils,ncols,Pares,contador,k;
+    Plot_curvascompuestasajustadas plot1(Tsupply,Ttarget,Cp,DTmin);
+    QVector<QVector<double>> VADHF = plot1.getVecAdjHeatFlow();
+    float UTILIDADCALENTAMIENTO = VADHF[0][0];
+    float UTILIDADFRIA = VADHF[VADHF.size()-1][1];
+    double ERROR;
+    float error1,error2,error3,error = 100.00, errorPasado = 100.00,tolerancia = 0.000001;
+    QVector<float> ValoresdeK,ValoresdeError;
+    ValoresdeK.resize(31);
+    ValoresdeError.resize(31);
+    i = 0;
+    int iterador = 0;
+    int min_pos;
+    while(error >= tolerancia ){//while(error >= tolerancia ){
+        float incremento = (punto2-punto1)/30.0;
+        ValoresdeK[0] = double (punto1);
+        for(int i = 1; i <= 30; i++){
+            ValoresdeK[i] = float (punto1 + incremento);
+            punto1 = punto1 + incremento;
+        }
+        for(int i = 0; i < ValoresdeK.size(); i++){
+            K = double (ValoresdeK[i]);
+            FindKvalue Ki(Tsupply,Ttarget,Cp,h,K,DTmin);
+            float KiUC = Ki.getUC();
+            float KiUF = Ki.getUF();
+            error1 = qFabs( ((UTILIDADCALENTAMIENTO - KiUC)/KiUC));
+            error2 = qFabs( ((UTILIDADFRIA - KiUF )/KiUF ));
+            error3 = error1 + error2;
+            ValoresdeError[i] = float (error3);
+        }
+        min_pos = std::distance(ValoresdeError.begin(),std::min_element(ValoresdeError.begin(),ValoresdeError.end()));
+        ERROR = *std::min_element(ValoresdeError.begin(),ValoresdeError.end()); //double
+        error = float (ERROR);
+        if(error == errorPasado){
+            break;
+        }
+        errorPasado = error;
+        if(error > tolerancia){
+            punto1 = ValoresdeK[min_pos]-incremento;
+            punto2 = ValoresdeK[min_pos]+incremento;
+            iterador = iterador +1;
+        }
+    }
+    MK = K;
+    K = ValoresdeK[min_pos];
+    QVector<double> DeltasTi;
+    n = Tsupply.size();
+    DeltasTi.resize(n);
+    for (i = 0; i < n; i++){
+        DeltasTi[i] = K / h[i];
+    }
+    QVector<double> VectorCalientes, VectorCalientesCp;
+    QVector<double> VectorFrias,VectorFriasCp, VCCurvas,VFCurvas;
+    n = Tsupply.size();
+    for (i = 0; i < n ; ++i)
+    {
+        if(Tsupply[i] >= Ttarget[i])
+        {
+            DeltasTi[i] =(K / (h[i]/1000));
+            Tsupply[i] = Tsupply[i] + (DTmin/2 - DeltasTi[i]);
+            Ttarget[i] = Ttarget[i] + (DTmin/2 - DeltasTi[i]);
+            VectorCalientesCp << Tsupply[i] << Ttarget[i] << Cp[i] << h[i];
+            VectorCalientes << Tsupply[i] << Ttarget[i];
+        }
+        if(Tsupply[i] <= Ttarget[i])
+        {
+            DeltasTi[i] =(K / (h[i]/1000));
+            Tsupply[i] = Tsupply[i] - (DTmin/2 - DeltasTi[i]);
+            Ttarget[i] = Ttarget[i] - (DTmin/2 - DeltasTi[i]);
+            VectorFriasCp << Tsupply[i] << Ttarget[i] << Cp[i] << h[i];
+            VectorFrias << Tsupply[i] << Ttarget[i];
+        }
+        j++;
+    }
+    QVector < QVector <double> > VectorCalientesMATRIZ;
+    Pares = VectorCalientesCp.size();
+    nfils = Pares/4;
+    ncols = 4;
+    VectorCalientesMATRIZ.resize(nfils);
+    MVectorCalientesMATRIZ.resize(nfils);
+    for(i = 0; i< VectorCalientesMATRIZ.size(); i++)
+    {
+        VectorCalientesMATRIZ[i].resize(ncols);
+        MVectorCalientesMATRIZ[i].resize(ncols);
+    }
+    contador = 0;
+    for(int i = 0; i < VectorCalientesMATRIZ.size(); i++)
+    {
+        for(int j = 0; j < VectorCalientesMATRIZ.at(i).size(); j++)
+        {
+            VectorCalientesMATRIZ[i][j] = VectorCalientesCp[contador];
+            MVectorCalientesMATRIZ[i][j] = VectorCalientesCp[contador];
+            contador++;
+        }
+    }
+    QVector < QVector <double > > VectorFriasMATRIZ;
+    Pares = VectorFriasCp.size();
+    nfils = Pares/4;
+    ncols = 4;
+    VectorFriasMATRIZ.resize(nfils);
+    MVectorFriasMATRIZ.resize(nfils);
+    for(i = 0; i<  VectorFriasMATRIZ.size(); i++)
+    {
+        VectorFriasMATRIZ[i].resize(ncols);
+        MVectorFriasMATRIZ[i].resize(ncols);
+    }
+    contador = 0;
+    for(i = 0; i <  VectorFriasMATRIZ.size(); i++)
+    {
+        for(j = 0; j <  VectorFriasMATRIZ.at(i).size(); j++)
+        {
+            VectorFriasMATRIZ[i][j] = VectorFriasCp[contador];
+            MVectorFriasMATRIZ[i][j] = VectorFriasCp[contador];
+            contador++;
+        }
+    }
+    QVector < QVector <double > > VCC,VFC;
+    Pares = VectorCalientes.size();
+    nfils = Pares/2;
+    ncols = 2;
+    VCC.resize(nfils);
+    for(i = 0; i <  nfils; i++)
+    {
+        VCC[i].resize(ncols);
+    }
+    k=0;
+    for(i = 0; i < nfils; i++){
+        VCC[i][0] = VectorCalientes[k];
+        k++;
+        VCC[i][1] = VectorCalientes[k];
+        k++;
+    }
+    Pares = VectorFrias.size();
+    nfils = Pares/2;
+    ncols = 2;
+    VFC.resize(nfils);
+    for(i = 0; i <  nfils; i++)
+    {
+        VFC[i].resize(ncols);
+    }
+    k=0;
+    for(i = 0; i < nfils; i++){
+        VFC[i][0] = VectorFrias[k];
+        k++;
+        VFC[i][1] = VectorFrias[k];
+        k++;
+    }
+    std::sort(VectorCalientes.begin(),VectorCalientes.end());
+    std::sort(VectorFrias.begin(),VectorFrias.end());
+    VCCurvas = VectorCalientes;
+    VFCurvas = VectorFrias;
+    QVector<double> VectorCalientesNuevo,VectorFriasNuevo;
+    VectorCalientesNuevo.resize(VectorCalientes.size());
+    k = VectorCalientes.size() - 1 ;
+    for( i = 0; i < VectorCalientes.size(); i++){
+        VectorCalientesNuevo[k] = VectorCalientes[i];
+        --k;
+    }
+    k = VectorFrias.size() - 1;
+    VectorFriasNuevo.resize(VectorFrias.size());
+    for( i = 0; i < VectorFrias.size(); i++){
+        VectorFriasNuevo[k] = VectorFrias[i];
+        --k;
+    }
+    n = VCCurvas.size();
+    for (i = 0; i < n; ++i){
+        for(j = 0; j < n; ++j){
+            if(i==j){
+            }else{
+                if (VCCurvas[i] == VCCurvas[j] ){
+                    QVector<double> VCCurvaslos;
+                    for (i = 0; i < j ; i++){
+                        VCCurvaslos << VCCurvas[i];
+                    }
+                    QVector<double> VCCurvashi;
+                    for (j = j + 1 ; j < n ; j++){
+                        VCCurvashi << VCCurvas[j];
+                    }
+                    VCCurvas.clear();
+                    VCCurvas = VCCurvaslos + VCCurvashi;
+                    VCCurvaslos.clear();
+                    VCCurvashi.clear();
+                    i=0;
+                    n = VCCurvas.size();
+                }
+            }
+        }
+    }
+    n = VFCurvas.size();
+    //ELIMINAR DUPLICADOS DE CORRIENTES FRIAS
+    for (i = 0; i < n; ++i){
+        for(j = 0; j < n; ++j){
+            if(i==j){
+            }else{
+                if (VFCurvas[i] == VFCurvas[j] ){
+                    QVector<double> VFCurvaslos;
+                    for (i = 0; i < j ; i++){
+                        VFCurvaslos << VFCurvas[i];
+                    }
+                    QVector<double> VFCurvashi;
+                    for (j = j + 1 ; j < n ; j++){
+                        VFCurvashi << VFCurvas[j];
+                    }
+                    VFCurvas.clear();
+                    VFCurvas = VFCurvaslos + VFCurvashi;
+                    VFCurvaslos.clear();
+                    VFCurvashi.clear();
+                    i=0;
+                    n = VFCurvas.size();
+                }
+            }
+        }
+    }
+    QVector<double> VCCurvasT = VCCurvas;
+    QVector<double> VFCurvasT = VFCurvas;
+    // SE FORMA LA MATRIZ DE RANGOS CALIENTES
+    QVector < QVector < double > > RangosCalientes;
+    n = VCCurvas.size();
+    nfils = n-1;
+    ncols = 3;
+    RangosCalientes.resize(nfils);
+    for(int i = 0; i< RangosCalientes.size(); i++)
+    {
+        RangosCalientes[i].resize(ncols);
+    }
+    for(int i = 0; i < RangosCalientes.size(); i++)
+    {
+        if(i <= (n-2)){
+            RangosCalientes[i][0] = VCCurvas[i] ;
+            RangosCalientes[i][1] = VCCurvas[i+1] ;
+            RangosCalientes[i][2] = qFabs(VCCurvas[i+1]-VCCurvas[i]);
+        }
+    }
+    // SE FORMA LA MATRIZ DE RANGOS FRIAS
+    QVector < QVector < double > > RangosFrias;
+    n = VFCurvas.size();
+    nfils = n-1,
+    ncols = 3;
+    RangosFrias.resize(nfils);
+    for(int i = 0; i< RangosFrias.size(); i++)
+    {
+        RangosFrias[i].resize(ncols);
+    }
+    for(int i = 0; i < RangosFrias.size(); i++)
+    {
+        if(i <= (n-2)){
+            RangosFrias[i][0] = VFCurvas[i] ;
+            RangosFrias[i][1] = VFCurvas[i+1] ;
+            RangosFrias[i][2] = qFabs(VFCurvas[i+1]-VFCurvas[i]);
+        }
+    }
+    QVector < QVector < double > > sumCpCal;
+    n = VCCurvas.size() - 1;;
+    nfils = n;
+    ncols = VectorCalientesMATRIZ.size();//2;
+    sumCpCal.resize(nfils);
+    for(i = 0; i< sumCpCal.size(); i++)
+    {
+        sumCpCal[i].resize(ncols);
+    }
+    int l=0;
+    int m =VectorCalientesMATRIZ.size();
+    for(i = 0; i < n ; i++)
+    {
+        int k=0;
+        for(j = 0; j < m ; j++){
+            if(VCCurvas[i]<= VectorCalientesMATRIZ[j][0]-.1 && VCCurvas[i]>= VectorCalientesMATRIZ[j][1]-.1 )
+            {
+                sumCpCal[l][k] = VectorCalientesMATRIZ[j][2];
+            }else{
+                sumCpCal[l][k] = 0;
+            }
+            k++;
+        }
+        l++;
+    }
+    // SUMCPFRI
+    QVector < QVector < double > > sumCpFri;
+    n = VFCurvas.size() - 1;
+    nfils = n;
+    ncols = VectorFriasMATRIZ.size();//2;
+    sumCpFri.resize(nfils);
+    for(i = 0; i< sumCpFri.size(); i++)
+    {
+        sumCpFri[i].resize(ncols);
+    }
+    int l1=0;
+    m = VectorFriasMATRIZ.size();
+    for(i = 0; i < n ; i++)
+    {
+        int k1=0;
+        for(j = 0; j < m ; j++){
+            if(VFCurvas[i]>= VectorFriasMATRIZ[j][0]-.1 && VFCurvas[i]<= VectorFriasMATRIZ[j][1]-.1 )
+            {
+                sumCpFri[l1][k1] = VectorFriasMATRIZ[j][2];
+            }else{
+                sumCpFri[l1][k1] = 0;
+            }
+            k1++;
+        }
+        l1++;
+    }
+    QVector<double> CpcurvaHot;
+    CpcurvaHot.resize(sumCpCal.size());
+    n = sumCpCal.size();
+    for(i = 0; i < n ; i++){
+        CpcurvaHot[i] = 0;
+        for(j = 0 ; j < sumCpCal[0].size();j++){
+            CpcurvaHot[i] = CpcurvaHot[i] + sumCpCal[i][j];
+        }
+    }
+    QVector<double> CpcurvaCold;
+    CpcurvaCold.resize(sumCpFri.size());
+    n = sumCpFri.size();
+    for(i = 0; i < n ; i++){
+        CpcurvaCold[i] = 0;
+        for(j = 0 ; j < sumCpFri[0].size();j++){
+            CpcurvaCold[i] = CpcurvaCold[i] + sumCpFri[i][j];
+        }
+    }
+    QVector<double> Val2;
+    n = CpcurvaHot.size();
+    for(i=0; i < n ; i++){
+        Val2 << RangosCalientes[i][2] * CpcurvaHot[i];
+    }
+    QVector<QVector<double>> PUNTOSCF, PUNTOSCC;
+    // PUNTOS CORRIENTES FRIAS
+    n = RangosFrias.size();
+    nfils = n;
+    ncols = 4;
+    PUNTOSCF.resize(nfils);
+    for(i = 0; i < nfils; i++)
+    {
+        PUNTOSCF[i].resize(ncols);
+    }
+    for(i = 0; i < n ; i++)
+    {
+        PUNTOSCF[i][0] = RangosFrias[i][0];
+        PUNTOSCF[i][1] = RangosFrias[i][1];
+        PUNTOSCF[i][2] = RangosFrias[i][2];
+        PUNTOSCF[i][3] = RangosFrias[i][2]*CpcurvaCold[i];
+    }
+    // PUNTOS CORRIENTES CALIENNTES
+    n = RangosCalientes.size();
+    nfils = n;
+    ncols = 4;
+    PUNTOSCC.resize(nfils);
+    for(i = 0; i < nfils; i++){
+        PUNTOSCC[i].resize(ncols);
+    }
+    for(i = 0 ; i < n; i++){
+        PUNTOSCC[i][0] = RangosCalientes[i][0];
+        PUNTOSCC[i][1] = RangosCalientes[i][1];
+        PUNTOSCC[i][2] = RangosCalientes[i][2];
+        PUNTOSCC[i][3] = RangosCalientes[i][2]*CpcurvaHot[i];
+    }
+    // HASTA AQUI ES PARA CURVAS COMPUESTAS
+    QVector<QVector<double>> VectorCalientesTmin;
+    VectorCalientesTmin.resize(VCCurvasT.size());
+    nfils = VCCurvasT.size();
+    ncols = 2;
+    for(i = 0; i < nfils; i++){
+        VectorCalientesTmin[i].resize(ncols);
+    }
+    k = VCCurvasT.size()-1;
+    for(i = 0; i < nfils; i++){
+        VectorCalientesTmin[i][0] = VCCurvasT[k]-DTmin;
+        VectorCalientesTmin[i][1] = VCCurvasT[k];
+        --k;
+    }
+    QVector<QVector<double>> VectorFriasTmin;
+    VectorFriasTmin.resize(VFCurvasT.size());
+    nfils = VFCurvasT.size();
+    ncols = 2;
+    for(i = 0; i < nfils; i++){
+        VectorFriasTmin[i].resize(ncols);
+    }
+    k = VFCurvasT.size()-1;
+    for(i = 0; i < nfils; i++){
+        VectorFriasTmin[i][0] = VFCurvasT[k];
+        VectorFriasTmin[i][1] = VFCurvasT[k]+DTmin;
+        --k;
+    }
+    QVector<QVector<double>> VectorCorrientesTotal;
+    nfils = VCCurvasT.size() + VFCurvasT.size();
+    ncols = 2;
+    VectorCorrientesTotal.resize(nfils);
+    MVectorCorrientesTotal.resize(nfils);
+    for(i = 0; i < nfils ; i++){
+        VectorCorrientesTotal[i].resize(ncols);
+        MVectorCorrientesTotal[i].resize(ncols);
+    }
+    j=0;
+    k=0;
+    for(i = 0; i < nfils ; i++){
+        if(i < VectorCalientesTmin.size()){
+            VectorCorrientesTotal[i][0] = VectorCalientesTmin[j][0];
+            VectorCorrientesTotal[i][1] = VectorCalientesTmin[j][1];
+            ++j;
+        }else{
+            VectorCorrientesTotal[i][0] = VectorFriasTmin[k][0];
+            VectorCorrientesTotal[i][1] = VectorFriasTmin[k][1];
+            ++k;
+        }
+    }
+    std::sort(VectorCorrientesTotal.begin(),VectorCorrientesTotal.end());
+    QVector<QVector<double>> VectorCorrientesTotalOrdenar;
+    nfils = VectorCorrientesTotal.size();
+    ncols = 2;
+    VectorCorrientesTotalOrdenar.resize(nfils);
+    for(i = 0; i < nfils ; i++){
+        VectorCorrientesTotalOrdenar[i].resize(ncols);
+    }
+    k = VectorCorrientesTotal.size()-1;
+    for(i = 0; i < nfils ; i++){
+        VectorCorrientesTotalOrdenar[i][0] = VectorCorrientesTotal[k][0];
+        VectorCorrientesTotalOrdenar[i][1] = VectorCorrientesTotal[k][1];
+        --k;
+    }
+    VectorCorrientesTotal = VectorCorrientesTotalOrdenar;
+    MVectorCorrientesTotal = VectorCorrientesTotal;
+    int r3 = VectorCorrientesTotal.size();
+    int r4 = VCC.size();
+    //FORMAR LA MATRIZ PARA SUMCPCAL
+    QVector<QVector<double>> sumCpCalTab;
+    nfils = VectorCorrientesTotal.size()-1;
+    ncols = VCC.size();//2;
+    sumCpCalTab.resize(nfils);
+    for( i = 0; i < nfils; i++){
+        sumCpCalTab[i].resize(ncols);
+    }
+    l = 0;
+    for( i = 1; i < r3; ++i){
+        k = 0;
+        for(j = 0; j < r4; ++j){
+            if(VectorCorrientesTotal[i][1] <= VCC[j][0]-.1 && VectorCorrientesTotal[i][1] >= VCC[j][1]-.1 ){
+                sumCpCalTab[l][k] = VectorCalientesMATRIZ[j][2];
+            }else{
+                sumCpCalTab[l][k] = 0.0 ;
+            }
+            ++k;
+        }
+        ++l;
+    }
+    QVector<QVector<double>> sumCpFriTab;
+    nfils = VectorCorrientesTotal.size()-1;
+    ncols = VFC.size();//2;
+    sumCpFriTab.resize(nfils);
+    for( i = 0; i < nfils; i++){
+        sumCpFriTab[i].resize(ncols);
+    }
+    l = 0;
+    int r5 = VFC.size();
+    for( i = 1; i < r3; ++i){
+        k = 0;
+        for(j = 0; j < r5; ++j){
+            if(VectorCorrientesTotal[i][0] <= VFC[j][1]-.1 && VectorCorrientesTotal[i][0] >= VFC[j][0]-.1 ){
+                sumCpFriTab[l][k] = VectorFriasMATRIZ[j][2];
+            }else{
+                sumCpFriTab[l][k] = 0.0 ;
+            }
+            ++k;
+        }
+        ++l;
+    }
+    QVector<double> SumatoriaCP,SumatoriaCPCAL,SumatoriaCPFRI;
+    nfils = VectorCorrientesTotal.size()-1;
+    SumatoriaCP.resize(nfils);
+    SumatoriaCPCAL.resize(nfils);
+    SumatoriaCPFRI.resize(nfils);
+    for(i = 0; i < nfils ; i++){
+        SumatoriaCPCAL[i] = 0;
+        for(j = 0 ; j < sumCpCalTab[0].size();j++){
+            SumatoriaCPCAL[i] = SumatoriaCPCAL[i] + sumCpCalTab[i][j];
+        }
+    }
+    for(i = 0; i < nfils ; i++){
+        SumatoriaCPFRI[i] = 0;
+        for(j = 0 ; j < sumCpFriTab[0].size(); j++){
+            SumatoriaCPFRI[i] = SumatoriaCPFRI[i] + sumCpFriTab[i][j];
+        }
+    }
+    for(i = 0; i < nfils ; i++){
+        SumatoriaCP[i] = SumatoriaCPFRI[i] - SumatoriaCPCAL[i] ;
+    }
+    QVector<double> DifTemperaturas;
+    nfils = VectorCorrientesTotal.size()-1;
+    DifTemperaturas.resize(nfils);
+    j = 1;
+    for(i = 0; i < VectorCorrientesTotal.size() ; ++i){
+        if (j < VectorCorrientesTotal.size()){
+            DifTemperaturas[i] = VectorCorrientesTotal[i][1] - VectorCorrientesTotal[j][1];
+            ++j;
+        }else if(j == VectorCorrientesTotal.size()){
+            break;
+        }
+    }
+    QVector<double> Deficit;
+    nfils = DifTemperaturas.size();
+    Deficit.resize(DifTemperaturas.size());
+    MDeficit.resize(DifTemperaturas.size());
+    for( i = 0 ; i < nfils; ++i){
+        Deficit[i] = DifTemperaturas[i] * SumatoriaCP[i];
+        MDeficit[i] = Deficit[i];
+    }
+    int Ldef = Deficit.size();
+    QVector<QVector<double>> VecHeatFlow;
+    QVector<double> VAL1,VAL2;
+    nfils = DifTemperaturas.size();
+    ncols = 2;
+    VecHeatFlow.resize(nfils);
+    MVecHeatFlow.resize(nfils);
+    VAL1.resize(nfils+1);
+    VAL2.resize(nfils);
+    for(i = 0; i < nfils ; i++){
+        VecHeatFlow[i].resize(ncols);
+        MVecHeatFlow[i].resize(ncols);
+    }
+    VAL1[0]=0;
+    for(i = 0; i < Ldef ; i++){
+        VAL2[i] = VAL1[i] - Deficit[i];
+        VAL1[i+1] = VAL2[i];
+        VecHeatFlow[i][0] = VAL1[i]; // Val1
+        VecHeatFlow[i][1] = VAL2[i]; // Val2
+        MVecHeatFlow[i][0] = VecHeatFlow[i][0];
+        MVecHeatFlow[i][1] = VecHeatFlow[i][1];
+    }
+    double min = *std::min_element(VAL2.begin(),VAL2.end());
+    VAL1.clear();
+    VAL2.clear();
+    VAL1.resize(nfils+1);
+    VAL2.resize(nfils);
+    QVector<QVector<double>> VecAdjHeatFlow;
+    nfils = DifTemperaturas.size();
+    ncols = 2;
+    VecAdjHeatFlow.resize(nfils);
+    MVecAdjHeatFlow.resize(nfils);
+    for(i = 0; i < nfils ; i++){
+        VecAdjHeatFlow[i].resize(ncols);
+        MVecAdjHeatFlow[i].resize(ncols);
+    }
+    VAL1[0]= qFabs(min);
+    for(i = 0; i < Ldef ; i++){
+        VAL2[i] = VAL1[i] - Deficit[i];
+        VAL1[i+1] = VAL2[i];
+        VecAdjHeatFlow[i][0] = VAL1[i]; // Val1
+        VecAdjHeatFlow[i][1] = VAL2[i]; // Val2
+        MVecAdjHeatFlow[i][0] = VecAdjHeatFlow[i][0];
+        MVecAdjHeatFlow[i][1] = VecAdjHeatFlow[i][1];
+    }
+    // PUNTOS DE LA CURVAS COMPUESTAS
+    QVector<double> PuntosCurvasC,PuntosCurvasF;
+    n = PUNTOSCC.size();
+    PuntosCurvasC.resize(PUNTOSCC.size()+1);
+    PuntosCurvasC[0] = 0;
+    for(i = 0 ; i < n; i++){
+        PuntosCurvasC[i+1] = PuntosCurvasC[i] + PUNTOSCC[i][3];
+    }
+    n = PUNTOSCF.size();
+    PuntosCurvasF.resize(PUNTOSCF.size()+1);
+    double max = VecAdjHeatFlow[VecAdjHeatFlow.size()-1][1];
+    PuntosCurvasF[0] = max ;
+    for(i = 0; i < n; i++){
+        PuntosCurvasF[i+1] = PuntosCurvasF[i] + PUNTOSCF[i][3];
+    }
+    MCCENTALPIA.resize(PuntosCurvasC.size());
+    MCCTEMPERATURAS.resize(VCCurvas.size());
+    for ( int i = 0 ; i < PuntosCurvasC.size() ; i++){
+        MCCENTALPIA[i] = PuntosCurvasC[i];
+        MCCTEMPERATURAS[i] = VCCurvas[i] - DTmin/2;
+    }
+    MCFENTALPIAAJUSTADA.resize(PuntosCurvasF.size());
+    MCFTEMPERATURASAJUSTADA.resize(VFCurvas.size());
+    for ( int i = 0 ; i < PuntosCurvasF.size() ; i++){
+        MCFENTALPIAAJUSTADA[i] = PuntosCurvasF[i];
+        MCFTEMPERATURASAJUSTADA[i] = VFCurvas[i] + DTmin/2;
+    }
+}
+
+QVector<QVector<double> > Pre_Grid_DIVERSO::getVectorCorrientesTotal()
+{
+    return MVectorCorrientesTotal;
+}
+
+QVector<QVector<double> > Pre_Grid_DIVERSO::getVecAdjHeatFlow()
+{
+    return MVecAdjHeatFlow;
+}
+
+double Pre_Grid_DIVERSO::getK()
+{
+    return MK;
+}
+
+QVector<QVector<double> > Pre_Grid_DIVERSO::getVectorCalientesMATRIZ()
+{
+    return MVectorCalientesMATRIZ;
+}
+
+QVector<QVector<double> > Pre_Grid_DIVERSO::getVectorFriasMATRIZ()
+{
+    return MVectorFriasMATRIZ;
+}
+
+Grid_Areas_Diversa::Grid_Areas_Diversa(QVector<double> Tsupply, QVector<double> Ttarget,
+                                       QVector<double> Cp, QVector<double> h,
+                                       QVector<double> Calentamiento,
+                                       QVector<double> Enfriamento,
+                                       QVector<QVector<double> > Uniones,
+                                       QVector<QVector<double> > Servicios, double K, double DTmin, float punto1, float punto2)
+{
+    int i,j,n,nfils,ncols,Pares,contador,k;
+    QVector<double> VectorCalientes, VectorCalientesCp;
+    QVector<double> VectorFrias,VectorFriasCp;
+    QVector<double> DeltasTi;
+    Plot_curvascompuestasajustadas plot1(Tsupply,Ttarget,Cp,DTmin);
+    QVector<QVector<double>> VADHF = plot1.getVecAdjHeatFlow();
+    float UTILIDADCALENTAMIENTO = VADHF[0][0];
+    float UTILIDADFRIA = VADHF[VADHF.size()-1][1];
+    double ERROR;
+    float error1,error2,error3,error = 100.00, errorPasado = 100.00,tolerancia = 0.000001;
+    QVector<float> ValoresdeK,ValoresdeError;
+    ValoresdeK.resize(31);
+    ValoresdeError.resize(31);
+    i = 0;
+    int iterador = 0;
+    int min_pos;
+    while(error >= tolerancia ){
+        float incremento = (punto2-punto1)/30.0;
+        ValoresdeK[0] = double (punto1);
+        for(int i = 1; i <= 30; i++){
+            ValoresdeK[i] = float (punto1 + incremento);
+            punto1 = punto1 + incremento;
+        }
+        for(int i = 0; i < ValoresdeK.size(); i++){
+            K = double (ValoresdeK[i]);
+            FindKvalue Ki(Tsupply,Ttarget,Cp,h,K,DTmin);
+            float KiUC = Ki.getUC();
+            float KiUF = Ki.getUF();
+            error1 = qFabs( ((UTILIDADCALENTAMIENTO - KiUC)/KiUC));
+            error2 = qFabs( ((UTILIDADFRIA - KiUF )/KiUF ));
+            error3 = error1 + error2;
+            ValoresdeError[i] = float (error3);
+        }
+        min_pos = std::distance(ValoresdeError.begin(),std::min_element(ValoresdeError.begin(),ValoresdeError.end()));
+        ERROR = *std::min_element(ValoresdeError.begin(),ValoresdeError.end()); //double
+        error = float (ERROR);
+        if(error == errorPasado){
+            break;
+        }
+        errorPasado = error;
+        if(error > tolerancia){
+            punto1 = ValoresdeK[min_pos]-incremento;
+            punto2 = ValoresdeK[min_pos]+incremento;
+            iterador = iterador +1;
+        }
+    }
+    MK = ValoresdeK[min_pos];
+    K = ValoresdeK[min_pos];
+    n = Tsupply.size();
+    DeltasTi.resize(n);
+    Calentamiento[0] = Calentamiento[0] + (DTmin/2 - (K/(Calentamiento[2]/1000)) ) ;
+    Calentamiento[1] = Calentamiento[1] + (DTmin/2 - (K/(Calentamiento[2]/1000)) ) ;
+    Enfriamento[0] = Enfriamento[0] - (DTmin/2 - (K/(Enfriamento[2]/1000)) ) ;
+    Enfriamento[1] = Enfriamento[1] - (DTmin/2 - (K/(Enfriamento[2]/1000)) );
+    for (i = 0; i < n; i++){
+        DeltasTi[i] = (K / (h[i]/1000));
+    }
+    for (i = 0; i < n ; ++i)
+    {
+        if(Tsupply[i] >= Ttarget[i])
+        {
+            DeltasTi[i] = (K / (h[i]/1000));
+            Tsupply[i] = Tsupply[i] + (DTmin/2 - DeltasTi[i]);
+            Ttarget[i] = Ttarget[i] + (DTmin/2 - DeltasTi[i]);
+            VectorCalientesCp << Tsupply[i] << Ttarget[i] << Cp[i] << h[i];
+            VectorCalientes << Tsupply[i] << Ttarget[i];
+        }
+        if(Tsupply[i] <= Ttarget[i])
+        {
+            DeltasTi[i] = (K / (h[i]/1000));
+            Tsupply[i] = Tsupply[i] - (DTmin/2 - DeltasTi[i]);
+            Ttarget[i] = Ttarget[i] - (DTmin/2 - DeltasTi[i]);
+            VectorFriasCp << Tsupply[i] << Ttarget[i] << Cp[i] << h[i];
+            VectorFrias << Tsupply[i] << Ttarget[i];
+        }
+        j++;
+    }
+    QVector < QVector <double> > VectorCalientesMATRIZ;
+    Pares = VectorCalientesCp.size();
+    nfils = Pares/4;
+    ncols = 4;
+    VectorCalientesMATRIZ.resize(nfils);
+    for(i = 0; i< VectorCalientesMATRIZ.size(); i++)
+    {
+        VectorCalientesMATRIZ[i].resize(ncols);
+    }
+    contador = 0;
+    for(int i = 0; i < VectorCalientesMATRIZ.size(); i++)
+    {
+        for(int j = 0; j < VectorCalientesMATRIZ.at(i).size(); j++)
+        {
+            VectorCalientesMATRIZ[i][j] = VectorCalientesCp[contador];
+            contador++;
+        }
+    }
+    QVector < QVector <double > > VectorFriasMATRIZ;
+    Pares = VectorFriasCp.size();
+    nfils = Pares/4;
+    ncols = 4;
+    VectorFriasMATRIZ.resize(nfils);
+    for(i = 0; i<  VectorFriasMATRIZ.size(); i++)
+    {
+        VectorFriasMATRIZ[i].resize(ncols);
+    }
+    contador = 0;
+    for(i = 0; i <  VectorFriasMATRIZ.size(); i++)
+    {
+        for(j = 0; j <  VectorFriasMATRIZ.at(i).size(); j++)
+        {
+            VectorFriasMATRIZ[i][j] = VectorFriasCp[contador];
+            contador++;
+        }
+    }
+    QVector<QVector<double>> INTERVALOS_AGRUPADOS;
+    nfils = Uniones.size() + Servicios.size();
+    ncols = 4;
+    INTERVALOS_AGRUPADOS.resize(nfils);
+    MINTERVALOS_AGRUPADOS.resize(nfils);
+    //MINTERVALOS_AGRUPADOS.resize(nfils);
+    for ( i = 0; i < nfils ; i++){
+        INTERVALOS_AGRUPADOS[i].resize(ncols);
+        MINTERVALOS_AGRUPADOS[i].resize(ncols);
+    }
+    contador = 0;
+    ncols = 4;
+    for(int i = contador; i < Uniones.size() ; i++){
+        k = 4;
+        for(int j = 0; j < ncols ; j ++){
+            INTERVALOS_AGRUPADOS[i][j] = Uniones[i][k]; //POSICION DE LAS UNIONES
+            MINTERVALOS_AGRUPADOS[i][j] = Uniones[i][k];
+            k++;
+        }
+    }
+    contador = Uniones.size();
+    int total = Uniones.size() + Servicios.size();
+    ncols = 4;
+    int l = 0;
+    for(int i = contador ;  i < total; i++){
+        k = 2;
+        for(int j = 0; j < ncols; j++){
+            INTERVALOS_AGRUPADOS[i][j] = Servicios[l][k] ;
+            MINTERVALOS_AGRUPADOS[i][j] = Servicios[l][k] ;
+            k++;
+        }
+        l++;
+    }
+    QVector<QVector<double>> Entalpia;
+    nfils = Uniones.size() + Servicios.size();
+    Entalpia.resize(nfils);
+    for(int i = 0; i < Entalpia.size(); i++){
+        Entalpia[i].resize(4);
+    }
+    contador = 0;
+    for(int i = contador; i < Uniones.size() ; i ++){
+        Entalpia[i][0] = 2 ; // ES UNA UNION
+        Entalpia[i][1] = Uniones[i][8]; //CARGA ENERGETICA
+        Entalpia[i][2] = Uniones[i][10]; //H CAL
+        Entalpia[i][3] = Uniones[i][12]; //H FRI
+    }
+    contador = Uniones.size();
+    k = 0;
+    for(int i = contador; i < total; i++){
+        Entalpia[i][0] = Servicios[k][1];
+        Entalpia[i][1] = Servicios[k][6];
+        Entalpia[i][2] = Servicios[k][7] ; // H CORRIENTE Cal o Fri
+        if(Servicios[k][1] == 0 ){
+            Entalpia[i][3] = Calentamiento[2];
+        }else if(Servicios[k][1] == 1){
+            Entalpia[i][3] = Enfriamento[2];
+        }
+        k++;
+    }
+    QVector<double> SumatorioQDT, SumatorioQDTAREAS;
+    QVector<double> DeltaTM,DeltaTLM;
+    SumatorioQDT.resize(Entalpia.size());
+    SumatorioQDTAREAS.resize(Entalpia.size());
+    for(int i = 0; i < Entalpia.size(); i++){
+        SumatorioQDT[i] = Entalpia[i][1]*((K/Entalpia[i][2])*1000)  + Entalpia[i][1]/((K/Entalpia[i][3])*1000);
+        SumatorioQDTAREAS[i] =  Entalpia[i][1]/Entalpia[i][2]*  + Entalpia[i][1]/Entalpia[i][3];
+    }
+    DeltaTM.resize(Entalpia.size());
+    DeltaTLM.resize(Entalpia.size());
+    QVector<QVector<double>> DeltaTSF;
+    int r1 = INTERVALOS_AGRUPADOS.size();
+    DeltaTSF.resize(r1);
+    for( i = 0 ; i < r1; i++){
+        DeltaTSF[i].resize(2);
+    }
+    for(i = 0; i < r1; i++){
+        DeltaTSF[i][0] = qFabs(INTERVALOS_AGRUPADOS[i][0] - INTERVALOS_AGRUPADOS[i][3]);
+        DeltaTSF[i][1] = qFabs(INTERVALOS_AGRUPADOS[i][1] - INTERVALOS_AGRUPADOS[i][2]);
+    }
+    nfils = Entalpia.size();
+    for( i = 0; i < nfils ; i++){
+        DeltaTM[i] = SumatorioQDT[i]/ Entalpia[i][1];
+        DeltaTSF[i][0] = DeltaTSF[i][0] + DeltaTM[i];
+        DeltaTSF[i][1] = DeltaTSF[i][1] + DeltaTM[i];
+        DeltaTLM[i] =  (DeltaTSF[i][0] + DeltaTSF[i][1])/2;
+    }
+    QVector<double> Areas;
+    Areas.resize(SumatorioQDTAREAS.size());
+    MVectorAreas.resize((SumatorioQDTAREAS.size()));
+    MVectorEntalpia.resize((SumatorioQDTAREAS.size()));
+    MDeltaTLM.resize((SumatorioQDTAREAS.size()));
+    for ( i = 0 ; i < SumatorioQDTAREAS.size(); i++){
+        Areas[i] = SumatorioQDTAREAS[i] / DeltaTLM[i];
+        MVectorAreas[i] = Areas[i];
+        MVectorEntalpia[i] = SumatorioQDTAREAS[i];
+        MDeltaTLM[i] = DeltaTLM[i];
+    }
+    MAREAS = std::accumulate(Areas.begin(),Areas.end(),0);
+}
+
+double Grid_Areas_Diversa::getAREAS()
+{
+    return MAREAS;
+}
+
+double Grid_Areas_Diversa::getK()
+{
+    return MK;
+}
+
+QVector<double> Grid_Areas_Diversa::getVectorAreas()
+{
+    return MVectorAreas;
+}
+
+QVector<double> Grid_Areas_Diversa::getVectorEntalpia()
+{
+    return MVectorEntalpia;
+}
+
+QVector<double> Grid_Areas_Diversa::getDeltaTLM()
+{
+    return MDeltaTLM;
+}
+
+QVector<QVector<double> > Grid_Areas_Diversa::getINTERVALOS_AGRUPADOS()
+{
+    return MINTERVALOS_AGRUPADOS;
+}
+
+Grid_Costos_Diversa::Grid_Costos_Diversa(QVector<double> Tsupply, QVector<double> Ttarget, QVector<double> Cp, QVector<double> h, QVector<double> Calentamiento, QVector<QVector<double> > CapitalCost, QVector<double> OperationCost, QVector<double> Enfriamento, QVector<QVector<double> > Uniones, QVector<QVector<double> > Servicios, bool SI, bool SIS, double K, double DTmin, float punto1, float punto2)
+{
+    int i,j,n,nfils,ncols,Pares,contador,k;
+    QVector<double> VectorCalientes, VectorCalientesCp;
+    QVector<double> VectorFrias,VectorFriasCp;
+    QVector<double> DeltasTi;
+    Plot_curvascompuestasajustadas plot1(Tsupply,Ttarget,Cp,DTmin);
+    QVector<QVector<double>> VADHF = plot1.getVecAdjHeatFlow();
+    float UTILIDADCALENTAMIENTO = VADHF[0][0];
+    float UTILIDADFRIA = VADHF[VADHF.size()-1][1];
+    double ERROR;
+    float error1,error2,error3,error = 100.00, errorPasado = 100.00,tolerancia = 0.000001;
+    QVector<float> ValoresdeK,ValoresdeError;
+    ValoresdeK.resize(31);
+    ValoresdeError.resize(31);
+    i = 0;
+    int iterador = 0;
+    int min_pos;
+    while(error >= tolerancia ){
+        float incremento = (punto2-punto1)/30.0;
+        ValoresdeK[0] = double (punto1);
+        for(int i = 1; i <= 30; i++){
+            ValoresdeK[i] = float (punto1 + incremento);
+            punto1 = punto1 + incremento;
+        }
+        for(int i = 0; i < ValoresdeK.size(); i++){
+            K = double (ValoresdeK[i]);
+            FindKvalue Ki(Tsupply,Ttarget,Cp,h,K,DTmin);
+            float KiUC = Ki.getUC();
+            float KiUF = Ki.getUF();
+            error1 = qFabs( ((UTILIDADCALENTAMIENTO - KiUC)/KiUC));
+            error2 = qFabs( ((UTILIDADFRIA - KiUF )/KiUF ));
+            error3 = error1 + error2;
+            ValoresdeError[i] = float (error3);
+        }
+        min_pos = std::distance(ValoresdeError.begin(),std::min_element(ValoresdeError.begin(),ValoresdeError.end()));
+        ERROR = *std::min_element(ValoresdeError.begin(),ValoresdeError.end()); //double
+        error = float (ERROR);
+        if(error == errorPasado){
+            break;
+        }
+        errorPasado = error;
+        if(error > tolerancia){
+            punto1 = ValoresdeK[min_pos]-incremento;
+            punto2 = ValoresdeK[min_pos]+incremento;
+            iterador = iterador +1;
+        }
+    }
+    K = ValoresdeK[min_pos];
+    n = Tsupply.size();
+    DeltasTi.resize(n);
+    Calentamiento[0] = Calentamiento[0] + (DTmin/2 - (K/(Calentamiento[2]/1000)) ) ;
+    Calentamiento[1] = Calentamiento[1] + (DTmin/2 - (K/(Calentamiento[2]/1000)) ) ;
+    Enfriamento[0] = Enfriamento[0] - (DTmin/2 - (K/(Enfriamento[2]/1000)) ) ;
+    Enfriamento[1] = Enfriamento[1] - (DTmin/2 - (K/(Enfriamento[2]/1000)) );
+    for (i = 0; i < n; i++){
+        DeltasTi[i] = (K / (h[i]/1000));
+    }
+    for (i = 0; i < n ; ++i)
+    {
+        if(Tsupply[i] >= Ttarget[i])
+        {
+            DeltasTi[i] = (K / (h[i]/1000));
+            Tsupply[i] = Tsupply[i] + (DTmin/2 - DeltasTi[i]);
+            Ttarget[i] = Ttarget[i] + (DTmin/2 - DeltasTi[i]);
+            VectorCalientesCp << Tsupply[i] << Ttarget[i] << Cp[i] << h[i];
+            VectorCalientes << Tsupply[i] << Ttarget[i];
+        }
+        if(Tsupply[i] <= Ttarget[i])
+        {
+            DeltasTi[i] = (K / (h[i]/1000));
+            Tsupply[i] = Tsupply[i] - (DTmin/2 - DeltasTi[i]);
+            Ttarget[i] = Ttarget[i] - (DTmin/2 - DeltasTi[i]);
+            VectorFriasCp << Tsupply[i] << Ttarget[i] << Cp[i] << h[i];
+            VectorFrias << Tsupply[i] << Ttarget[i];
+        }
+        j++;
+    }
+    QVector < QVector <double> > VectorCalientesMATRIZ;
+    Pares = VectorCalientesCp.size();
+    nfils = Pares/4;
+    ncols = 4;
+    VectorCalientesMATRIZ.resize(nfils);
+    for(i = 0; i< VectorCalientesMATRIZ.size(); i++)
+    {
+        VectorCalientesMATRIZ[i].resize(ncols);
+    }
+    contador = 0;
+    for(int i = 0; i < VectorCalientesMATRIZ.size(); i++)
+    {
+        for(int j = 0; j < VectorCalientesMATRIZ.at(i).size(); j++)
+        {
+            VectorCalientesMATRIZ[i][j] = VectorCalientesCp[contador];
+            contador++;
+        }
+    }
+    QVector < QVector <double > > VectorFriasMATRIZ;
+    Pares = VectorFriasCp.size();
+    nfils = Pares/4;
+    ncols = 4;
+    VectorFriasMATRIZ.resize(nfils);
+    for(i = 0; i<  VectorFriasMATRIZ.size(); i++)
+    {
+        VectorFriasMATRIZ[i].resize(ncols);
+    }
+    contador = 0;
+    for(i = 0; i <  VectorFriasMATRIZ.size(); i++)
+    {
+        for(j = 0; j <  VectorFriasMATRIZ.at(i).size(); j++)
+        {
+            VectorFriasMATRIZ[i][j] = VectorFriasCp[contador];
+            contador++;
+        }
+    }
+    QVector<QVector<double>> INTERVALOS_AGRUPADOS;
+    nfils = Uniones.size() + Servicios.size();
+    ncols = 4;
+    INTERVALOS_AGRUPADOS.resize(nfils);
+    //MINTERVALOS_AGRUPADOS.resize(nfils);
+    for ( i = 0; i < nfils ; i++){
+        INTERVALOS_AGRUPADOS[i].resize(ncols);
+    }
+    contador = 0;
+    ncols = 4;
+    for(int i = contador; i < Uniones.size() ; i++){
+        k = 4;
+        for(int j = 0; j < ncols ; j ++){
+            INTERVALOS_AGRUPADOS[i][j] = Uniones[i][k];
+            k++;
+        }
+    }
+    contador = Uniones.size();
+    int total = Uniones.size() + Servicios.size();
+    ncols = 4;
+    int l = 0;
+    for(int i = contador ;  i < total; i++){
+        k = 2;
+        for(int j = 0; j < ncols; j++){
+            INTERVALOS_AGRUPADOS[i][j] = Servicios[l][k] ;
+            k++;
+        }
+        l++;
+    }
+    QVector<QVector<double>> Entalpia;
+    nfils = Uniones.size() + Servicios.size();
+    Entalpia.resize(nfils);
+    for(int i = 0; i < Entalpia.size(); i++){
+        Entalpia[i].resize(4);
+    }
+    contador = 0;
+    for(int i = contador; i < Uniones.size() ; i ++){
+        Entalpia[i][0] = 2 ; // ES UNA UNION
+        Entalpia[i][1] = Uniones[i][8]; //CARGA ENERGETICA
+        Entalpia[i][2] = Uniones[i][10]; //H CAL
+        Entalpia[i][3] = Uniones[i][12]; //H FRI
+    }
+    contador = Uniones.size();
+    k = 0;
+    for(int i = contador; i < total; i++){
+        Entalpia[i][0] = Servicios[k][1];
+        Entalpia[i][1] = Servicios[k][6];
+        Entalpia[i][2] = Servicios[k][7] ; // H CORRIENTE Cal o Fri
+        if(Servicios[k][1] == 0 ){
+            Entalpia[i][3] = Calentamiento[2];
+        }else if(Servicios[k][1] == 1){
+            Entalpia[i][3] = Enfriamento[2];
+        }
+        k++;
+    }
+    QVector<double> EntalpiaCalculada;
+    EntalpiaCalculada.resize(Entalpia.size());
+    for(int i = 0; i < Entalpia.size(); i++){
+        EntalpiaCalculada[i] = Entalpia[i][1]/Entalpia[i][2]  + Entalpia[i][1]/Entalpia[i][3];
+    }
+    QVector<double> SumatorioQDT, SumatorioQDTAREAS;
+    QVector<double> DeltaTM,DeltaTLM;
+    SumatorioQDT.resize(Entalpia.size());
+    SumatorioQDTAREAS.resize(Entalpia.size());
+    for(int i = 0; i < Entalpia.size(); i++){
+        SumatorioQDT[i] = Entalpia[i][1]*((K/Entalpia[i][2])*1000)  + Entalpia[i][1]/((K/Entalpia[i][3])*1000);
+        SumatorioQDTAREAS[i] =  Entalpia[i][1]/Entalpia[i][2]*  + Entalpia[i][1]/Entalpia[i][3];
+    }
+    DeltaTM.resize(Entalpia.size());
+    DeltaTLM.resize(Entalpia.size());
+    QVector<QVector<double>> DeltaTSF;
+    int r1 = INTERVALOS_AGRUPADOS.size();
+    DeltaTSF.resize(r1);
+    for( i = 0 ; i < r1; i++){
+        DeltaTSF[i].resize(2);
+    }
+    for(i = 0; i < r1; i++){
+        DeltaTSF[i][0] = qFabs(INTERVALOS_AGRUPADOS[i][0] - INTERVALOS_AGRUPADOS[i][3]);
+        DeltaTSF[i][1] = qFabs(INTERVALOS_AGRUPADOS[i][1] - INTERVALOS_AGRUPADOS[i][2]);
+    }
+    nfils = Entalpia.size();
+    for( i = 0; i < nfils ; i++){
+        DeltaTM[i] = SumatorioQDT[i]/ Entalpia[i][1];
+        DeltaTSF[i][0] = DeltaTSF[i][0] + DeltaTM[i];
+        DeltaTSF[i][1] = DeltaTSF[i][1] + DeltaTM[i];
+        DeltaTLM[i] =  (DeltaTSF[i][0] + DeltaTSF[i][1])/2;
+    }
+    QVector<double> Areas;
+    Areas.resize(SumatorioQDTAREAS.size());
+    for ( i = 0 ; i < SumatorioQDTAREAS.size(); i++){
+        Areas[i] = SumatorioQDTAREAS[i] / DeltaTLM[i];
+    }
+    double AC = 0, QC = 0;
+    MQC = 0, MAC = 0;
+    double AR = 0, QR = 0;
+    MAR = 0, MQR = 0;
+    double AH = 0, QH = 0;
+    MAH = 0, MQH = 0;
+    for(int i = 0; i < EntalpiaCalculada.size() ; i++){
+        if(Entalpia[i][0] == 2){ //RECUPERACION
+            AR = AR + Areas[i];
+            QR = QR + Entalpia[i][1];
+            MAR = MAR + Areas[i];
+            MQR = MQR + Entalpia[i][1];
+        }else if(Entalpia[i][0] == 0){ //CALENTAMIENTO
+            AH = AH + Areas[i];
+            QR = QR + Entalpia[i][1];
+            MAH = MAH + Areas[i];
+            MQH = MQH + Entalpia[i][1];
+        }else if(Entalpia[i][0] == 1){ // ENFRIAMENTO
+            AC = AC + Areas[i];
+            QC = QC + Entalpia[i][1];
+            MAC = MAC + Areas[i];
+            MQC = MQC + Entalpia[i][1];
+        }
+    }
+    nfils = CapitalCost[0].size();
+    if(nfils == 5){
+        //COSTOS DE CAPITAL ANUALIZADOS
+        double Xfactor = pow(1+ CapitalCost[0][3] ,CapitalCost[0][4]);
+        double FactorAnual =( CapitalCost[0][3]* Xfactor )/( Xfactor - 1);
+        double CapCos1 = (CapitalCost[0][0] + CapitalCost[0][1]* pow(AC,CapitalCost[0][2])) * FactorAnual;
+        MCapCos1 = CapCos1;
+        Xfactor = pow(1+ CapitalCost[1][3] ,CapitalCost[1][4]);
+        FactorAnual =( CapitalCost[1][3]* Xfactor )/( Xfactor - 1);
+        double CapCos2 =( CapitalCost[1][0] + CapitalCost[1][1]* pow(AR,CapitalCost[1][2]))* FactorAnual;
+        MCapCos2 = CapCos2;
+        Xfactor = pow(1+ CapitalCost[2][3] ,CapitalCost[2][4]);
+        FactorAnual =( CapitalCost[2][3]* Xfactor )/( Xfactor - 1);
+        double CapCos3 =( CapitalCost[2][0] + CapitalCost[2][1]* pow(AH,CapitalCost[2][2]))* FactorAnual;
+        MCapCos3 = CapCos3;
+        MCostoCapitalTotal = CapCos1 + CapCos2 + CapCos3;
+        //COSTOS DE OPERACION
+        if(SI == true){
+            double OpeCosC =  QC * (24 * 364) * OperationCost[0]; // Calentamiento
+            double OpeCosH =  QH * (24 * 364) * OperationCost[1]; // Enfriamiento
+            MOpeCosC = OpeCosC;
+            MOpeCosH = MOpeCosH;
+            MCostoOperacionTotal = OpeCosC + OpeCosH;
+        }else if(SIS == true){
+            //double OpeCosC =  QC * (24 * 364) * OperationCost[0]; // Calentamiento
+            //double OpeCosH =  QH * (24 * 364) * OperationCost[1]; // Enfriamiento
+        }
+        MCostoTotal = MCostoOperacionTotal + MCostoCapitalTotal ;
+    }else if(nfils == 4){
+
+    }
+}
+
+double Grid_Costos_Diversa::getCostoTotal()
+{
+    return MCostoTotal;
+}
+
+double Grid_Costos_Diversa::getCostoOperacionTotal()
+{
+    return MCostoOperacionTotal;
+}
+
+double Grid_Costos_Diversa::getCostoCapitalTotal()
+{
+    return MCostoCapitalTotal;
+}
+
+double Grid_Costos_Diversa::getOpeCosC()
+{
+    return MOpeCosC;
+}
+
+double Grid_Costos_Diversa::getOpeCosH()
+{
+    return MOpeCosH;
+}
+
+double Grid_Costos_Diversa::getCapCos3()
+{
+    return MCapCos3;
+}
+
+double Grid_Costos_Diversa::getCapCos2()
+{
+    return MCapCos2;
+}
+
+double Grid_Costos_Diversa::getCapCos1()
+{
+    return MCapCos1;
+}
+
+double Grid_Costos_Diversa::getAH()
+{
+    return MAH;
+}
+
+double Grid_Costos_Diversa::getAR()
+{
+    return MAR;
+}
+
+double Grid_Costos_Diversa::getAC()
+{
+    return MAC;
+}
+
+double Grid_Costos_Diversa::getQH()
+{
+    return MQH;
+}
+
+double Grid_Costos_Diversa::getQR()
+{
+    return MQR;
+}
+
+double Grid_Costos_Diversa::getQC()
+{
+    return MQC;
+}

@@ -111,7 +111,7 @@ plotterDN::plotterDN(QWidget *parent) :
         }
         int CTo2 = 0, CCo2 = 0;
         double DTmin2 = 0;
-        VecCostUniDesGri VCUD(uniforme2,diverso2,Calentamiento2,Enfriamento2,
+        VecCostUniDesGri VCUD(uniforme2,diverso2,TS,TE,WCP,H,Calentamiento2,Enfriamento2,
                               CapitalCost2,OperationCost2,DTmin2,CTo2,CCo2);
         in30 >> VCUD;
         uniforme = VCUD.getUniforme();
@@ -122,7 +122,34 @@ plotterDN::plotterDN(QWidget *parent) :
         FileCostos.flush();
         FileCostos.close();
     }else if(diverso == true){
-
+        QFile FileCostos(DIVERSE_DESIGNGRID_FILENAME);
+        if (!FileCostos.open(QIODevice::ReadOnly)){
+            QMessageBox::warning(this,tr("Error"),tr("Error"));
+            return;
+        }
+        QDataStream in31(&FileCostos);
+        in31.setVersion(QDataStream::Qt_5_4);
+        bool diverso2 = false, uniforme2 = false;
+        QVector<double> Calentamiento2,Enfriamento2,OperationCost2;
+        Calentamiento2.resize(10);
+        Enfriamento2.resize(10);
+        OperationCost2.resize(10);
+        QVector<QVector<double>> CapitalCost2;
+        CapitalCost2.resize(10);
+        for(int i = 0; i < CapitalCost2.size(); i++){
+            CapitalCost2[i].resize(10);
+        }
+        double DTmin2 = 0, K2 = 0;
+        VecCostDivDesGri VCDD(uniforme2,diverso2,TS,TE,WCP,H,Calentamiento2,Enfriamento2,
+                              CapitalCost2,OperationCost2,DTmin2,K2);
+        in31 >> VCDD;
+        uniforme = VCDD.getUniforme();
+        diverso = VCDD.getDiverso();
+        DTmin = VCDD.getDTmin();
+        K = VCDD.getk();
+        AlgoritmoCorrientes(TS,TE,WCP,H,uniforme,diverso,DTmin,K);
+        FileCostos.flush();
+        FileCostos.close();
     }
 
     FileUnidades.flush();
@@ -311,7 +338,7 @@ void plotterDN::AlgoritmoCorrientes(QVector<double> TS, QVector<double> TE, QVec
                                         QVector<double> H, bool uniforme, bool diverso,double DTmin,double k)
 {
     if(uniforme == true){
-        Plot_curvascompuestasajustadas plot(TS,TE,WCP,DTmin);
+        Pre_Grid_UNIFORME plot(TS,TE,WCP,H,DTmin);
         QVector<QVector<double>> VecCorrientesTotal = plot.getVectorCorrientesTotal();
         QVector<QVector<double>> VecAdjHeatFlow = plot.getVecAdjHeatFlow();
         QVector<QVector<double>> VectorCalientesMatriz = plot.getVectorCalientesMATRIZ();
@@ -329,9 +356,12 @@ void plotterDN::AlgoritmoCorrientes(QVector<double> TS, QVector<double> TE, QVec
         AlgoritmoCoorrGrafi(VectorCalientesMatriz,VectorFriasMatriz,PuntodePliegue);
     }else if(diverso == true){
         float punto1 = .5, punto2 = 10;
-        Plot_CCAJUSTADA_DIVERSA plot(TS,TE,WCP,H,DTmin,k,punto1,punto2);
+        Pre_Grid_DIVERSO plot(TS,TE,WCP,H,DTmin,k,punto1,punto2);
+        qDebug() << "entro";
         QVector<QVector<double>> VecCorrientesTotal = plot.getVectorCorrientesTotal();
         QVector<QVector<double>> VecAdjHeatFlow = plot.getVecAdjHeatFlow();
+        QVector<QVector<double>> VectorCalientesMatriz = plot.getVectorCalientesMATRIZ();
+        QVector<QVector<double>> VectorFriasMatriz = plot.getVectorFriasMATRIZ();
         QVector<double> VAL2;
         VAL2.resize(VecAdjHeatFlow.size());
         for(int i = 0; i < VecAdjHeatFlow.size(); i++){
@@ -342,6 +372,7 @@ void plotterDN::AlgoritmoCorrientes(QVector<double> TS, QVector<double> TE, QVec
         PuntodePliegue.resize(2);
         PuntodePliegue[0] = VecCorrientesTotal[min_pos+1][0]; //LADO FRIO
         PuntodePliegue[1] = VecCorrientesTotal[min_pos+1][1]; //LADO CALIENTE
+        AlgoritmoCoorrGrafi(VectorCalientesMatriz,VectorFriasMatriz,PuntodePliegue);
     }
 }
 
@@ -352,13 +383,13 @@ void plotterDN::AlgoritmoCoorrGrafi(QVector<QVector<double>> VectorCalientesMATR
     //corrientes calientes;
     QVector<QVector<double>> TCalPINCH_HOT;
     TCalPINCH_HOT.resize(VectorCalientesMATRIZ.size());
-    int ncols = 3;
+    int ncols = 4;
     for(int i = 0; i < TCalPINCH_HOT.size(); i ++){
         TCalPINCH_HOT[i].resize(ncols);
     }
     QVector<QVector<double>> TFriPINCH_HOT;
     TFriPINCH_HOT.resize(VectorCalientesMATRIZ.size());
-    ncols = 3;
+    ncols = 4;
     for(int i = 0; i < TFriPINCH_HOT.size(); i ++){
         TFriPINCH_HOT[i].resize(ncols);
     }
@@ -369,51 +400,60 @@ void plotterDN::AlgoritmoCoorrGrafi(QVector<QVector<double>> VectorCalientesMATR
                     TCalPINCH_HOT[i][0] = 0;
                     TCalPINCH_HOT[i][1] = 0;
                     TCalPINCH_HOT[i][2] = 0;
+                    TCalPINCH_HOT[i][3] = 0;
                     TFriPINCH_HOT[i][0] = VectorCalientesMATRIZ[i][0];
                     TFriPINCH_HOT[i][1] = VectorCalientesMATRIZ[i][1];
                     TFriPINCH_HOT[i][2] = VectorCalientesMATRIZ[i][2];
+                    TFriPINCH_HOT[i][3] = VectorCalientesMATRIZ[i][3];
                 }else if(PuntodePliegue[1] == VectorCalientesMATRIZ[i][1]){
                     TCalPINCH_HOT[i][0] = VectorCalientesMATRIZ[i][0];
                     TCalPINCH_HOT[i][1] = VectorCalientesMATRIZ[i][1];
                     TCalPINCH_HOT[i][2] = VectorCalientesMATRIZ[i][2];
+                    TCalPINCH_HOT[i][3] = VectorCalientesMATRIZ[i][3];
                     TFriPINCH_HOT[i][0] = 0;
                     TFriPINCH_HOT[i][1] = 0;
                     TFriPINCH_HOT[i][2] = 0;
+                    TFriPINCH_HOT[i][3] = 0;
                 }
             }else{
                 TCalPINCH_HOT[i][0] = VectorCalientesMATRIZ[i][0];
                 TCalPINCH_HOT[i][1] = PuntodePliegue[1];
                 TCalPINCH_HOT[i][2] = VectorCalientesMATRIZ[i][2];
+                TCalPINCH_HOT[i][3] = VectorCalientesMATRIZ[i][3];
                 TFriPINCH_HOT[i][0] = PuntodePliegue[1];
                 TFriPINCH_HOT[i][1] = VectorCalientesMATRIZ[i][1];
                 TFriPINCH_HOT[i][2] = VectorCalientesMATRIZ[i][2];
-
+                TFriPINCH_HOT[i][3] = VectorCalientesMATRIZ[i][3];
             }
         }else if(PuntodePliegue[1] > VectorCalientesMATRIZ[i][0]  &&  PuntodePliegue[1] > VectorCalientesMATRIZ[i][1]){
             TCalPINCH_HOT[i][0] = 0;
             TCalPINCH_HOT[i][1] = 0;
             TCalPINCH_HOT[i][2] = 0;
+            TCalPINCH_HOT[i][3] = 0;
             TFriPINCH_HOT[i][0] = VectorCalientesMATRIZ[i][0];
             TFriPINCH_HOT[i][1] = VectorCalientesMATRIZ[i][1];
             TFriPINCH_HOT[i][2] = VectorCalientesMATRIZ[i][2];
+            TFriPINCH_HOT[i][3] = VectorCalientesMATRIZ[i][3];
         }else if(PuntodePliegue[1] < VectorCalientesMATRIZ[i][0] && PuntodePliegue[1] < VectorCalientesMATRIZ[i][1]){
             TCalPINCH_HOT[i][0] = VectorCalientesMATRIZ[i][0];
             TCalPINCH_HOT[i][1] = VectorCalientesMATRIZ[i][1];
             TCalPINCH_HOT[i][2] = VectorCalientesMATRIZ[i][2];
+            TCalPINCH_HOT[i][3] = VectorCalientesMATRIZ[i][3];
             TFriPINCH_HOT[i][0] = 0;
             TFriPINCH_HOT[i][1] = 0;
             TFriPINCH_HOT[i][2] = 0;
+            TFriPINCH_HOT[i][3] = 0;
         }
     }
     QVector<QVector<double>> TCalPINCH_COL;
     TCalPINCH_COL.resize(VectorFriasMATRIZ.size());
-    ncols = 3;
+    ncols = 4;
     for(int i = 0; i < TCalPINCH_COL.size(); i ++){
         TCalPINCH_COL[i].resize(ncols);
     }
     QVector<QVector<double>> TFriPINCH_COL;
     TFriPINCH_COL.resize(VectorFriasMATRIZ.size());
-    ncols = 3;
+    ncols = 4;
     for(int i = 0; i < TFriPINCH_COL.size(); i ++){
         TFriPINCH_COL[i].resize(ncols);
     }
@@ -424,39 +464,49 @@ void plotterDN::AlgoritmoCoorrGrafi(QVector<QVector<double>> VectorCalientesMATR
                     TCalPINCH_COL[i][0] = VectorFriasMATRIZ[i][1];
                     TCalPINCH_COL[i][1] = VectorFriasMATRIZ[i][0];
                     TCalPINCH_COL[i][2] = VectorFriasMATRIZ[i][2];
+                    TCalPINCH_COL[i][3] = VectorFriasMATRIZ[i][3];
                     TFriPINCH_COL[i][0] = 0;
                     TFriPINCH_COL[i][1] = 0;
                     TFriPINCH_COL[i][2] = 0;
+                    TFriPINCH_COL[i][3] = 0;
                 }else if(PuntodePliegue[0] == VectorFriasMATRIZ[i][1]){
                     TCalPINCH_COL[i][0] = 0;
                     TCalPINCH_COL[i][1] = 0;
                     TCalPINCH_COL[i][2] = 0;
+                    TCalPINCH_COL[i][3] = 0;
                     TFriPINCH_COL[i][0] = VectorFriasMATRIZ[i][1];
                     TFriPINCH_COL[i][1] = VectorFriasMATRIZ[i][0];
                     TFriPINCH_COL[i][2] = VectorFriasMATRIZ[i][2];
+                    TFriPINCH_COL[i][3] = VectorFriasMATRIZ[i][3];
                 }
             }else{
                 TCalPINCH_COL[i][0] = VectorFriasMATRIZ[i][1];
                 TCalPINCH_COL[i][1] = PuntodePliegue[0];
                 TCalPINCH_COL[i][2] = VectorFriasMATRIZ[i][2];
+                TCalPINCH_COL[i][3] = VectorFriasMATRIZ[i][3];
                 TFriPINCH_COL[i][0] = PuntodePliegue[0];
                 TFriPINCH_COL[i][1] = VectorFriasMATRIZ[i][0];
                 TFriPINCH_COL[i][2] = VectorFriasMATRIZ[i][2];
+                TFriPINCH_COL[i][3] = VectorFriasMATRIZ[i][3];
             }
         }else if(PuntodePliegue[0] > VectorFriasMATRIZ[i][0] && PuntodePliegue[0] > VectorFriasMATRIZ[i][1]){
             TCalPINCH_COL[i][0] = 0;
             TCalPINCH_COL[i][1] = 0;
             TCalPINCH_COL[i][2] = 0;
+            TCalPINCH_COL[i][3] = 0;
             TFriPINCH_COL[i][0] = VectorFriasMATRIZ[i][1];
             TFriPINCH_COL[i][1] = VectorFriasMATRIZ[i][0];
             TFriPINCH_COL[i][2] = VectorFriasMATRIZ[i][2];
+            TFriPINCH_COL[i][3] = VectorFriasMATRIZ[i][3];
         }else if(PuntodePliegue[0] < VectorFriasMATRIZ[i][0] && PuntodePliegue[0] < VectorFriasMATRIZ[i][1]){
             TCalPINCH_COL[i][0] = VectorFriasMATRIZ[i][1];
             TCalPINCH_COL[i][1] = VectorFriasMATRIZ[i][0];
             TCalPINCH_COL[i][2] = VectorFriasMATRIZ[i][2];
+            TCalPINCH_COL[i][3] = VectorFriasMATRIZ[i][3];
             TFriPINCH_COL[i][0] = 0;
             TFriPINCH_COL[i][1] = 0;
             TFriPINCH_COL[i][2] = 0;
+            TFriPINCH_COL[i][3] = 0;
         }
     }
     double n = VectorCalientesMATRIZ.size() + VectorFriasMATRIZ.size();
@@ -490,7 +540,7 @@ void plotterDN::AlgoritmoCoorrGrafi(QVector<QVector<double>> VectorCalientesMATR
         CoorSerIZQ[i].resize(2);
     }
     for(int i = 0; i < LadoCaliente.size(); i++){
-        LadoCaliente[i].resize(13);
+        LadoCaliente[i].resize(14);
     }
     for(int i = 0; i < TCalPINCH_HOT.size() ; i++){ // primero la parte del problema calientes
         if(TCalPINCH_HOT[i][0] == 0 && TCalPINCH_HOT[i][1] ==0 && TCalPINCH_HOT[i][2] ==0){
@@ -515,6 +565,7 @@ void plotterDN::AlgoritmoCoorrGrafi(QVector<QVector<double>> VectorCalientesMATR
             LadoCaliente[matrizPC][10] = x1[1]; //
             LadoCaliente[matrizPC][11] = y1[1]; //
             LadoCaliente[matrizPC][12] = 0 ; // Si es que aun no se une despues de separarse
+            LadoCaliente[matrizPC][13] = 0 ; //H
             QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
             textLabel1->setClipToAxisRect(true);
             textLabel1->setClipAxisRect(ui->qcustomplot->axisRect());
@@ -549,6 +600,7 @@ void plotterDN::AlgoritmoCoorrGrafi(QVector<QVector<double>> VectorCalientesMATR
             LadoCaliente[matrizPC][10] = x1[1]; //
             LadoCaliente[matrizPC][11] = y1[1]; //
             LadoCaliente[matrizPC][12] = 0 ; // Si es que aun no se une despues de separarse
+            LadoCaliente[matrizPC][13] = TCalPINCH_HOT[i][3] ; //H
             QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
             textLabel1->setClipToAxisRect(true);
             textLabel1->setClipAxisRect(ui->qcustomplot->axisRect());
@@ -596,6 +648,7 @@ void plotterDN::AlgoritmoCoorrGrafi(QVector<QVector<double>> VectorCalientesMATR
             LadoCaliente[matrizPC][10] = x1[1]; //
             LadoCaliente[matrizPC][11] = y1[1]; //
             LadoCaliente[matrizPC][12] = 0 ; // Si es que aun no se une despues de separarse
+            LadoCaliente[matrizPC][13] = 0;
             QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
             textLabel1->setClipToAxisRect(true);
             textLabel1->setClipAxisRect(ui->qcustomplot->axisRect());
@@ -631,6 +684,7 @@ void plotterDN::AlgoritmoCoorrGrafi(QVector<QVector<double>> VectorCalientesMATR
             LadoCaliente[matrizPC][10] = x1[1]; //
             LadoCaliente[matrizPC][11] = y1[1]; //
             LadoCaliente[matrizPC][12] = 0 ; // Si es que aun no se une despues de separarse
+            LadoCaliente[matrizPC][13] = TCalPINCH_COL[i][3];
             QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
             textLabel1->setClipToAxisRect(true);
             textLabel1->setClipAxisRect(ui->qcustomplot->axisRect());
@@ -649,7 +703,6 @@ void plotterDN::AlgoritmoCoorrGrafi(QVector<QVector<double>> VectorCalientesMATR
             textLabel2->setText(QString("%1 ªF").arg(QString::number(TCalPINCH_COL[i][1])));
             textLabel2->setFont(QFont(font().family(), 8)); // make font a bit larger
             textLabel2->setPadding(QMargins(8, 0, 0, 0));
-
             matrizPC++;
             contadorPlots++;
             y1[0] = y1[0] - 3;
@@ -673,7 +726,7 @@ void plotterDN::AlgoritmoCoorrGrafi(QVector<QVector<double>> VectorCalientesMATR
         CoorSerDER[i].resize(2);
     }
     for(int i = 0; i < LadoFrio.size(); i++){
-        LadoFrio[i].resize(13);
+        LadoFrio[i].resize(14);
     }
     matrizPC = 0;
     for(int i = 0; i < TFriPINCH_HOT.size() ; i++){ // primero la parte del problema calientes
@@ -699,6 +752,7 @@ void plotterDN::AlgoritmoCoorrGrafi(QVector<QVector<double>> VectorCalientesMATR
             LadoFrio[matrizPC][10] = x2[1]; //
             LadoFrio[matrizPC][11] = y2[1]; //
             LadoFrio[matrizPC][12] = 0 ; // Si es que aun no se une despues de separarse
+            LadoFrio[matrizPC][13] = 0;
             QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
             textLabel1->setClipToAxisRect(true);
             textLabel1->setClipAxisRect(ui->qcustomplot->axisRect());
@@ -734,6 +788,7 @@ void plotterDN::AlgoritmoCoorrGrafi(QVector<QVector<double>> VectorCalientesMATR
             LadoFrio[matrizPC][10] = x2[1]; //
             LadoFrio[matrizPC][11] = y2[1]; //
             LadoFrio[matrizPC][12] = 0 ; // Si es que aun no se une despues de separarse
+            LadoFrio[matrizPC][13] = TFriPINCH_HOT[i][3];
             QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
             textLabel1->setClipToAxisRect(true);
             textLabel1->setClipAxisRect(ui->qcustomplot->axisRect());
@@ -781,6 +836,7 @@ void plotterDN::AlgoritmoCoorrGrafi(QVector<QVector<double>> VectorCalientesMATR
             LadoFrio[matrizPC][10] = x2[1]; //
             LadoFrio[matrizPC][11] = y2[1]; //
             LadoFrio[matrizPC][12] = 0 ; // Si es que aun no se une despues de separarse
+            LadoFrio[matrizPC][13] = 0;
             QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
             textLabel1->setClipToAxisRect(true);
             textLabel1->setClipAxisRect(ui->qcustomplot->axisRect());
@@ -816,6 +872,7 @@ void plotterDN::AlgoritmoCoorrGrafi(QVector<QVector<double>> VectorCalientesMATR
             LadoFrio[matrizPC][10] = x2[1]; //
             LadoFrio[matrizPC][11] = y2[1]; //
             LadoFrio[matrizPC][12] = 0 ; // Si es que aun no se une despues de separarse
+            LadoFrio[matrizPC][13] = TFriPINCH_COL[i][3];
             QCPItemText *textLabel1 = new QCPItemText(ui->qcustomplot);
             //textLabel1->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
             textLabel1->setClipToAxisRect(true);
@@ -970,7 +1027,11 @@ void plotterDN::AuxiliaryService()
     QDataStream in30(&FileCostos);
     in30.setVersion(QDataStream::Qt_5_4);
     bool diverso2 = false, uniforme2 = false;
-    QVector<double> Calentamiento2,Enfriamento2,OperationCost2;
+    QVector<double> Calentamiento2,Enfriamento2,OperationCost2,TS1,TE1,WCP1,H1;
+    TS1.resize(1);
+    TE1.resize(1);
+    WCP1.resize(1);
+    H1.resize(1);
     Calentamiento2.resize(10);
     Enfriamento2.resize(10);
     OperationCost2.resize(10);
@@ -981,7 +1042,7 @@ void plotterDN::AuxiliaryService()
     }
     int CTo2 = 0, CCo2 = 0;
     double DTmin2 = 0;
-    VecCostUniDesGri VCUD(uniforme2,diverso2,Calentamiento2,Enfriamento2,CapitalCost2,OperationCost2,DTmin2,CTo2,CCo2);
+    VecCostUniDesGri VCUD(uniforme2,diverso2,TS1,TE1,WCP1,H1,Calentamiento2,Enfriamento2,CapitalCost2,OperationCost2,DTmin2,CTo2,CCo2);
     in30 >> VCUD;
     DTmin = VCUD.getDTmin();
     Calentamiento = VCUD.getCalentamiento();
@@ -1065,7 +1126,7 @@ void plotterDN::AuxiliaryService()
                     double TemCal = CalTemProm/CalCoin;
                     double Q1 = LadoCaliente[corriente][6]*qFabs(TemCal - LadoCaliente[corriente][5]) ;
                     if(Q1 > 0){ // SE APLICA EL SERVICIO DE CALENTAMIENTO
-                        IZQ_cooling_split_Si(corriente,TemCal,Q1);
+                        IZQ_cooling_split_Si(corriente,TemCal);
                     }else if(Q1 <= 0){ // NO SE APLICA
                         QMessageBox::warning(this,tr("Error"),tr("Error"));
                         return;
@@ -1073,7 +1134,7 @@ void plotterDN::AuxiliaryService()
                 }else{
                     double Q1 = LadoCaliente[corriente][6]*qFabs(LadoCaliente[corriente][4]-LadoCaliente[corriente][5]) ;
                     if(Q1 > 0){ // SE APLICA EL SERVICIO DE CALENTAMIENTO
-                        IZQ_cooling_split_No(corriente,Q1);
+                        IZQ_cooling_split_No(corriente);
                     }else if(Q1 <= 0){ // NO SE APLICA
                         QMessageBox::warning(this,tr("Error"),tr("Error"));
                         return;
@@ -1092,7 +1153,7 @@ void plotterDN::AuxiliaryService()
                     double TemCal = CalTemProm/CalCoin;
                     double Q1 = LadoFrio[corriente][6]*(TemCal -LadoFrio[corriente][5]) ;
                     if(Q1 > 0){ // SE APLICA EL SERVICIO DE CALENTAMIENTO
-                        DER_cooling_split_Si(corriente,TemCal,Q1);
+                        DER_cooling_split_Si(corriente,TemCal);
                     }else if(Q1 <= 0){ // NO SE APLICA
                         QMessageBox::warning(this,tr("Error"),tr("Error"));
                         return;
@@ -1100,7 +1161,7 @@ void plotterDN::AuxiliaryService()
                 }else{
                     double Q1 = LadoFrio[corriente][6]*(LadoFrio[corriente][4] -LadoFrio[corriente][5]) ;
                     if(Q1 > 0){ // SE APLICA EL SERVICIO DE CALENTAMIENTO
-                        DER_cooling_split_No(corriente,Q1);
+                        DER_cooling_split_No(corriente);
                     }else if(Q1 <= 0){ // NO SE APLICA
                         QMessageBox::warning(this,tr("Error"),tr("Error"));
                         return;
@@ -1121,7 +1182,7 @@ void plotterDN::AuxiliaryService()
                     double TemFri = FriTemProm/FriCoin;
                     double Q1 = LadoCaliente[corriente][6]*qFabs(TemFri - LadoCaliente[corriente][5]);
                     if(Q1 > 0){
-                        IZQ_heating_split_Si(corriente,TemFri,Q1);
+                        IZQ_heating_split_Si(corriente,TemFri);
                     }else if(Q1 <= 0 ){
                         QMessageBox::warning(this,tr("Error"),tr("Error"));
                         return;
@@ -1130,7 +1191,7 @@ void plotterDN::AuxiliaryService()
                 }else{
                     double Q1 = LadoCaliente[corriente][6]*qFabs(LadoCaliente[corriente][4]-LadoCaliente[corriente][5]) ;
                     if(Q1 > 0){
-                        IZQ_heating_split_No(corriente,Q1);
+                        IZQ_heating_split_No(corriente);
                     }else if(Q1 <= 0 ){
                         QMessageBox::warning(this,tr("Error"),tr("Error"));
                         return;
@@ -1150,7 +1211,7 @@ void plotterDN::AuxiliaryService()
                     double TemFri = FriTemProm/FriCoin;
                     double Q1 = LadoFrio[corriente][6]*qFabs(TemFri - LadoFrio[corriente][5]);
                     if(Q1 > 0){
-                        DER_heating_split_Si(corriente,TemFri,Q1);
+                        DER_heating_split_Si(corriente,TemFri);
                     }else if(Q1 <= 0 ){
                         QMessageBox::warning(this,tr("Error"),tr("Error"));
                         return;
@@ -1158,7 +1219,7 @@ void plotterDN::AuxiliaryService()
                 }else{
                     double Q1 = LadoFrio[corriente][6]*qFabs(LadoFrio[corriente][4]-LadoFrio[corriente][5]) ;
                     if(Q1 > 0){
-                        DER_heating_split_No(corriente,Q1);
+                        DER_heating_split_No(corriente);
                     }else if(Q1 <= 0 ){
                         QMessageBox::warning(this,tr("Error"),tr("Error"));
                         return;
@@ -1260,7 +1321,7 @@ void plotterDN::SeparacionesCalIZQ(double Corriente, double Divisiones)
     contadorDivisionesCalientes = contadorDivisionesCalientes + Divisiones;
     SeparacionesCalientes.resize(contadorDivisionesCalientes);
     for(int i = 0; i < SeparacionesCalientes.size(); i++){
-        SeparacionesCalientes[i].resize(10);
+        SeparacionesCalientes[i].resize(11);
     }
     double contadorY = 0;
     double distancia = (LadoCaliente[Corriente][10] - LadoCaliente[Corriente][8])/ Divisiones ;
@@ -1302,6 +1363,7 @@ void plotterDN::SeparacionesCalIZQ(double Corriente, double Divisiones)
         SeparacionesCalientes[i][7] = y1[1]; //y
         SeparacionesCalientes[i][8] = x1[2]; //x
         SeparacionesCalientes[i][9] = y1[2]; //y
+        SeparacionesCalientes[i][10] = LadoCaliente[Corriente][13]; //H
         contadorPlots++;
     }
     // ACTUALIZACION DE LAS CORRIENTES CALIENTES
@@ -1315,7 +1377,7 @@ void plotterDN::SeparacionesFriIZQ(double Corriente, double Divisiones)
     contadorDivisionesFrias = contadorDivisionesFrias + Divisiones;
     SeparacionesFrias.resize(contadorDivisionesFrias);
     for(int i = 0; i < SeparacionesFrias.size(); i++){
-        SeparacionesFrias[i].resize(10);
+        SeparacionesFrias[i].resize(11);
     }
     double contadorY = 0;
     double distancia = (LadoCaliente[Corriente][10] - LadoCaliente[Corriente][8])/ Divisiones;
@@ -1357,6 +1419,7 @@ void plotterDN::SeparacionesFriIZQ(double Corriente, double Divisiones)
         SeparacionesFrias[i][7] = y1[1]; //y
         SeparacionesFrias[i][8] = x1[2]; //x
         SeparacionesFrias[i][9] = y1[2]; //y
+        SeparacionesFrias[i][10] = LadoCaliente[Corriente][13];
         contadorPlots++;
     }
     // ACTUALIZACION DE LAS CORRIENTES CALIENTES
@@ -1371,7 +1434,7 @@ void plotterDN::SeparacionesCalDER(double Corriente, double Divisiones)
     contadorDivisionesCalientes = contadorDivisionesCalientes + Divisiones;
     SeparacionesCalientes.resize(contadorDivisionesCalientes);
     for(int i = 0; i < SeparacionesCalientes.size(); i++){
-        SeparacionesCalientes[i].resize(10);
+        SeparacionesCalientes[i].resize(11);
     }
     double contadorY = 0;
     double distancia = (LadoFrio[stream][10] - LadoFrio[stream][8])/ Divisiones ;
@@ -1413,6 +1476,7 @@ void plotterDN::SeparacionesCalDER(double Corriente, double Divisiones)
         SeparacionesCalientes[i][7] = y1[1]; //y
         SeparacionesCalientes[i][8] = x1[2]; //x
         SeparacionesCalientes[i][9] = y1[2]; //y
+        SeparacionesCalientes[i][10] = LadoFrio[stream][13];
         contadorPlots++;
     }
     LadoFrio[stream][8] = x1[3];
@@ -1426,7 +1490,7 @@ void plotterDN::SeparacionesFriDER(double Corriente, double Divisiones)
     contadorDivisionesFrias = contadorDivisionesFrias + Divisiones;
     SeparacionesFrias.resize(contadorDivisionesFrias);
     for(int i = 0; i < SeparacionesFrias.size(); i++){
-        SeparacionesFrias[i].resize(9);
+        SeparacionesFrias[i].resize(11);
     }
     double contadorY = 0;
     double distancia = LadoFrio[stream][10] - LadoFrio[stream][8]/ Divisiones ;
@@ -1469,6 +1533,7 @@ void plotterDN::SeparacionesFriDER(double Corriente, double Divisiones)
         SeparacionesFrias[i][7] = y1[1]; //y
         SeparacionesFrias[i][8] = x1[2]; //x
         SeparacionesFrias[i][9] = y1[2]; //y
+        SeparacionesFrias[i][10] = LadoFrio[stream][13];
         contadorPlots++;
     }
     LadoFrio[stream][10] = x1[3];
@@ -1476,7 +1541,7 @@ void plotterDN::SeparacionesFriDER(double Corriente, double Divisiones)
     ui->qcustomplot->replot();
 }
 
-void plotterDN::IZQ_cooling_split_Si(double Corriente, double Temp,double Q)
+void plotterDN::IZQ_cooling_split_Si(double Corriente, double Temp)
 {
     contadorSER = contadorSER + 1;
     contadorSERCAL = contadorSERCAL + 1;
@@ -1499,19 +1564,20 @@ void plotterDN::IZQ_cooling_split_Si(double Corriente, double Temp,double Q)
     ui->qcustomplot->replot();
     //ALMACENA EN EL VECTOR SERVICIOES
     Servicios.resize(contadorSER);
-    ENERGIA_SERVICIOS.resize(contadorSER);
-    ENERGIA_SERVICIOS[contadorSER-1] = Q;
     for(int i = 0; i < Servicios.size(); i++){
-        Servicios[i].resize(5);
+        Servicios[i].resize(8);
     }
     Servicios[contadorSER-1][0] = Corriente;
-    Servicios[contadorSER-1][1] = Temp; // entrada caliente
-    Servicios[contadorSER-1][2] = LadoCaliente[Corriente][5]; // salida fria
-    Servicios[contadorSER-1][3] = Enfriamento[0]; // entrada caliente
-    Servicios[contadorSER-1][4] = Enfriamento[1]; // salida caliente
+    Servicios[contadorSER-1][1] = 1 ; //ENFRIAMENTO
+    Servicios[contadorSER-1][2] = Temp; // entrada caliente
+    Servicios[contadorSER-1][3] = LadoCaliente[Corriente][5]; // salida fria
+    Servicios[contadorSER-1][4] = Enfriamento[0]; // entrada caliente
+    Servicios[contadorSER-1][5] = Enfriamento[1]; // salida caliente
+    Servicios[contadorSER-1][6] = LadoCaliente[Corriente][6]*qFabs(Temp - LadoCaliente[Corriente][5]);
+    Servicios[contadorSER-1][7] = LadoCaliente[Corriente][13];
 }
 
-void plotterDN::DER_cooling_split_Si(double Corriente, double Temp,double Q)
+void plotterDN::DER_cooling_split_Si(double Corriente, double Temp)
 {
     contadorSER = contadorSER + 1;
     contadorSERCAL = contadorSERCAL + 1;
@@ -1534,19 +1600,20 @@ void plotterDN::DER_cooling_split_Si(double Corriente, double Temp,double Q)
     ui->qcustomplot->replot();
     //ALMACENA EN EL VECTOR SERVICIOES
     Servicios.resize(contadorSER);
-    ENERGIA_SERVICIOS.resize(contadorSER);
-    ENERGIA_SERVICIOS[contadorSER-1] = Q;
     for(int i = 0; i < Servicios.size(); i++){
-        Servicios[i].resize(5);
+        Servicios[i].resize(8);
     }
     Servicios[contadorSER-1][0] = Corriente;
-    Servicios[contadorSER-1][1] = Temp; // entrada caliente
-    Servicios[contadorSER-1][2] = LadoFrio[Corriente][5]; // salida fria
-    Servicios[contadorSER-1][3] = Enfriamento[0]; // entrada caliente
-    Servicios[contadorSER-1][4] = Enfriamento[1]; // salida caliente
+    Servicios[contadorSER-1][1] = 1 ; //ENFRIAMENTO
+    Servicios[contadorSER-1][2] = Temp; // entrada caliente
+    Servicios[contadorSER-1][3] = LadoFrio[Corriente][5]; // salida fria
+    Servicios[contadorSER-1][4] = Enfriamento[0]; // entrada caliente
+    Servicios[contadorSER-1][5] = Enfriamento[1]; // salida caliente
+    Servicios[contadorSER-1][6] = LadoFrio[Corriente][6]*qFabs(Temp - LadoFrio[Corriente][5]);
+    Servicios[contadorSER-1][7] = LadoFrio[Corriente][13];
 }
 
-void plotterDN::IZQ_heating_split_Si(double Corriente, double Temp,double Q)
+void plotterDN::IZQ_heating_split_Si(double Corriente, double Temp)
 {
     contadorSER = contadorSER + 1;
     contadorSERFRI = contadorSERFRI + 1;
@@ -1569,19 +1636,21 @@ void plotterDN::IZQ_heating_split_Si(double Corriente, double Temp,double Q)
     ui->qcustomplot->replot();
     //ALMACENA EN EL VECTOR SERVICIOES
     Servicios.resize(contadorSER);
-    ENERGIA_SERVICIOS.resize(contadorSER);
-    ENERGIA_SERVICIOS[contadorSER-1] = Q;
     for(int i = 0; i < Servicios.size(); i++){
-        Servicios[i].resize(5);
+        Servicios[i].resize(8);
     }
     Servicios[contadorSER-1][0] = Corriente;
-    Servicios[contadorSER-1][1] = Calentamiento[0]; // entrada caliente
-    Servicios[contadorSER-1][2] = Calentamiento[1]; // salida caliente
-    Servicios[contadorSER-1][3] = Temp; // entrada caliente
-    Servicios[contadorSER-1][4] = LadoCaliente[Corriente][4]; // salida fria
+    Servicios[contadorSER-1][1] = 0 ; //CALENTAMIENTO
+    Servicios[contadorSER-1][2] = Calentamiento[0]; // entrada caliente
+    Servicios[contadorSER-1][3] = Calentamiento[1]; // salida caliente
+    Servicios[contadorSER-1][4] = Temp; // entrada caliente
+    Servicios[contadorSER-1][5] = LadoCaliente[Corriente][4]; // salida fria
+    Servicios[contadorSER-1][6] = LadoCaliente[Corriente][6]*qFabs(Temp-LadoCaliente[Corriente][4]);
+    Servicios[contadorSER-1][7] = LadoCaliente[Corriente][13];
+
 }
 
-void plotterDN::DER_heating_split_Si(double Corriente, double Temp,double Q)
+void plotterDN::DER_heating_split_Si(double Corriente, double Temp)
 {
     contadorSER = contadorSER + 1;
     contadorSERFRI = contadorSERFRI + 1;
@@ -1604,19 +1673,20 @@ void plotterDN::DER_heating_split_Si(double Corriente, double Temp,double Q)
     ui->qcustomplot->replot();
     //ALMACENA EN EL VECTOR SERVICIOES
     Servicios.resize(contadorSER);
-    ENERGIA_SERVICIOS.resize(contadorSER);
-    ENERGIA_SERVICIOS[contadorSER-1] = Q;
     for(int i = 0; i < Servicios.size(); i++){
-        Servicios[i].resize(5);
+        Servicios[i].resize(8);
     }
     Servicios[contadorSER-1][0] = Corriente;
-    Servicios[contadorSER-1][1] = Calentamiento[0]; // entrada caliente
-    Servicios[contadorSER-1][2] = Calentamiento[1]; // salida caliente
-    Servicios[contadorSER-1][3] = Temp; // entrada caliente
-    Servicios[contadorSER-1][4] = LadoFrio[Corriente][4]; // salida fria
+    Servicios[contadorSER-1][1] = 0;
+    Servicios[contadorSER-1][2] = Calentamiento[0]; // entrada caliente
+    Servicios[contadorSER-1][3] = Calentamiento[1]; // salida caliente
+    Servicios[contadorSER-1][4] = Temp; // entrada caliente
+    Servicios[contadorSER-1][5] = LadoFrio[Corriente][4]; // salida fria
+    Servicios[contadorSER-1][6] = LadoFrio[Corriente][6]*qFabs(Temp-LadoFrio[Corriente][4]);
+    Servicios[contadorSER-1][7] = LadoFrio[Corriente][13];
 }
 
-void plotterDN::IZQ_cooling_split_No(double Corriente,double Q)
+void plotterDN::IZQ_cooling_split_No(double Corriente)
 {
     contadorSER = contadorSER + 1;
     contadorSERCAL = contadorSERCAL + 1;
@@ -1639,19 +1709,20 @@ void plotterDN::IZQ_cooling_split_No(double Corriente,double Q)
     ui->qcustomplot->replot();
     //ALMACENA EN EL VECTOR SERVICIOES
     Servicios.resize(contadorSER);
-    ENERGIA_SERVICIOS.resize(contadorSER);
-    ENERGIA_SERVICIOS[contadorSER-1] = Q;
     for(int i = 0; i < Servicios.size(); i++){
-        Servicios[i].resize(5);
+        Servicios[i].resize(8);
     }
     Servicios[contadorSER-1][0] = Corriente;
-    Servicios[contadorSER-1][1] = LadoCaliente[Corriente][4]; // entrada caliente
-    Servicios[contadorSER-1][2] = LadoCaliente[Corriente][5]; // salida fria
-    Servicios[contadorSER-1][3] = Enfriamento[0]; // entrada caliente
-    Servicios[contadorSER-1][4] = Enfriamento[1]; // salida caliente
+    Servicios[contadorSER-1][1] = 1;
+    Servicios[contadorSER-1][2] = LadoCaliente[Corriente][4]; // entrada caliente
+    Servicios[contadorSER-1][3] = LadoCaliente[Corriente][5]; // salida fria
+    Servicios[contadorSER-1][4] = Enfriamento[0]; // entrada caliente
+    Servicios[contadorSER-1][5] = Enfriamento[1]; // salida caliente
+    Servicios[contadorSER-1][6] = LadoCaliente[Corriente][6]*qFabs(LadoCaliente[Corriente][4]-LadoCaliente[Corriente][5]);
+    Servicios[contadorSER-1][7] = LadoCaliente[Corriente][13];
 }
 
-void plotterDN::DER_cooling_split_No(double Corriente,double Q)
+void plotterDN::DER_cooling_split_No(double Corriente)
 {
     contadorSER = contadorSER + 1;
     contadorSERCAL = contadorSERCAL + 1;
@@ -1674,19 +1745,20 @@ void plotterDN::DER_cooling_split_No(double Corriente,double Q)
     ui->qcustomplot->replot();
     //ALMACENA EN EL VECTOR SERVICIOES
     Servicios.resize(contadorSER);
-    ENERGIA_SERVICIOS.resize(contadorSER);
-    ENERGIA_SERVICIOS[contadorSER-1] = Q;
     for(int i = 0; i < Servicios.size(); i++){
-        Servicios[i].resize(5);
+        Servicios[i].resize(8);
     }
     Servicios[contadorSER-1][0] = Corriente;
-    Servicios[contadorSER-1][1] = LadoFrio[Corriente][4]; // entrada caliente
-    Servicios[contadorSER-1][2] = LadoFrio[Corriente][5]; // salida fria
-    Servicios[contadorSER-1][3] = Enfriamento[0]; // entrada caliente
-    Servicios[contadorSER-1][4] = Enfriamento[1]; // salida caliente
+    Servicios[contadorSER-1][1] = 1;
+    Servicios[contadorSER-1][2] = LadoFrio[Corriente][4]; // entrada caliente
+    Servicios[contadorSER-1][3] = LadoFrio[Corriente][5]; // salida fria
+    Servicios[contadorSER-1][4] = Enfriamento[0]; // entrada caliente
+    Servicios[contadorSER-1][5] = Enfriamento[1]; // salida caliente
+    Servicios[contadorSER-1][6] = LadoFrio[Corriente][6]*qFabs(LadoFrio[Corriente][4]-LadoFrio[Corriente][5]);
+    Servicios[contadorSER-1][7] = LadoFrio[Corriente][13];
 }
 
-void plotterDN::IZQ_heating_split_No(double Corriente,double Q)
+void plotterDN::IZQ_heating_split_No(double Corriente)
 {
     contadorSER = contadorSER + 1;
     contadorSERFRI = contadorSERFRI + 1;
@@ -1709,19 +1781,20 @@ void plotterDN::IZQ_heating_split_No(double Corriente,double Q)
     ui->qcustomplot->replot();
     //ALMACENA EN EL VECTOR SERVICIOES
     Servicios.resize(contadorSER);
-    ENERGIA_SERVICIOS.resize(contadorSER);
-    ENERGIA_SERVICIOS[contadorSER-1] = Q;
     for(int i = 0; i < Servicios.size(); i++){
-        Servicios[i].resize(5);
+        Servicios[i].resize(8);
     }
     Servicios[contadorSER-1][0] = Corriente;
-    Servicios[contadorSER-1][1] = Calentamiento[0]; // entrada caliente
-    Servicios[contadorSER-1][2] = Calentamiento[1]; // salida caliente
-    Servicios[contadorSER-1][3] = LadoCaliente[Corriente][5]; // entrada caliente
-    Servicios[contadorSER-1][4] = LadoCaliente[Corriente][4]; // salida fria
+    Servicios[contadorSER-1][1] = 0;
+    Servicios[contadorSER-1][2] = Calentamiento[0]; // entrada caliente
+    Servicios[contadorSER-1][3] = Calentamiento[1]; // salida caliente
+    Servicios[contadorSER-1][4] = LadoCaliente[Corriente][5]; // entrada caliente
+    Servicios[contadorSER-1][5] = LadoCaliente[Corriente][4]; // salida fria
+    Servicios[contadorSER-1][6] = LadoCaliente[Corriente][6]*qFabs(LadoCaliente[Corriente][5] - LadoCaliente[Corriente][4]);
+    Servicios[contadorSER-1][7] = LadoCaliente[Corriente][13];
 }
 
-void plotterDN::DER_heating_split_No(double Corriente,double Q)
+void plotterDN::DER_heating_split_No(double Corriente)
 {
     contadorSER = contadorSER + 1;
     contadorSERFRI = contadorSERFRI + 1;
@@ -1744,16 +1817,17 @@ void plotterDN::DER_heating_split_No(double Corriente,double Q)
     ui->qcustomplot->replot();
     //ALMACENA EN EL VECTOR SERVICIOES
     Servicios.resize(contadorSER);
-    ENERGIA_SERVICIOS.resize(contadorSER);
-    ENERGIA_SERVICIOS[contadorSER-1] = Q;
     for(int i = 0; i < Servicios.size(); i++){
-        Servicios[i].resize(5);
+        Servicios[i].resize(8);
     }
     Servicios[contadorSER-1][0] = Corriente;
-    Servicios[contadorSER-1][1] = Calentamiento[0]; // entrada caliente
-    Servicios[contadorSER-1][2] = Calentamiento[1]; // salida caliente
-    Servicios[contadorSER-1][3] = LadoFrio[Corriente][5]; // entrada caliente
-    Servicios[contadorSER-1][4] = LadoFrio[Corriente][4]; // salida fria
+    Servicios[contadorSER-1][1] = 0;
+    Servicios[contadorSER-1][2] = Calentamiento[0]; // entrada caliente
+    Servicios[contadorSER-1][3] = Calentamiento[1]; // salida caliente
+    Servicios[contadorSER-1][4] = LadoFrio[Corriente][5]; // entrada caliente
+    Servicios[contadorSER-1][5] = LadoFrio[Corriente][4]; // salida fria
+    Servicios[contadorSER-1][6] = LadoFrio[Corriente][6]*qFabs(LadoFrio[Corriente][5] - LadoFrio[Corriente][4]);
+    Servicios[contadorSER-1][7] = LadoFrio[Corriente][13];
 }
 
 void plotterDN::conectStream()
@@ -1766,7 +1840,11 @@ void plotterDN::conectStream()
     QDataStream in30(&FileCostos);
     in30.setVersion(QDataStream::Qt_5_4);
     bool diverso2 = false, uniforme2 = false;
-    QVector<double> Calentamiento2,Enfriamento2,OperationCost2;
+    QVector<double> Calentamiento2,Enfriamento2,OperationCost2,TS1,TE1,WCP1,H1;
+    TS1.resize(1);
+    TE1.resize(1);
+    WCP1.resize(1);
+    H1.resize(1);
     Calentamiento2.resize(10);
     Enfriamento2.resize(10);
     OperationCost2.resize(10);
@@ -1777,7 +1855,7 @@ void plotterDN::conectStream()
     }
     int CTo2 = 0, CCo2 = 0;
     double DTmin2 = 0;
-    VecCostUniDesGri VCUD(uniforme2,diverso2,Calentamiento2,Enfriamento2,CapitalCost2,OperationCost2,DTmin2,CTo2,CCo2);
+    VecCostUniDesGri VCUD(uniforme2,diverso2,TS1,TE1,WCP1,H1,Calentamiento2,Enfriamento2,CapitalCost2,OperationCost2,DTmin2,CTo2,CCo2);
     in30 >> VCUD;
     DTmin = VCUD.getDTmin();
     FileCostos.flush();
@@ -2029,7 +2107,11 @@ void plotterDN::conectdefault()
     QDataStream in30(&FileCostos);
     in30.setVersion(QDataStream::Qt_5_4);
     bool diverso2 = false, uniforme2 = false;
-    QVector<double> Calentamiento2,Enfriamento2,OperationCost2;
+    QVector<double> Calentamiento2,Enfriamento2,OperationCost2,TS1,TE1,WCP1,H1;
+    TS1.resize(1);
+    TE1.resize(1);
+    WCP1.resize(1);
+    H1.resize(1);;
     Calentamiento2.resize(10);
     Enfriamento2.resize(10);
     OperationCost2.resize(10);
@@ -2040,7 +2122,7 @@ void plotterDN::conectdefault()
     }
     int CTo2 = 0, CCo2 = 0;
     double DTmin2 = 0;
-    VecCostUniDesGri VCUD(uniforme2,diverso2,Calentamiento2,Enfriamento2,CapitalCost2,OperationCost2,DTmin2,CTo2,CCo2);
+    VecCostUniDesGri VCUD(uniforme2,diverso2,TS1,TE1,WCP1,H1,Calentamiento2,Enfriamento2,CapitalCost2,OperationCost2,DTmin2,CTo2,CCo2);
     in30 >> VCUD;
     DTmin = VCUD.getDTmin();
     FileCostos.flush();
@@ -2506,7 +2588,7 @@ void plotterDN::IZQ_PrimeraOPC_Caliente_SI_0_FRIA_NO_X(double DTmin, double Cali
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -2516,6 +2598,11 @@ void plotterDN::IZQ_PrimeraOPC_Caliente_SI_0_FRIA_NO_X(double DTmin, double Cali
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = LadoCaliente[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoCaliente[Caliente][6]*qFabs(TemCal - X1);
+        Uniones[contadorUniones-1][9] = LadoCaliente[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoCaliente[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = LadoCaliente[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoCaliente[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoCaliente[Caliente][4]  = X1;
         LadoCaliente[Fria][5] = X2;
@@ -2594,7 +2681,7 @@ void plotterDN::IZQ_PrimeraOPC_Caliente_SI_1_FRIA_NO_X(double DTmin, double Cali
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -2604,6 +2691,11 @@ void plotterDN::IZQ_PrimeraOPC_Caliente_SI_1_FRIA_NO_X(double DTmin, double Cali
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = LadoCaliente[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoCaliente[Caliente][6]*qFabs(LadoCaliente[Caliente][4] - X1);
+        Uniones[contadorUniones-1][9] = LadoCaliente[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoCaliente[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = LadoCaliente[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoCaliente[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoCaliente[Caliente][4]  = X1;
         LadoCaliente[Fria][5] = X2;
@@ -2690,7 +2782,7 @@ void plotterDN::IZQ_PrimeraOPC_Caliente_NO_X_FRIA_SI_0(double DTmin, double Cali
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -2700,6 +2792,11 @@ void plotterDN::IZQ_PrimeraOPC_Caliente_NO_X_FRIA_SI_0(double DTmin, double Cali
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = TemFri; //LadoCaliente[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoCaliente[Caliente][6]*qFabs(LadoCaliente[Caliente][4] - X1);
+        Uniones[contadorUniones-1][9] = LadoCaliente[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoCaliente[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = LadoCaliente[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoCaliente[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoCaliente[Caliente][4]  = X1;
         LadoCaliente[Fria][5] = X2;
@@ -2778,7 +2875,7 @@ void plotterDN::IZQ_PrimeraOPC_Caliente_NO_X_FRIA_SI_1(double DTmin, double Cali
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -2788,6 +2885,11 @@ void plotterDN::IZQ_PrimeraOPC_Caliente_NO_X_FRIA_SI_1(double DTmin, double Cali
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = LadoCaliente[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoCaliente[Caliente][6]*qFabs(LadoCaliente[Caliente][4] - X1);
+        Uniones[contadorUniones-1][9] = LadoCaliente[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoCaliente[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = LadoCaliente[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoCaliente[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoCaliente[Caliente][4]  = X1;
         LadoCaliente[Fria][5] = X2;
@@ -2866,7 +2968,7 @@ void plotterDN::IZQ_PrimeraOPC_sinSeparacionPrincipales(double DTmin, double Cal
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -2876,6 +2978,11 @@ void plotterDN::IZQ_PrimeraOPC_sinSeparacionPrincipales(double DTmin, double Cal
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = LadoCaliente[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoCaliente[Caliente][6]*qFabs(LadoCaliente[Caliente][4] - X1);
+        Uniones[contadorUniones-1][9] = LadoCaliente[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoCaliente[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = LadoCaliente[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoCaliente[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoCaliente[Caliente][4]  = X1;
         LadoCaliente[Fria][5] = X2;
@@ -2970,7 +3077,7 @@ void plotterDN::IZQ_PrimeraOPC_Caliente_SI_0_FRIA_SI_0(double DTmin, double Cali
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -2980,6 +3087,11 @@ void plotterDN::IZQ_PrimeraOPC_Caliente_SI_0_FRIA_SI_0(double DTmin, double Cali
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = TemFri; //LadoCaliente[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoCaliente[Caliente][6]*qFabs(TemCal - X1);
+        Uniones[contadorUniones-1][9] = LadoCaliente[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoCaliente[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = LadoCaliente[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoCaliente[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoCaliente[Caliente][4]  = X1;
         LadoCaliente[Fria][5] = X2;
@@ -3069,7 +3181,7 @@ void plotterDN::IZQ_PrimeraOPC_Caliente_SI_0_FRIA_SI_1(double DTmin, double Cali
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -3079,6 +3191,11 @@ void plotterDN::IZQ_PrimeraOPC_Caliente_SI_0_FRIA_SI_1(double DTmin, double Cali
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = LadoCaliente[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoCaliente[Caliente][6]* qFabs(TemCal - X1);
+        Uniones[contadorUniones-1][9] = LadoCaliente[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoCaliente[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = LadoCaliente[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoCaliente[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoCaliente[Caliente][4]  = X1;
         LadoCaliente[Fria][5] = X2;
@@ -3166,7 +3283,7 @@ void plotterDN::IZQ_PrimeraOPC_Caliente_SI_1_FRIA_SI_0(double DTmin, double Cali
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -3176,6 +3293,11 @@ void plotterDN::IZQ_PrimeraOPC_Caliente_SI_1_FRIA_SI_0(double DTmin, double Cali
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = TemFri;// LadoCaliente[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoCaliente[Caliente][6]*qFabs(LadoCaliente[Caliente][4] - X1);
+        Uniones[contadorUniones-1][9] = LadoCaliente[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoCaliente[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = LadoCaliente[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoCaliente[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoCaliente[Caliente][4]  = X1;
         LadoCaliente[Fria][5] = X2;
@@ -3254,7 +3376,7 @@ void plotterDN::IZQ_PrimeraOPC_Caliente_SI_1_FRIA_SI_1(double DTmin, double Cali
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -3264,6 +3386,11 @@ void plotterDN::IZQ_PrimeraOPC_Caliente_SI_1_FRIA_SI_1(double DTmin, double Cali
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = LadoCaliente[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoCaliente[Caliente][6]*qFabs(LadoCaliente[Caliente][4] - X1);
+        Uniones[contadorUniones-1][9] = LadoCaliente[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoCaliente[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = LadoCaliente[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoCaliente[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoCaliente[Caliente][4]  = X1;
         LadoCaliente[Fria][5] = X2;
@@ -3357,7 +3484,7 @@ void plotterDN::DER_PrimeraOPC_Caliente_SI_0_FRIA_SI_0(double DTmin, double Cali
         ui->qcustomplot->replot();
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -3367,6 +3494,11 @@ void plotterDN::DER_PrimeraOPC_Caliente_SI_0_FRIA_SI_0(double DTmin, double Cali
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = TemFri; //LadoFrio[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoFrio[Caliente][6]*qFabs(TemCal - X1);
+        Uniones[contadorUniones-1][9] = LadoFrio[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoFrio[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = LadoFrio[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoFrio[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoFrio[Caliente][4]  = X1;
         LadoFrio[Fria][5] = X2;
@@ -3446,7 +3578,7 @@ void plotterDN::DER_PrimeraOPC_sinSeparacionPrincipales(double DTmin, double Cal
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -3456,6 +3588,11 @@ void plotterDN::DER_PrimeraOPC_sinSeparacionPrincipales(double DTmin, double Cal
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = LadoFrio[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoFrio[Caliente][6]*qFabs(LadoFrio[Caliente][4] - X1);
+        Uniones[contadorUniones-1][9] = LadoFrio[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoFrio[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = LadoFrio[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoFrio[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoFrio[Caliente][4]  = X1;
         LadoFrio[Fria][5] = X2;
@@ -3542,7 +3679,7 @@ void plotterDN::DER_PrimeraOPC_Caliente_SI_0_FRIA_SI_1(double DTmin, double Cali
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -3552,6 +3689,11 @@ void plotterDN::DER_PrimeraOPC_Caliente_SI_0_FRIA_SI_1(double DTmin, double Cali
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = LadoFrio[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoFrio[Caliente][6]*qFabs(TemCal - X1);
+        Uniones[contadorUniones-1][9] = LadoFrio[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoFrio[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = LadoFrio[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoFrio[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoFrio[Caliente][4]  = X1;
         LadoFrio[Fria][5] = X2;
@@ -3641,7 +3783,7 @@ void plotterDN::DER_PrimeraOPC_Caliente_SI_1_FRIA_SI_0(double DTmin, double Cali
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -3651,6 +3793,11 @@ void plotterDN::DER_PrimeraOPC_Caliente_SI_1_FRIA_SI_0(double DTmin, double Cali
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = TemFri;//LadoFrio[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoFrio[Caliente][6]*qFabs(LadoFrio[Caliente][4] - X1);
+        Uniones[contadorUniones-1][9] = LadoFrio[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoFrio[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = LadoFrio[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoFrio[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoFrio[Caliente][4]  = X1;
         LadoFrio[Fria][5] = X2;
@@ -3730,7 +3877,7 @@ void plotterDN::DER_PrimeraOPC_Caliente_SI_1_FRIA_SI_1(double DTmin, double Cali
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -3740,6 +3887,11 @@ void plotterDN::DER_PrimeraOPC_Caliente_SI_1_FRIA_SI_1(double DTmin, double Cali
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = LadoFrio[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoFrio[Caliente][6]*qFabs(LadoFrio[Caliente][4] - X1);
+        Uniones[contadorUniones-1][9] = LadoFrio[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoFrio[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = LadoFrio[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoFrio[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoFrio[Caliente][4]  = X1;
         LadoFrio[Fria][5] = X2;
@@ -3827,7 +3979,7 @@ void plotterDN::DER_PrimeraOPC_Caliente_SI_0_FRIA_NO_X(double DTmin, double Cali
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -3837,6 +3989,11 @@ void plotterDN::DER_PrimeraOPC_Caliente_SI_0_FRIA_NO_X(double DTmin, double Cali
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = LadoFrio[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoFrio[Caliente][6]*qFabs(TemCal - X1);
+        Uniones[contadorUniones-1][9] = LadoFrio[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoFrio[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = LadoFrio[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoFrio[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoFrio[Caliente][4]  = X1;
         LadoFrio[Fria][5] = X2;
@@ -3915,7 +4072,7 @@ void plotterDN::DER_PrimeraOPC_Caliente_SI_1_FRIA_NO_X(double DTmin, double Cali
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -3925,6 +4082,11 @@ void plotterDN::DER_PrimeraOPC_Caliente_SI_1_FRIA_NO_X(double DTmin, double Cali
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = LadoFrio[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoFrio[Caliente][6]*qFabs(LadoFrio[Caliente][4] - X1);
+        Uniones[contadorUniones-1][9] = LadoFrio[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoFrio[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = LadoFrio[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoFrio[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoFrio[Caliente][4]  = X1;
         LadoFrio[Fria][5] = X2;
@@ -4011,7 +4173,7 @@ void plotterDN::DER_PrimeraOPC_Caliente_NO_X_FRIA_SI_0(double DTmin, double Cali
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -4021,6 +4183,11 @@ void plotterDN::DER_PrimeraOPC_Caliente_NO_X_FRIA_SI_0(double DTmin, double Cali
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = TemFri;//LadoFrio[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoFrio[Caliente][6]*qFabs(LadoFrio[Caliente][4] - X1);
+        Uniones[contadorUniones-1][9] = LadoFrio[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoFrio[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = LadoFrio[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoFrio[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoFrio[Caliente][4]  = X1;
         LadoFrio[Fria][5] = X2;
@@ -4100,7 +4267,7 @@ void plotterDN::DER_PrimeraOPC_Caliente_NO_X_FRIA_SI_1(double DTmin, double Cali
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -4110,6 +4277,11 @@ void plotterDN::DER_PrimeraOPC_Caliente_NO_X_FRIA_SI_1(double DTmin, double Cali
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = LadoFrio[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoFrio[Caliente][6]*qFabs(LadoFrio[Caliente][4] - X1);
+        Uniones[contadorUniones-1][9] = LadoFrio[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoFrio[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = LadoFrio[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoFrio[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoFrio[Caliente][4]  = X1;
         LadoFrio[Fria][5] = X2;
@@ -4205,7 +4377,7 @@ void plotterDN::IZQ_SegundaOPC_Caliente_SI_0_FRIA_NO_X(double DTmin, double Cali
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -4215,6 +4387,11 @@ void plotterDN::IZQ_SegundaOPC_Caliente_SI_0_FRIA_NO_X(double DTmin, double Cali
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = LadoCaliente[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoCaliente[Caliente][6]*qFabs(TemCal - X1);
+        Uniones[contadorUniones-1][9] = LadoCaliente[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoCaliente[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = LadoCaliente[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoCaliente[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoCaliente[Caliente][4]  = X1;
         LadoCaliente[Fria][5] = X2;
@@ -4230,7 +4407,6 @@ void plotterDN::IZQ_SegundaOPC_Caliente_SI_0_FRIA_NO_X(double DTmin, double Cali
     }
 }
 
-// MODIFICAR TEMCAL TEMFRI
 void plotterDN::IZQ_SegundaOPC_Caliente_SI_1_FRIA_NO_X(double DTmin, double Caliente, double Fria, double espaciadoruniones) //AQUI ME QUEDE
 {
     double Q1 = LadoCaliente[Caliente][6]*(qFabs(LadoCaliente[Caliente][4] -LadoCaliente[Caliente][5])) ;
@@ -4300,7 +4476,7 @@ void plotterDN::IZQ_SegundaOPC_Caliente_SI_1_FRIA_NO_X(double DTmin, double Cali
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -4310,6 +4486,11 @@ void plotterDN::IZQ_SegundaOPC_Caliente_SI_1_FRIA_NO_X(double DTmin, double Cali
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = LadoCaliente[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoCaliente[Caliente][6]*qFabs(LadoCaliente[Caliente][4] - X1);
+        Uniones[contadorUniones-1][9] = LadoCaliente[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoCaliente[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = LadoCaliente[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoCaliente[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoCaliente[Caliente][4]  = X1;
         LadoCaliente[Fria][5] = X2;
@@ -4402,7 +4583,7 @@ void plotterDN::IZQ_SegundaOPC_Caliente_NO_X_FRIA_SI_0(double DTmin, double Cali
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -4412,6 +4593,11 @@ void plotterDN::IZQ_SegundaOPC_Caliente_NO_X_FRIA_SI_0(double DTmin, double Cali
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = TemFri; //LadoCaliente[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoCaliente[Caliente][6]*qFabs(LadoCaliente[Caliente][4] - X1);
+        Uniones[contadorUniones-1][9] = LadoCaliente[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoCaliente[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = LadoCaliente[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoCaliente[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoCaliente[Caliente][4]  = X1;
         LadoCaliente[Fria][5] = X2;
@@ -4496,7 +4682,7 @@ void plotterDN::IZQ_SegundaOPC_Caliente_NO_X_FRIA_SI_1(double DTmin, double Cali
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -4506,6 +4692,11 @@ void plotterDN::IZQ_SegundaOPC_Caliente_NO_X_FRIA_SI_1(double DTmin, double Cali
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = LadoCaliente[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoCaliente[Caliente][6]*qFabs(LadoCaliente[Caliente][4] - X1);
+        Uniones[contadorUniones-1][9] = LadoCaliente[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoCaliente[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = LadoCaliente[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoCaliente[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoCaliente[Caliente][4]  = X1;
         LadoCaliente[Fria][5] = X2;
@@ -4591,7 +4782,7 @@ void plotterDN::IZQ_SegundaOPC_sinSeparacionPrincipales(double DTmin, double Cal
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -4601,6 +4792,11 @@ void plotterDN::IZQ_SegundaOPC_sinSeparacionPrincipales(double DTmin, double Cal
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = LadoCaliente[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoCaliente[Caliente][6]*qFabs(LadoCaliente[Caliente][4] - X1);
+        Uniones[contadorUniones-1][9] = LadoCaliente[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoCaliente[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = LadoCaliente[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoCaliente[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoCaliente[Caliente][4]  = X1;
         LadoCaliente[Fria][5] = X2;
@@ -4700,7 +4896,7 @@ void plotterDN::IZQ_SegundaOPC_Caliente_SI_0_FRIA_SI_0(double DTmin, double Cali
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -4710,6 +4906,11 @@ void plotterDN::IZQ_SegundaOPC_Caliente_SI_0_FRIA_SI_0(double DTmin, double Cali
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = TemFri;//LadoCaliente[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoCaliente[Caliente][6]*qFabs(TemCal - X1);
+        Uniones[contadorUniones-1][9] = LadoCaliente[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoCaliente[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = LadoCaliente[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoCaliente[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoCaliente[Caliente][4]  = X1;
         LadoCaliente[Fria][5] = X2;
@@ -4805,7 +5006,7 @@ void plotterDN::IZQ_SegundaOPC_Caliente_SI_0_FRIA_SI_1(double DTmin, double Cali
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -4815,6 +5016,11 @@ void plotterDN::IZQ_SegundaOPC_Caliente_SI_0_FRIA_SI_1(double DTmin, double Cali
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = LadoCaliente[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoCaliente[Caliente][6]*qFabs(TemCal - X1);
+        Uniones[contadorUniones-1][9] = LadoCaliente[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoCaliente[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = LadoCaliente[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoCaliente[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoCaliente[Caliente][4]  = X1;
         LadoCaliente[Fria][5] = X2;
@@ -4907,7 +5113,7 @@ void plotterDN::IZQ_SegundaOPC_Caliente_SI_1_FRIA_SI_0(double DTmin, double Cali
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -4917,6 +5123,11 @@ void plotterDN::IZQ_SegundaOPC_Caliente_SI_1_FRIA_SI_0(double DTmin, double Cali
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = TemFri;//LadoCaliente[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoCaliente[Caliente][6]*qFabs(LadoCaliente[Caliente][4] - X1);
+        Uniones[contadorUniones-1][9] = LadoCaliente[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoCaliente[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = LadoCaliente[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoCaliente[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoCaliente[Caliente][4]  = X1;
         LadoCaliente[Fria][5] = X2;
@@ -5001,7 +5212,7 @@ void plotterDN::IZQ_SegundaOPC_Caliente_SI_1_FRIA_SI_1(double DTmin, double Cali
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -5011,6 +5222,11 @@ void plotterDN::IZQ_SegundaOPC_Caliente_SI_1_FRIA_SI_1(double DTmin, double Cali
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = LadoCaliente[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoCaliente[Caliente][6]*qFabs(LadoCaliente[Caliente][4] - X1);
+        Uniones[contadorUniones-1][9] = LadoCaliente[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoCaliente[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = LadoCaliente[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoCaliente[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoCaliente[Caliente][4]  = X1;
         LadoCaliente[Fria][5] = X2;
@@ -5105,7 +5321,7 @@ void plotterDN::DER_SegundaOPC_Caliente_SI_0_FRIA_NO_X(double DTmin, double Cali
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -5115,6 +5331,11 @@ void plotterDN::DER_SegundaOPC_Caliente_SI_0_FRIA_NO_X(double DTmin, double Cali
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = LadoFrio[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoFrio[Caliente][6]*qFabs(TemCal - X1);
+        Uniones[contadorUniones-1][9] = LadoFrio[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoFrio[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = LadoFrio[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoFrio[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoFrio[Caliente][4]  = X1;
         LadoFrio[Fria][5] = X2;
@@ -5199,7 +5420,7 @@ void plotterDN::DER_SegundaOPC_Caliente_SI_1_FRIA_NO_X(double DTmin, double Cali
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -5209,6 +5430,11 @@ void plotterDN::DER_SegundaOPC_Caliente_SI_1_FRIA_NO_X(double DTmin, double Cali
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = LadoFrio[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoFrio[Caliente][6]*qFabs(LadoFrio[Caliente][4] - X1);
+        Uniones[contadorUniones-1][9] = LadoFrio[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoFrio[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = LadoFrio[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoFrio[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoFrio[Caliente][4]  = X1;
         LadoFrio[Fria][5] = X2;
@@ -5301,7 +5527,7 @@ void plotterDN::DER_SegundaOPC_Caliente_NO_X_FRIA_SI_0(double DTmin, double Cali
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -5310,7 +5536,12 @@ void plotterDN::DER_SegundaOPC_Caliente_NO_X_FRIA_SI_0(double DTmin, double Cali
         Uniones[contadorUniones-1][4] = LadoFrio[Caliente][4]; // entrada caliente
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = TemFri;//LadoFrio[Fria][5]; // entrada fria
-        Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][7] = X2; // salida friaç
+        Uniones[contadorUniones-1][8] = LadoFrio[Caliente][6]*qFabs(LadoFrio[Caliente][4] - X1);
+        Uniones[contadorUniones-1][9] = LadoFrio[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoFrio[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = LadoFrio[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoFrio[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoFrio[Caliente][4]  = X1;
         LadoFrio[Fria][5] = X2;
@@ -5395,7 +5626,7 @@ void plotterDN::DER_SegundaOPC_Caliente_NO_X_FRIA_SI_1(double DTmin, double Cali
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -5405,6 +5636,11 @@ void plotterDN::DER_SegundaOPC_Caliente_NO_X_FRIA_SI_1(double DTmin, double Cali
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = LadoFrio[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoFrio[Caliente][6]*qFabs(LadoFrio[Caliente][4] - X1);
+        Uniones[contadorUniones-1][9] = LadoFrio[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoFrio[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = LadoFrio[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoFrio[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoFrio[Caliente][4]  = X1;
         LadoFrio[Fria][5] = X2;
@@ -5490,7 +5726,7 @@ void plotterDN::DER_SegundaOPC_sinSeparacionPrincipales(double DTmin, double Cal
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -5500,6 +5736,11 @@ void plotterDN::DER_SegundaOPC_sinSeparacionPrincipales(double DTmin, double Cal
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = LadoFrio[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoFrio[Caliente][6]*qFabs(LadoFrio[Caliente][4] - X1);
+        Uniones[contadorUniones-1][9] = LadoFrio[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoFrio[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = LadoFrio[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoFrio[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoFrio[Caliente][4]  = X1;
         LadoFrio[Fria][5] = X2;
@@ -5599,7 +5840,7 @@ void plotterDN::DER_SegundaOPC_Caliente_SI_0_FRIA_SI_0(double DTmin, double Cali
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -5609,6 +5850,11 @@ void plotterDN::DER_SegundaOPC_Caliente_SI_0_FRIA_SI_0(double DTmin, double Cali
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = TemFri;//LadoFrio[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoFrio[Caliente][6]*qFabs(TemCal - X1);
+        Uniones[contadorUniones-1][9] = LadoFrio[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoFrio[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = LadoFrio[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoFrio[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoFrio[Caliente][4]  = X1;
         LadoFrio[Fria][5] = X2;
@@ -5704,7 +5950,7 @@ void plotterDN::DER_SegundaOPC_Caliente_SI_0_FRIA_SI_1(double DTmin, double Cali
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -5714,6 +5960,11 @@ void plotterDN::DER_SegundaOPC_Caliente_SI_0_FRIA_SI_1(double DTmin, double Cali
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = LadoFrio[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoFrio[Caliente][6]*qFabs(TemCal - X1);
+        Uniones[contadorUniones-1][9] = LadoFrio[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoFrio[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = LadoFrio[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoFrio[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoFrio[Caliente][4]  = X1;
         LadoFrio[Fria][5] = X2;
@@ -5806,7 +6057,7 @@ void plotterDN::DER_SegundaOPC_Caliente_SI_1_FRIA_SI_0(double DTmin, double Cali
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -5816,6 +6067,11 @@ void plotterDN::DER_SegundaOPC_Caliente_SI_1_FRIA_SI_0(double DTmin, double Cali
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = TemFri; //LadoFrio[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoFrio[Caliente][6]*qFabs(LadoFrio[Caliente][4] - X1);
+        Uniones[contadorUniones-1][9] = LadoFrio[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoFrio[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = LadoFrio[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoFrio[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoFrio[Caliente][4]  = X1;
         LadoFrio[Fria][5] = X2;
@@ -5900,7 +6156,7 @@ void plotterDN::DER_SegundaOPC_Caliente_SI_1_FRIA_SI_1(double DTmin, double Cali
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -5910,6 +6166,11 @@ void plotterDN::DER_SegundaOPC_Caliente_SI_1_FRIA_SI_1(double DTmin, double Cali
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = LadoFrio[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoFrio[Caliente][6]*qFabs(LadoFrio[Caliente][4] - X1);
+        Uniones[contadorUniones-1][9] = LadoFrio[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoFrio[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = LadoFrio[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoFrio[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoFrio[Caliente][4]  = X1;
         LadoFrio[Fria][5] = X2;
@@ -5998,7 +6259,7 @@ void plotterDN::IZQ_PrimeraOPC_Caliente_Prin_Div_SI_Fria_Sub(double DTmin, doubl
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -6008,6 +6269,11 @@ void plotterDN::IZQ_PrimeraOPC_Caliente_Prin_Div_SI_Fria_Sub(double DTmin, doubl
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = SeparacionesFrias[Fria][4]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoCaliente[Caliente][6]*qFabs(TemCal - X1);
+        Uniones[contadorUniones-1][9] = LadoCaliente[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoCaliente[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = SeparacionesFrias[Fria][5]; //WCP
+        Uniones[contadorUniones-1][12] = SeparacionesFrias[Fria][10]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoCaliente[Caliente][4]  = X1;
         SeparacionesFrias[Fria][4] = X2;
@@ -6088,7 +6354,7 @@ void plotterDN::IZQ_PrimeraOPC_Caliente_Prin_Div_NO_Fria_Sub(double DTmin, doubl
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -6098,6 +6364,11 @@ void plotterDN::IZQ_PrimeraOPC_Caliente_Prin_Div_NO_Fria_Sub(double DTmin, doubl
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = SeparacionesFrias[Fria][4] ; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoCaliente[Caliente][6]*qFabs(LadoCaliente[Caliente][4] - X1);
+        Uniones[contadorUniones-1][9] = LadoCaliente[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoCaliente[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = SeparacionesFrias[Fria][5]; //WCP
+        Uniones[contadorUniones-1][12] = SeparacionesFrias[Fria][10]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoCaliente[Caliente][4]  = X1;
         SeparacionesFrias[Fria][4] = X2;
@@ -6187,7 +6458,7 @@ void plotterDN::DER_PrimeraOPC_Caliente_Prin_Div_SI_Fria_Sub(double DTmin, doubl
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -6197,6 +6468,11 @@ void plotterDN::DER_PrimeraOPC_Caliente_Prin_Div_SI_Fria_Sub(double DTmin, doubl
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = SeparacionesFrias[Fria][4]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoFrio[Caliente][6]*qFabs(TemCal - X1);
+        Uniones[contadorUniones-1][9] = LadoFrio[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoFrio[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = SeparacionesFrias[Fria][5]; //WCP
+        Uniones[contadorUniones-1][12] = SeparacionesFrias[Fria][10]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoFrio[Caliente][4]  = X1;
         SeparacionesFrias[Fria][4] = X2;
@@ -6277,7 +6553,7 @@ void plotterDN::DER_PrimeraOPC_Caliente_Prin_Div_NO_Fria_Sub(double DTmin, doubl
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -6287,6 +6563,11 @@ void plotterDN::DER_PrimeraOPC_Caliente_Prin_Div_NO_Fria_Sub(double DTmin, doubl
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = SeparacionesFrias[Fria][4]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoFrio[Caliente][6]*qFabs(LadoFrio[Caliente][4] - X1);
+        Uniones[contadorUniones-1][9] = LadoFrio[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoFrio[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = SeparacionesFrias[Fria][5]; //WCP
+        Uniones[contadorUniones-1][12] = SeparacionesFrias[Fria][10]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoFrio[Caliente][4]  = X1;
         SeparacionesFrias[Fria][4] = X2;
@@ -6376,7 +6657,7 @@ void plotterDN::IZQ_PrimeraOPC_Caliente_Subs_X_X_Fria_Principal_0(double DTmin, 
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -6386,6 +6667,11 @@ void plotterDN::IZQ_PrimeraOPC_Caliente_Subs_X_X_Fria_Principal_0(double DTmin, 
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = TemFri;//LadoCaliente[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = SeparacionesCalientes[Caliente][5]*qFabs(SeparacionesCalientes[Caliente][3] - X1);
+        Uniones[contadorUniones-1][9] = SeparacionesCalientes[Caliente][5]; // WCP
+        Uniones[contadorUniones-1][10] = SeparacionesCalientes[Caliente][10]; //H
+        Uniones[contadorUniones-1][11] = LadoCaliente[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoCaliente[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         SeparacionesCalientes[Caliente][3]  = X1;
         LadoCaliente[Fria][5] = X2;
@@ -6467,7 +6753,7 @@ void plotterDN::IZQ_PrimeraOPC_Caliente_Subs_X_X_Fria_Principal_1(double DTmin, 
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -6477,6 +6763,11 @@ void plotterDN::IZQ_PrimeraOPC_Caliente_Subs_X_X_Fria_Principal_1(double DTmin, 
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = LadoCaliente[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = SeparacionesCalientes[Caliente][5]*qFabs(SeparacionesCalientes[Caliente][3] - X1);
+        Uniones[contadorUniones-1][9] = SeparacionesCalientes[Caliente][5]; // WCP
+        Uniones[contadorUniones-1][10] = SeparacionesCalientes[Caliente][10]; //H
+        Uniones[contadorUniones-1][11] = LadoCaliente[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoCaliente[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         SeparacionesCalientes[Caliente][3]  = X1;
         LadoCaliente[Fria][5] = X2;
@@ -6557,7 +6848,7 @@ void plotterDN::IZQ_PrimeraOPC_Caliente_Subs_X_X_Fria_Principal_X(double DTmin, 
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -6567,6 +6858,11 @@ void plotterDN::IZQ_PrimeraOPC_Caliente_Subs_X_X_Fria_Principal_X(double DTmin, 
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = LadoCaliente[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = SeparacionesCalientes[Caliente][5]*qFabs(SeparacionesCalientes[Caliente][3] - X1);
+        Uniones[contadorUniones-1][9] = SeparacionesCalientes[Caliente][5]; // WCP
+        Uniones[contadorUniones-1][10] = SeparacionesCalientes[Caliente][10]; //H
+        Uniones[contadorUniones-1][11] = LadoCaliente[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoCaliente[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         SeparacionesCalientes[Caliente][3]  = X1;
         LadoCaliente[Fria][5] = X2;
@@ -6655,7 +6951,7 @@ void plotterDN::DER_PrimeraOPC_Caliente_Subs_X_X_Fria_Principal_0(double DTmin, 
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -6665,6 +6961,11 @@ void plotterDN::DER_PrimeraOPC_Caliente_Subs_X_X_Fria_Principal_0(double DTmin, 
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = TemFri;//LadoFrio[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = SeparacionesCalientes[Caliente][5]*qFabs(SeparacionesCalientes[Caliente][3] - X1);
+        Uniones[contadorUniones-1][9] = SeparacionesCalientes[Caliente][5]; // WCP
+        Uniones[contadorUniones-1][10] = SeparacionesCalientes[Caliente][10]; //H
+        Uniones[contadorUniones-1][11] = LadoFrio[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoFrio[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         SeparacionesCalientes[Caliente][3]  = X1;
         LadoFrio[Fria][5] = X2;
@@ -6747,7 +7048,7 @@ void plotterDN::DER_PrimeraOPC_Caliente_Subs_X_X_Fria_Principal_1(double DTmin, 
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -6757,6 +7058,11 @@ void plotterDN::DER_PrimeraOPC_Caliente_Subs_X_X_Fria_Principal_1(double DTmin, 
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = LadoFrio[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = SeparacionesCalientes[Caliente][5]*qFabs(SeparacionesCalientes[Caliente][3] - X1);
+        Uniones[contadorUniones-1][9] = SeparacionesCalientes[Caliente][5]; // WCP
+        Uniones[contadorUniones-1][10] = SeparacionesCalientes[Caliente][10]; //H
+        Uniones[contadorUniones-1][11] = LadoFrio[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoFrio[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         SeparacionesCalientes[Caliente][3]  = X1;
         LadoFrio[Fria][5] = X2;
@@ -6837,7 +7143,7 @@ void plotterDN::DER_PrimeraOPC_Caliente_Subs_X_X_Fria_Principal_X(double DTmin, 
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -6847,6 +7153,11 @@ void plotterDN::DER_PrimeraOPC_Caliente_Subs_X_X_Fria_Principal_X(double DTmin, 
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = LadoFrio[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = SeparacionesCalientes[Caliente][5]*qFabs(SeparacionesCalientes[Caliente][3] - X1);
+        Uniones[contadorUniones-1][9] = SeparacionesCalientes[Caliente][5]; // WCP
+        Uniones[contadorUniones-1][10] = SeparacionesCalientes[Caliente][10]; //H
+        Uniones[contadorUniones-1][11] = LadoFrio[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoFrio[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         SeparacionesCalientes[Caliente][3]  = X1;
         LadoFrio[Fria][5] = X2;
@@ -6927,7 +7238,7 @@ void plotterDN::PrimeraOPC_Caliente_Subs_X_X_Fria_Subs_X_X(double DTmin, double 
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -6937,6 +7248,11 @@ void plotterDN::PrimeraOPC_Caliente_Subs_X_X_Fria_Subs_X_X(double DTmin, double 
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = SeparacionesFrias[Fria][4]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = SeparacionesCalientes[Caliente][5]*qFabs(SeparacionesCalientes[Caliente][3] - X1);
+        Uniones[contadorUniones-1][9] = SeparacionesCalientes[Caliente][5]; // WCP
+        Uniones[contadorUniones-1][10] = SeparacionesCalientes[Caliente][10]; //H
+        Uniones[contadorUniones-1][11] = SeparacionesFrias[Fria][5]; //WCP
+        Uniones[contadorUniones-1][12] = SeparacionesFrias[Fria][10]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         SeparacionesCalientes[Caliente][3]  = X1;
         SeparacionesFrias[Fria][4] = X2;
@@ -7030,7 +7346,7 @@ void plotterDN::IZQ_SegundaOPC_Caliente_Prin_Div_SI_Fria_Sub(double DTmin, doubl
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -7040,6 +7356,11 @@ void plotterDN::IZQ_SegundaOPC_Caliente_Prin_Div_SI_Fria_Sub(double DTmin, doubl
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = SeparacionesFrias[Fria][4]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoCaliente[Caliente][6]*qFabs(TemCal - X1);
+        Uniones[contadorUniones-1][9] = LadoCaliente[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoCaliente[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = SeparacionesFrias[Fria][5]; //WCP
+        Uniones[contadorUniones-1][12] = SeparacionesFrias[Fria][10]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoCaliente[Caliente][4]  = X1;
         SeparacionesFrias[Fria][4] = X2;
@@ -7126,7 +7447,7 @@ void plotterDN::IZQ_SegundaOPC_Caliente_Prin_Div_NO_Fria_Sub(double DTmin, doubl
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -7136,6 +7457,11 @@ void plotterDN::IZQ_SegundaOPC_Caliente_Prin_Div_NO_Fria_Sub(double DTmin, doubl
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = SeparacionesFrias[Fria][4]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoCaliente[Caliente][6]*qFabs(LadoCaliente[Caliente][4] - X1);
+        Uniones[contadorUniones-1][9] = LadoCaliente[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoCaliente[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = SeparacionesFrias[Fria][5]; //WCP
+        Uniones[contadorUniones-1][12] = SeparacionesFrias[Fria][10]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoCaliente[Caliente][4]  = X1;
         SeparacionesFrias[Fria][4] = X2;
@@ -7230,7 +7556,7 @@ void plotterDN::DER_SegundaOPC_Caliente_Prin_Div_SI_Fria_Sub(double DTmin, doubl
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -7240,6 +7566,11 @@ void plotterDN::DER_SegundaOPC_Caliente_Prin_Div_SI_Fria_Sub(double DTmin, doubl
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = SeparacionesFrias[Fria][4]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoFrio[Caliente][6]*qFabs(TemCal - X1);
+        Uniones[contadorUniones-1][9] = LadoFrio[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoFrio[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = SeparacionesFrias[Fria][5]; //WCP
+        Uniones[contadorUniones-1][12] = SeparacionesFrias[Fria][10]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoFrio[Caliente][4]  = X1;
         SeparacionesFrias[Fria][4] = X2;
@@ -7326,7 +7657,7 @@ void plotterDN::DER_SegundaOPC_Caliente_Prin_Div_NO_Fria_Sub(double DTmin, doubl
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -7336,6 +7667,11 @@ void plotterDN::DER_SegundaOPC_Caliente_Prin_Div_NO_Fria_Sub(double DTmin, doubl
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = SeparacionesFrias[Fria][4]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = LadoFrio[Caliente][6]*qFabs(LadoFrio[Caliente][4] - X1);
+        Uniones[contadorUniones-1][9] = LadoFrio[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoFrio[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = SeparacionesFrias[Fria][5]; //WCP
+        Uniones[contadorUniones-1][12] = SeparacionesFrias[Fria][10]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         LadoFrio[Caliente][4]  = X1;
         SeparacionesFrias[Fria][4] = X2;
@@ -7430,7 +7766,7 @@ void plotterDN::IZQ_SegundaOPC_Caliente_Subs_X_X_Fria_Principal_0(double DTmin, 
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -7440,6 +7776,11 @@ void plotterDN::IZQ_SegundaOPC_Caliente_Subs_X_X_Fria_Principal_0(double DTmin, 
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = TemFri; //LadoCaliente[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = SeparacionesCalientes[Caliente][5]*qFabs(SeparacionesCalientes[Caliente][3] - X1);
+        Uniones[contadorUniones-1][9] = LadoCaliente[Caliente][6]; // WCP
+        Uniones[contadorUniones-1][10] = LadoCaliente[Caliente][13]; //H
+        Uniones[contadorUniones-1][11] = SeparacionesFrias[Fria][5]; //WCP
+        Uniones[contadorUniones-1][12] = SeparacionesFrias[Fria][10]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         SeparacionesCalientes[Caliente][3]  = X1;
         LadoCaliente[Fria][5] = X2;
@@ -7528,7 +7869,7 @@ void plotterDN::IZQ_SegundaOPC_Caliente_Subs_X_X_Fria_Principal_1(double DTmin, 
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -7538,6 +7879,11 @@ void plotterDN::IZQ_SegundaOPC_Caliente_Subs_X_X_Fria_Principal_1(double DTmin, 
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = LadoCaliente[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = SeparacionesCalientes[Caliente][5]*qFabs(SeparacionesCalientes[Caliente][3] - X1);
+        Uniones[contadorUniones-1][9] = SeparacionesCalientes[Caliente][5]; // WCP
+        Uniones[contadorUniones-1][10] = SeparacionesCalientes[Caliente][10]; //H
+        Uniones[contadorUniones-1][11] = LadoCaliente[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoCaliente[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         SeparacionesCalientes[Caliente][3]  = X1;
         LadoCaliente[Fria][5] = X2;
@@ -7624,7 +7970,7 @@ void plotterDN::IZQ_SegundaOPC_Caliente_Subs_X_X_Fria_Principal_X(double DTmin, 
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -7634,6 +7980,11 @@ void plotterDN::IZQ_SegundaOPC_Caliente_Subs_X_X_Fria_Principal_X(double DTmin, 
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = LadoCaliente[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = SeparacionesCalientes[Caliente][5]*qFabs(SeparacionesCalientes[Caliente][3] - X1);
+        Uniones[contadorUniones-1][9] = SeparacionesCalientes[Caliente][5]; // WCP
+        Uniones[contadorUniones-1][10] = SeparacionesCalientes[Caliente][10]; //H
+        Uniones[contadorUniones-1][11] = LadoCaliente[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoCaliente[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         SeparacionesCalientes[Caliente][3]  = X1;
         LadoCaliente[Fria][5] = X2;
@@ -7728,7 +8079,7 @@ void plotterDN::DER_SegundaOPC_Caliente_Subs_X_X_Fria_Principal_0(double DTmin, 
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -7738,6 +8089,11 @@ void plotterDN::DER_SegundaOPC_Caliente_Subs_X_X_Fria_Principal_0(double DTmin, 
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = TemFri ; //LadoFrio[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = SeparacionesCalientes[Caliente][5]*qFabs(SeparacionesCalientes[Caliente][3] - X1);
+        Uniones[contadorUniones-1][9] = SeparacionesCalientes[Caliente][5]; // WCP
+        Uniones[contadorUniones-1][10] = SeparacionesCalientes[Caliente][10]; //H
+        Uniones[contadorUniones-1][11] = LadoFrio[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoFrio[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         SeparacionesCalientes[Caliente][3]  = X1;
         LadoFrio[Fria][5] = X2;
@@ -7826,7 +8182,7 @@ void plotterDN::DER_SegundaOPC_Caliente_Subs_X_X_Fria_Principal_1(double DTmin, 
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -7836,6 +8192,11 @@ void plotterDN::DER_SegundaOPC_Caliente_Subs_X_X_Fria_Principal_1(double DTmin, 
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = LadoFrio[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = SeparacionesCalientes[Caliente][5]*qFabs(SeparacionesCalientes[Caliente][3] - X1);
+        Uniones[contadorUniones-1][9] = SeparacionesCalientes[Caliente][5]; // WCP
+        Uniones[contadorUniones-1][10] = SeparacionesCalientes[Caliente][10]; //H
+        Uniones[contadorUniones-1][11] = LadoFrio[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoFrio[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         SeparacionesCalientes[Caliente][3]  = X1;
         LadoFrio[Fria][5] = X2;
@@ -7922,7 +8283,7 @@ void plotterDN::DER_SegundaOPC_Caliente_Subs_X_X_Fria_Principal_X(double DTmin, 
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -7932,6 +8293,11 @@ void plotterDN::DER_SegundaOPC_Caliente_Subs_X_X_Fria_Principal_X(double DTmin, 
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = LadoFrio[Fria][5]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = SeparacionesCalientes[Caliente][5]*qFabs(SeparacionesCalientes[Caliente][3] - X1);
+        Uniones[contadorUniones-1][9] = SeparacionesCalientes[Caliente][5]; // WCP
+        Uniones[contadorUniones-1][10] = SeparacionesCalientes[Caliente][10]; //H
+        Uniones[contadorUniones-1][11] = LadoFrio[Fria][6]; //WCP
+        Uniones[contadorUniones-1][12] = LadoFrio[Fria][13]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         SeparacionesCalientes[Caliente][3]  = X1;
         LadoFrio[Fria][5] = X2;
@@ -7948,6 +8314,7 @@ void plotterDN::DER_SegundaOPC_Caliente_Subs_X_X_Fria_Principal_X(double DTmin, 
         return;
     }
 }
+
 
 void plotterDN::SegundaOPC_Caliente_Subs_X_X_Fria_Subs_X_X(double DTmin, double Caliente, double Fria, double espaciadorunionesSUB)
 {
@@ -8018,7 +8385,7 @@ void plotterDN::SegundaOPC_Caliente_Subs_X_X_Fria_Subs_X_X(double DTmin, double 
         // ALMECENAJE EN EL VECTOR UNION
         Uniones.resize(contadorUniones);
         for(int i = 0; i < Uniones.size(); i++){
-            Uniones[i].resize(8);
+            Uniones[i].resize(13);
         }
         Uniones[contadorUniones-1][0] = Caliente;
         Uniones[contadorUniones-1][1] = Fria;
@@ -8028,6 +8395,11 @@ void plotterDN::SegundaOPC_Caliente_Subs_X_X_Fria_Subs_X_X(double DTmin, double 
         Uniones[contadorUniones-1][5] = X1; // salida caliente
         Uniones[contadorUniones-1][6] = SeparacionesFrias[Fria][4]; // entrada fria
         Uniones[contadorUniones-1][7] = X2; // salida fria
+        Uniones[contadorUniones-1][8] = SeparacionesCalientes[Caliente][5]*qFabs(SeparacionesCalientes[Caliente][3] - X1);
+        Uniones[contadorUniones-1][9] = SeparacionesCalientes[Caliente][5]; // WCP
+        Uniones[contadorUniones-1][10] = SeparacionesCalientes[Caliente][10]; //H
+        Uniones[contadorUniones-1][11] = SeparacionesFrias[Fria][5]; //WCP
+        Uniones[contadorUniones-1][12] = SeparacionesFrias[Fria][10]; // H
         //ACTUALIZACION DE LA UNION DE LA ESA CORRIENTES
         SeparacionesCalientes[Caliente][3]  = X1;
         SeparacionesFrias[Fria][4] = X2;
@@ -8046,13 +8418,13 @@ void plotterDN::SegundaOPC_Caliente_Subs_X_X_Fria_Subs_X_X(double DTmin, double 
 
 void plotterDN::on_pushButton_clicked()
 {
-    qDebug() << LadoCaliente << "LadoCaliente";
+//    qDebug() << LadoCaliente << "LadoCaliente";
 //    qDebug() << LadoFrio << "LadoFrio";
     qDebug() << Uniones << "Uniones";
-//    qDebug() << Servicios << "Servicios";
-    qDebug() << SeparacionesCalientes << "Separaciones calientes";
-    qDebug() << SeparacionesFrias << "Separaciones Frias";
-    qDebug() << espaciadoruniones;
+    qDebug() << Servicios << "Servicios";
+//    qDebug() << SeparacionesCalientes << "Separaciones calientes";
+//    qDebug() << SeparacionesFrias << "Separaciones Frias";
+//    qDebug() << espaciadoruniones;
 //    qDebug() << ui->qcustomplot->graphCount() << "Graficas";
 //    qDebug() << ui->qcustomplot->itemCount() << "items";
 //    qDebug() << ui->qcustomplot->plottableCount();
@@ -8092,14 +8464,15 @@ void plotterDN::on_SAVE_clicked()
     out26 << TA;
     Filetab.flush();
     Filetab.close();
-    QFile FileGrid(UNIDADES_FILENAME);
+
+    QFile FileGrid(GRID_SAVE_FILENAME);
     if (!FileGrid.open(QIODevice::WriteOnly)){
         QMessageBox::warning(this,tr("Error"),tr("Error"));
         return;
     }
     QDataStream out33(&FileGrid);
     out33.setVersion(QDataStream::Qt_5_4);
-    Grid vecgrid(Uniones,Servicios);
+    Grid vecgrid(Uniones,Servicios,ENERGIA_SERVICIOS,ENERGIA_UNIONES);
     out33 << vecgrid;
     FileGrid.flush();
     FileGrid.close();

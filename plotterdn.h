@@ -126,14 +126,14 @@ private slots:
     void SeparacionesCalDER(double Corriente, double Divisiones);
     void SeparacionesFriDER(double Corriente, double Divisiones);
     //SERVICIONES AUXILIARES
-    void IZQ_cooling_split_No(double Corriente,double Q);
-    void DER_cooling_split_No(double Corriente,double Q);
-    void IZQ_heating_split_No(double Corriente,double Q);
-    void DER_heating_split_No(double Corriente,double Q);
-    void IZQ_cooling_split_Si(double Corriente,double Temp,double Q);
-    void DER_cooling_split_Si(double Corriente,double Temp,double Q);
-    void IZQ_heating_split_Si(double Corriente,double Temp,double Q);
-    void DER_heating_split_Si(double Corriente,double Temp,double Q);
+    void IZQ_cooling_split_No(double Corriente);
+    void DER_cooling_split_No(double Corriente);
+    void IZQ_heating_split_No(double Corriente);
+    void DER_heating_split_No(double Corriente);
+    void IZQ_cooling_split_Si(double Corriente,double Temp);
+    void DER_cooling_split_Si(double Corriente,double Temp);
+    void IZQ_heating_split_Si(double Corriente,double Temp);
+    void DER_heating_split_Si(double Corriente,double Temp);
     bool comparadortemperaturas(double A,double B,double C);
 //    bool algoritmoCorrienteCaliente(double Corriente);
     bool ifissplittedCAL(double Corriente);
