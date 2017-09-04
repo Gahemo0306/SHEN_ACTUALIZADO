@@ -119,8 +119,8 @@ AnalisisPersonalizado::AnalisisPersonalizado(QWidget *parent) :
         ui->Bunits_film->clear();
         ui->Bcapital_units->clear();
         Lista1 << "Select one..." << "Kelvin (°K)" << "Farenheit (°F)" << "Celsius (°C)" << "Ranking (°R)";
-        Lista2 << "Select one..." << "Btu/hr ft^2 °F" << "CHU/hr ft^2 °F";
-        Lista3 << "Select one..." << "US $ / Btu" << "US $ / CHU";
+        Lista2 << "Select one..." << "W/m^2 °K" << "W/m^2 °C";
+        Lista3 << "Select one..." << "US $ / KJ" << "US $ / J";
         ui->Uunits_temp->addItems(Lista1);
         ui->Uunits_film->addItems(Lista2);
         ui->Ucapital_units->addItems(Lista3);
@@ -3205,10 +3205,10 @@ QVector<double> AnalisisPersonalizado::ConvertirOperationCost(QVector<double> Op
             OperationCost[1]= OperationCost[1]/1.80;
         }
     }else if(SIS == true){
-        if(A == 1){ //US $ / KW
+        if(A == 1){ //US $ / KJolue
             OperationCost[0]= OperationCost[0];
             OperationCost[1]= OperationCost[1];
-        }else if(A == 1){ //US $ / W  ---> US $ / KW
+        }else if(A == 1){ //US $ / Joule  ---> US $ / KJ
             OperationCost[0]= OperationCost[0]*1000;
             OperationCost[1]= OperationCost[1]*1000;
         }

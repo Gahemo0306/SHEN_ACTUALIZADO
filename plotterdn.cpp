@@ -8416,20 +8416,6 @@ void plotterDN::SegundaOPC_Caliente_Subs_X_X_Fria_Subs_X_X(double DTmin, double 
 
 
 
-void plotterDN::on_pushButton_clicked()
-{
-//    qDebug() << LadoCaliente << "LadoCaliente";
-//    qDebug() << LadoFrio << "LadoFrio";
-    qDebug() << Uniones << "Uniones";
-    qDebug() << Servicios << "Servicios";
-//    qDebug() << SeparacionesCalientes << "Separaciones calientes";
-//    qDebug() << SeparacionesFrias << "Separaciones Frias";
-//    qDebug() << espaciadoruniones;
-//    qDebug() << ui->qcustomplot->graphCount() << "Graficas";
-//    qDebug() << ui->qcustomplot->itemCount() << "items";
-//    qDebug() << ui->qcustomplot->plottableCount();
-}
-
 void plotterDN::on_PDF_clicked()
 {
     QString URL = QFileDialog::getSaveFileName(this,"Save the file");

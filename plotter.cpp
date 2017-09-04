@@ -1367,10 +1367,16 @@ void plotter::on_pushButton_clicked()
     QString URL = file_name + extension;
     QFile file(URL);
     if (!file.open(QIODevice::WriteOnly|QFile::WriteOnly))
-         {
-             QMessageBox::warning(0,"Could not create Project File",QObject::tr( "\n Could not create Project File on disk"));
-         }
-   ui->qcustomplot->saveJpg(URL,  0, 0, 1.0, -1  );
+    {
+        QMessageBox::warning(0,"Could not create Project File",QObject::tr( "\n Could not create Project File on disk"));
+    }
+    if(ui->comboBox->currentIndex() == 0){
+        ui->qcustomplot->saveJpg(URL,  0, 0, 1.0, -1);
+    }else if(ui->comboBox->currentIndex() == 1){
+        ui->qcustomplot->savePng(URL, 0, 0, 1.0, -1);
+    }else if(ui->comboBox->currentIndex() == 2){
+        ui->qcustomplot->saveBmp(URL, 0 , 0, 1.0, -1);
+    }
 }
 
 void plotter::on_pushButton_2_clicked()
@@ -1435,35 +1441,18 @@ void plotter::legendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *item)
 
 void plotter::selectionChanged()
 {
-    /*
-     normally, axis base line, axis tick labels and axis labels are selectable separately, but we want
-     the user only to be able to select the axis as a whole, so we tie the selected states of the tick labels
-     and the axis base line together. However, the axis label shall be selectable individually.
-
-     The selection state of the left and right axes shall be synchronized as well as the state of the
-     bottom and top axes.
-
-     Further, we want to synchronize the selection of the graphs with the selection state of the respective
-     legend item belonging to that graph. So the user can select a graph by either clicking on the graph itself
-     or on its legend item.
-    */
-
-    // make top and bottom axes be selected synchronously, and handle axis and tick labels as one selectable object:
     if (ui->qcustomplot->xAxis->selectedParts().testFlag(QCPAxis::spAxis) || ui->qcustomplot->xAxis->selectedParts().testFlag(QCPAxis::spTickLabels) ||
         ui->qcustomplot->xAxis2->selectedParts().testFlag(QCPAxis::spAxis) || ui->qcustomplot->xAxis2->selectedParts().testFlag(QCPAxis::spTickLabels))
     {
       ui->qcustomplot->xAxis2->setSelectedParts(QCPAxis::spAxis|QCPAxis::spTickLabels);
       ui->qcustomplot->xAxis->setSelectedParts(QCPAxis::spAxis|QCPAxis::spTickLabels);
     }
-    // make left and right axes be selected synchronously, and handle axis and tick labels as one selectable object:
     if (ui->qcustomplot->yAxis->selectedParts().testFlag(QCPAxis::spAxis) || ui->qcustomplot->yAxis->selectedParts().testFlag(QCPAxis::spTickLabels) ||
         ui->qcustomplot->yAxis2->selectedParts().testFlag(QCPAxis::spAxis) || ui->qcustomplot->yAxis2->selectedParts().testFlag(QCPAxis::spTickLabels))
     {
       ui->qcustomplot->yAxis2->setSelectedParts(QCPAxis::spAxis|QCPAxis::spTickLabels);
       ui->qcustomplot->yAxis->setSelectedParts(QCPAxis::spAxis|QCPAxis::spTickLabels);
     }
-
-    // synchronize selection of graphs with selection of corresponding legend items:
     for (int i=0; i<ui->qcustomplot->graphCount(); ++i)
     {
       QCPGraph *graph = ui->qcustomplot->graph(i);
@@ -1478,9 +1467,6 @@ void plotter::selectionChanged()
 
 void plotter::mousePress()
 {
-  // if an axis is selected, only allow the direction of that axis to be dragged
-  // if no axis is selected, both directions may be dragged
-
   if (ui->qcustomplot->xAxis->selectedParts().testFlag(QCPAxis::spAxis))
     ui->qcustomplot->axisRect()->setRangeDrag(ui->qcustomplot->xAxis->orientation());
   else if (ui->qcustomplot->yAxis->selectedParts().testFlag(QCPAxis::spAxis))
@@ -1491,9 +1477,6 @@ void plotter::mousePress()
 
 void plotter::mouseWheel()
 {
-  // if an axis is selected, only allow the direction of that axis to be zoomed
-  // if no axis is selected, both directions may be zoomed
-
   if (ui->qcustomplot->xAxis->selectedParts().testFlag(QCPAxis::spAxis))
     ui->qcustomplot->axisRect()->setRangeZoom(ui->qcustomplot->xAxis->orientation());
   else if (ui->qcustomplot->yAxis->selectedParts().testFlag(QCPAxis::spAxis))
@@ -1519,7 +1502,7 @@ void plotter::contextMenuRequest(QPoint pos)
 
 void plotter::moveLegend()
 {
-  if (QAction* contextAction = qobject_cast<QAction*>(sender())) // make sure this slot is really called by a context menu action, so it carries the data we need
+  if (QAction* contextAction = qobject_cast<QAction*>(sender()))
   {
     bool ok;
     int dataInt = contextAction->data().toInt(&ok);

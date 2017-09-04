@@ -23,7 +23,6 @@ private slots:
     void on_k_valueChanged();
     void Guardar();
     void on_help_clicked();
-
 signals:
     void helpsender(bool checked);
 private:

@@ -104,7 +104,7 @@ void VentanaPrincipal::loadSubWindowPrincipal(QWidget *widget)
     h= widget->sizeHint().height() +30;
     QString Titulo,RutaIcono;
     Titulo = "Welcome";
-    RutaIcono = "";
+    RutaIcono = ":/resources/Resources/Bienvenida.png";
     auto window = ui->mdiArea->addSubWindow(widget);
     window->setWindowTitle(Titulo);
     window->setWindowIcon(QIcon(RutaIcono));
@@ -240,18 +240,18 @@ void VentanaPrincipal::on_actionSave_as_triggered()
     emit actionSaveas(checked);
 }
 
-void VentanaPrincipal::on_actionHelp_Topics_triggered()
-{
+//void VentanaPrincipal::on_actionHelp_Topics_triggered()
+//{
 
-}
+//}
 
-void VentanaPrincipal::on_actionAbour_SHEN_triggered()
-{
+//void VentanaPrincipal::on_actionAbour_SHEN_triggered()
+//{
 
-}
+//}
 
-void VentanaPrincipal::on_actionContact_triggered()
-{
+//void VentanaPrincipal::on_actionContact_triggered()
+//{
 
-}
+//}
 

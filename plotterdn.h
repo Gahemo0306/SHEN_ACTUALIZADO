@@ -135,10 +135,8 @@ private slots:
     void IZQ_heating_split_Si(double Corriente,double Temp);
     void DER_heating_split_Si(double Corriente,double Temp);
     bool comparadortemperaturas(double A,double B,double C);
-//    bool algoritmoCorrienteCaliente(double Corriente);
     bool ifissplittedCAL(double Corriente);
     bool ifissplittedFRI(double Corriente);
-    void on_pushButton_clicked();
     //EXPORTADORES
     void on_PDF_clicked();
     void on_IMAGE_clicked();

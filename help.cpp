@@ -10,19 +10,6 @@ Help::Help(QWidget *parent) :
     ui(new Ui::Help)
 {
     ui->setupUi(this);
-//    ui->label->setAutoFillBackground(true); // IMPORTANT!
-//    ui->label_2->setAutoFillBackground(true);
-//    QPalette pal1 = ui->label->palette();
-//    QPalette pal2 = ui->label_2->palette();
-//    pal1.setColor(QPalette::Window, QColor(Qt::white));
-//    pal2.setColor(QPalette::Window, QColor(Qt::white));
-//    ui->label->setPalette(pal1);
-//    ui->label_2->setPalette(pal2);
-//    //ui->label_2->
-//    //ui->label_2->text(QUrl::fromLocalFile(QDir::currentPath() + "../SoftwareHEN/help_K.html"));
-    //ui->widget->setUrl(QUrl::fromLocalFile(QDir::currentPath() + "../SoftwareHEN/help_K.html"));
-
-
     ui->scrollArea->setAutoFillBackground(true);
     QPalette pal3 =ui->scrollArea->palette();
     pal3.setColor(QPalette::Window, QColor(Qt::white));
@@ -71,7 +58,7 @@ void Help::AddChild(QTreeWidgetItem *parent, QString name)
     QString RutaIcono = ":/resources/Resources/241143.png";
     item->setIcon(0,QIcon(RutaIcono));
     parent->addChild(item);
-
+    ui->text->setText("<b>Hello</b>");
 }
 
 //void Help::HyperText(const QModelIndex &index)

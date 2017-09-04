@@ -6114,7 +6114,6 @@ Plot_Costos_vs_Areas_Uniforme::Plot_Costos_vs_Areas_Uniforme(QVector<double> Tsu
         INTERVALOS_AGRUPADOS[i][2] = INTERVALOSFRIAS[i][0];
         INTERVALOS_AGRUPADOS[i][3] = INTERVALOSFRIAS[i][1];
     }
-
     double Delta2,Delta1;
     QVector<double> DTm;
     r1 = INTERVALOS_AGRUPADOS.size();
@@ -6124,18 +6123,18 @@ Plot_Costos_vs_Areas_Uniforme::Plot_Costos_vs_Areas_Uniforme(QVector<double> Tsu
         Delta2= INTERVALOS_AGRUPADOS[i][3]-INTERVALOS_AGRUPADOS[i][1];
         Delta1= INTERVALOS_AGRUPADOS[i][2]-INTERVALOS_AGRUPADOS[i][0];
         DTm[i] = qFabs((Delta2-Delta1)/(log(Delta2/Delta1)));
-        if(DTm[i] != DTm[i]){
-            DTm[i] = (qFabs(Delta2) + qFabs(Delta1))/ 2;
-        }
+            if(DTm[i] != DTm[i]){
+                DTm[i] = (qFabs(Delta2) + qFabs(Delta1))/ 2;
+            }
         }
     }else if(CCo==1){
         for(i=0; i < r1; i++){
         Delta2= INTERVALOS_AGRUPADOS[i][3]-INTERVALOS_AGRUPADOS[i][1];
         Delta1= INTERVALOS_AGRUPADOS[i][0]-INTERVALOS_AGRUPADOS[i][2];
         DTm[i] = qFabs((Delta2-Delta1)/(log(Delta2/Delta1)));
-        if(DTm[i] != DTm[i]){
-            DTm[i] = (qFabs(Delta2) + qFabs(Delta1))/ 2;
-        }
+            if(DTm[i] != DTm[i]){
+                DTm[i] = (qFabs(Delta2) + qFabs(Delta1))/ 2;
+            }
         }
     }
     QVector<QVector<double>> Calcal;
@@ -6255,13 +6254,43 @@ Plot_Costos_vs_Areas_Uniforme::Plot_Costos_vs_Areas_Uniforme(QVector<double> Tsu
             MOpeCosC = OpeCosC;
             MOpeCosH = MOpeCosH;
             MCostoOperacionTotal = OpeCosC + OpeCosH;
-        }else if(SIS == true){
-            //double OpeCosC =  QC * (24 * 364) * OperationCost[0]; // Calentamiento
-            //double OpeCosH =  QH * (24 * 364) * OperationCost[1]; // Enfriamiento
+        }else if(SIS == true){ //CORREGIR
+            double OpeCosC =  QC * (60 * 60 * 24 * 364) * OperationCost[0]; // Calentamiento
+            double OpeCosH =  QH * (60 * 60 * 24 * 364) * OperationCost[1]; // Enfriamiento
+            MOpeCosC = OpeCosC;
+            MOpeCosH = MOpeCosH;
+            MCostoOperacionTotal = OpeCosC + OpeCosH;
         }
-        MCostoTotal = MCostoOperacionTotal + MCostoCapitalTotal ;
+        MCostoTotal = MCostoOperacionTotal + MCostoCapitalTotal;
     }else if(nfils == 4){
-            
+        double Xfactor = pow(1+ CapitalCost[0][2] ,CapitalCost[0][3]);
+        double FactorAnual =( CapitalCost[0][2]* Xfactor )/( Xfactor - 1);
+        double CapCos1 = (CapitalCost[0][0]* pow(AC,CapitalCost[0][1])) * FactorAnual;
+        MCapCos1 = CapCos1;
+        Xfactor = pow(1+ CapitalCost[1][2] ,CapitalCost[1][3]);
+        FactorAnual =( CapitalCost[1][2]* Xfactor )/( Xfactor - 1);
+        double CapCos2 =( CapitalCost[1][0]* pow(AR,CapitalCost[1][1]))* FactorAnual;
+        MCapCos2 = CapCos2;
+        Xfactor = pow(1+ CapitalCost[2][2] ,CapitalCost[2][3]);
+        FactorAnual =( CapitalCost[2][2]* Xfactor )/( Xfactor - 1);
+        double CapCos3 =( CapitalCost[2][0]* pow(AH,CapitalCost[2][1]))* FactorAnual;
+        MCapCos3 = CapCos3;
+        MCostoCapitalTotal = CapCos1 + CapCos2 + CapCos3;
+        //COSTOS DE OPERACION
+        if(SI == true){
+            double OpeCosC =  QC * (24 * 364) * OperationCost[0]; // Calentamiento
+            double OpeCosH =  QH * (24 * 364) * OperationCost[1]; // Enfriamiento
+            MOpeCosC = OpeCosC;
+            MOpeCosH = MOpeCosH;
+            MCostoOperacionTotal = OpeCosC + OpeCosH;
+        }else if(SIS == true){ //CORREGIR
+            double OpeCosC =  QC * ( 60 * 60 * 24 * 364) * OperationCost[0]; // Calentamiento
+            double OpeCosH =  QH * ( 60 * 60 * 24 * 364) * OperationCost[1]; // Enfriamiento
+            MOpeCosC = OpeCosC;
+            MOpeCosH = MOpeCosH;
+            MCostoOperacionTotal = OpeCosC + OpeCosH;
+        }
+        MCostoTotal = MCostoOperacionTotal + MCostoCapitalTotal;
     }
 }
 
@@ -7288,8 +7317,40 @@ Plot_Costos_vs_Min_Divera::Plot_Costos_vs_Min_Divera(QVector<double> Tsupply, QV
             double OpeCosH =  QH * (24 * 364) * OperationCost[1]; // Enfriamiento
             MCostoOperacionTotal = OpeCosC + OpeCosH;
         }else if(SIS == true){
-            //double OpeCosC =  QC * (24 * 364) * OperationCost[0]; // Calentamiento
-            //double OpeCosH =  QH * (24 * 364) * OperationCost[1]; // Enfriamiento
+            double OpeCosC =  QC * ( 60 * 60 * 24 * 364) * OperationCost[0]; // Calentamiento
+            double OpeCosH =  QH * ( 60 * 60 * 24 * 364) * OperationCost[1]; // Enfriamiento
+            MOpeCosC = OpeCosC;
+            MOpeCosH = MOpeCosH;
+            MCostoOperacionTotal = OpeCosC + OpeCosH;
+        }
+        MCostoTotal = MCostoOperacionTotal + MCostoCapitalTotal ;
+    }else if(nfils == 4){
+        double Xfactor = pow(1+ CapitalCost[0][2] ,CapitalCost[0][3]);
+        double FactorAnual =( CapitalCost[0][2]* Xfactor )/( Xfactor - 1);
+        double CapCos1 = (CapitalCost[0][0]* pow(AC,CapitalCost[0][1])) * FactorAnual;
+        MCapCos1 = CapCos1;
+        Xfactor = pow(1+ CapitalCost[1][2] ,CapitalCost[1][3]);
+        FactorAnual =( CapitalCost[1][2]* Xfactor )/( Xfactor - 1);
+        double CapCos2 =( CapitalCost[1][0]* pow(AR,CapitalCost[1][1]))* FactorAnual;
+        MCapCos2 = CapCos2;
+        Xfactor = pow(1+ CapitalCost[2][2] ,CapitalCost[2][3]);
+        FactorAnual =( CapitalCost[2][2]* Xfactor )/( Xfactor - 1);
+        double CapCos3 =( CapitalCost[2][0]* pow(AH,CapitalCost[2][1]))* FactorAnual;
+        MCapCos3 = CapCos3;
+        MCostoCapitalTotal = CapCos1 + CapCos2 + CapCos3;
+        //COSTOS DE OPERACION
+        if(SI == true){
+            double OpeCosC =  QC * (24 * 364) * OperationCost[0]; // Calentamiento
+            double OpeCosH =  QH * (24 * 364) * OperationCost[1]; // Enfriamiento
+            MOpeCosC = OpeCosC;
+            MOpeCosH = MOpeCosH;
+            MCostoOperacionTotal = OpeCosC + OpeCosH;
+        }else if(SIS == true){ //CORREGIR
+            double OpeCosC =  QC * ( 60 * 60 * 24 * 364) * OperationCost[0]; // Calentamiento
+            double OpeCosH =  QH * ( 60 * 60 * 24 * 364) * OperationCost[1]; // Enfriamiento
+            MOpeCosC = OpeCosC;
+            MOpeCosH = MOpeCosH;
+            MCostoOperacionTotal = OpeCosC + OpeCosH;
         }
         MCostoTotal = MCostoOperacionTotal + MCostoCapitalTotal ;
     }
@@ -8283,14 +8344,14 @@ Grid_Costos_Uniforme::Grid_Costos_Uniforme(QVector<double> Tsupply, QVector<doub
             }
         }
     }else if(CCo==1){
-//        for(i=0; i < r1; i++){
-//            Delta2= qFabs(INTERVALOS_AGRUPADOS[i][3]-INTERVALOS_AGRUPADOS[i][1]);
-//            Delta1= qFabs(INTERVALOS_AGRUPADOS[i][0]-INTERVALOS_AGRUPADOS[i][2]);
-//            DTm[i] = qFabs((Delta2-Delta1)/(log(Delta2/Delta1)));
-//            if(DTm[i] != DTm[i]){
-//                DTm[i] = (qFabs(Delta2) + qFabs(Delta1))/ 2;
-//            }
-//        }
+        for(i=0; i < r1; i++){
+            Delta2= qFabs(INTERVALOS_AGRUPADOS[i][3]-INTERVALOS_AGRUPADOS[i][1]);
+            Delta1= qFabs(INTERVALOS_AGRUPADOS[i][0]-INTERVALOS_AGRUPADOS[i][2]);
+            DTm[i] = qFabs((Delta2-Delta1)/(log(Delta2/Delta1)));
+            if(DTm[i] != DTm[i]){
+                DTm[i] = (qFabs(Delta2) + qFabs(Delta1))/ 2;
+            }
+        }
     }
     QVector<double> EntalpiaCalculada;
     EntalpiaCalculada.resize(Entalpia.size());
@@ -8351,12 +8412,42 @@ Grid_Costos_Uniforme::Grid_Costos_Uniforme(QVector<double> Tsupply, QVector<doub
             MOpeCosH = MOpeCosH;
             MCostoOperacionTotal = OpeCosC + OpeCosH;
         }else if(SIS == true){
-            //double OpeCosC =  QC * (24 * 364) * OperationCost[0]; // Calentamiento
-            //double OpeCosH =  QH * (24 * 364) * OperationCost[1]; // Enfriamiento
+            double OpeCosC =  QC * ( 60 * 60 * 24 * 364) * OperationCost[0]; // Calentamiento
+            double OpeCosH =  QH * ( 60 * 60 * 24 * 364) * OperationCost[1]; // Enfriamiento
+            MOpeCosC = OpeCosC;
+            MOpeCosH = MOpeCosH;
+            MCostoOperacionTotal = OpeCosC + OpeCosH;
         }
         MCostoTotal = MCostoOperacionTotal + MCostoCapitalTotal ;
     }else if(nfils == 4){
-
+        double Xfactor = pow(1+ CapitalCost[0][2] ,CapitalCost[0][3]);
+        double FactorAnual =( CapitalCost[0][2]* Xfactor )/( Xfactor - 1);
+        double CapCos1 = (CapitalCost[0][0]* pow(AC,CapitalCost[0][1])) * FactorAnual;
+        MCapCos1 = CapCos1;
+        Xfactor = pow(1+ CapitalCost[1][2] ,CapitalCost[1][3]);
+        FactorAnual =( CapitalCost[1][2]* Xfactor )/( Xfactor - 1);
+        double CapCos2 =( CapitalCost[1][0]* pow(AR,CapitalCost[1][1]))* FactorAnual;
+        MCapCos2 = CapCos2;
+        Xfactor = pow(1+ CapitalCost[2][2] ,CapitalCost[2][3]);
+        FactorAnual =( CapitalCost[2][2]* Xfactor )/( Xfactor - 1);
+        double CapCos3 =( CapitalCost[2][0]* pow(AH,CapitalCost[2][1]))* FactorAnual;
+        MCapCos3 = CapCos3;
+        MCostoCapitalTotal = CapCos1 + CapCos2 + CapCos3;
+        //COSTOS DE OPERACION
+        if(SI == true){
+            double OpeCosC =  QC * (24 * 364) * OperationCost[0]; // Calentamiento
+            double OpeCosH =  QH * (24 * 364) * OperationCost[1]; // Enfriamiento
+            MOpeCosC = OpeCosC;
+            MOpeCosH = MOpeCosH;
+            MCostoOperacionTotal = OpeCosC + OpeCosH;
+        }else if(SIS == true){ //CORREGIR
+            double OpeCosC =  QC * ( 60 * 60 * 24 * 364) * OperationCost[0]; // Calentamiento
+            double OpeCosH =  QH * ( 60 * 60 * 24 * 364) * OperationCost[1]; // Enfriamiento
+            MOpeCosC = OpeCosC;
+            MOpeCosH = MOpeCosH;
+            MCostoOperacionTotal = OpeCosC + OpeCosH;
+        }
+        MCostoTotal = MCostoOperacionTotal + MCostoCapitalTotal ;
     }
 }
 
@@ -9541,12 +9632,42 @@ Grid_Costos_Diversa::Grid_Costos_Diversa(QVector<double> Tsupply, QVector<double
             MOpeCosH = MOpeCosH;
             MCostoOperacionTotal = OpeCosC + OpeCosH;
         }else if(SIS == true){
-            //double OpeCosC =  QC * (24 * 364) * OperationCost[0]; // Calentamiento
-            //double OpeCosH =  QH * (24 * 364) * OperationCost[1]; // Enfriamiento
+            double OpeCosC =  QC * ( 60 * 60 * 24 * 364) * OperationCost[0]; // Calentamiento
+            double OpeCosH =  QH * ( 60 * 60 * 24 * 364) * OperationCost[1]; // Enfriamiento
+            MOpeCosC = OpeCosC;
+            MOpeCosH = MOpeCosH;
+            MCostoOperacionTotal = OpeCosC + OpeCosH;
         }
         MCostoTotal = MCostoOperacionTotal + MCostoCapitalTotal ;
     }else if(nfils == 4){
-
+        double Xfactor = pow(1+ CapitalCost[0][2] ,CapitalCost[0][3]);
+        double FactorAnual =( CapitalCost[0][2]* Xfactor )/( Xfactor - 1);
+        double CapCos1 = (CapitalCost[0][0]* pow(AC,CapitalCost[0][1])) * FactorAnual;
+        MCapCos1 = CapCos1;
+        Xfactor = pow(1+ CapitalCost[1][2] ,CapitalCost[1][3]);
+        FactorAnual =( CapitalCost[1][2]* Xfactor )/( Xfactor - 1);
+        double CapCos2 =( CapitalCost[1][0]* pow(AR,CapitalCost[1][1]))* FactorAnual;
+        MCapCos2 = CapCos2;
+        Xfactor = pow(1+ CapitalCost[2][2] ,CapitalCost[2][3]);
+        FactorAnual =( CapitalCost[2][2]* Xfactor )/( Xfactor - 1);
+        double CapCos3 =( CapitalCost[2][0]* pow(AH,CapitalCost[2][1]))* FactorAnual;
+        MCapCos3 = CapCos3;
+        MCostoCapitalTotal = CapCos1 + CapCos2 + CapCos3;
+        //COSTOS DE OPERACION
+        if(SI == true){
+            double OpeCosC =  QC * (24 * 364) * OperationCost[0]; // Calentamiento
+            double OpeCosH =  QH * (24 * 364) * OperationCost[1]; // Enfriamiento
+            MOpeCosC = OpeCosC;
+            MOpeCosH = MOpeCosH;
+            MCostoOperacionTotal = OpeCosC + OpeCosH;
+        }else if(SIS == true){ //CORREGIR
+            double OpeCosC =  QC * ( 60 * 60 * 24 * 364) * OperationCost[0]; // Calentamiento
+            double OpeCosH =  QH * ( 60 * 60 * 24 * 364) * OperationCost[1]; // Enfriamiento
+            MOpeCosC = OpeCosC;
+            MOpeCosH = MOpeCosH;
+            MCostoOperacionTotal = OpeCosC + OpeCosH;
+        }
+        MCostoTotal = MCostoOperacionTotal + MCostoCapitalTotal ;
     }
 }
 

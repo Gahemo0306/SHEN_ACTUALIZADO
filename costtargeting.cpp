@@ -203,7 +203,7 @@ void Costtargeting::RADIOBUTTONS()
             ui->comboBoxUOP->clear();
             Lista1 << "Select one..." << "Kelvin (°K)" << "Farenheit (°F)" << "Celsius (°C)" << "Ranking (°R)";
             Lista2 << "Select one..." << "W/m^2 °K" << "W/m^2 °C";
-            Lista3 << "Select one..." << "US $ / KW" << "US $ / W";
+            Lista3 << "Select one..." << "US $ / KJ" << "US $ / J";
             ui->comboBoxTemp->addItems(Lista1);
             ui->comboBoxFilm->addItems(Lista2);
             ui->comboBoxUOP->addItems(Lista3);
@@ -277,7 +277,7 @@ void Costtargeting::RADIOBUTTONS()
             ui->comboBoxUOP->clear();
             Lista1 << "Select one..." << "Kelvin (°K)" << "Farenheit (°F)" << "Celsius (°C)" << "Ranking (°R)";
             Lista2 << "Select one..." << "W/m^2 °K" << "W/m^2 °C";
-            Lista3 << "Select one..." << "US $ / KW" << "US $ / ";
+            Lista3 << "Select one..." << "US $ / KJ" << "US $ / J";
             ui->comboBoxTemp->addItems(Lista1);
             ui->comboBoxFilm->addItems(Lista2);
             ui->comboBoxUOP->addItems(Lista3);

@@ -27,7 +27,6 @@ problemtable::problemtable(QWidget *parent) :
     ui->Inc->setVisible(false);
     ui->pushButton->setVisible(false);
     ui->Export->setVisible(false);
-    ui->pushButton_3->setVisible(false);
     ui->help_tableproblem->setVisible(false);
     ui->Tabla->setVisible(false);
 }
@@ -70,7 +69,6 @@ void problemtable::radiobuttons()
     ui->Inc->setVisible(false);
     ui->pushButton->setVisible(false);
     ui->Export->setVisible(false);
-    ui->pushButton_3->setVisible(false);
     ui->help_tableproblem->setVisible(false);
     ui->Tabla->setVisible(false);
     bool uniforme = ui->uniform->isChecked();
@@ -84,7 +82,6 @@ void problemtable::radiobuttons()
         ui->Min->setVisible(true);
         ui->pushButton->setVisible(true);
         ui->Export->setVisible(true);
-        ui->pushButton_3->setVisible(true);
         ui->help_tableproblem->setVisible(false);
         ui->Tabla->setVisible(true);
     }else if(uniforme == true && incremento == true){
@@ -98,7 +95,6 @@ void problemtable::radiobuttons()
         ui->Inc->setVisible(true);
         ui->pushButton->setVisible(true);
         ui->Export->setVisible(true);
-        ui->pushButton_3->setVisible(true);
         ui->help_tableproblem->setVisible(false);
         ui->Tabla->setVisible(true);
     }else if(diverso == true && estatico == true){
@@ -111,7 +107,6 @@ void problemtable::radiobuttons()
         ui->Min->setVisible(true);
         ui->pushButton->setVisible(true);
         ui->Export->setVisible(true);
-        ui->pushButton_3->setVisible(true);
         ui->help_tableproblem->setVisible(true);
         ui->Tabla->setVisible(true);
     }else if(diverso == true &&  incremento == true){
@@ -127,7 +122,6 @@ void problemtable::radiobuttons()
         ui->K->setVisible(true);
         ui->pushButton->setVisible(true);
         ui->Export->setVisible(true);
-        ui->pushButton_3->setVisible(true);
         ui->help_tableproblem->setVisible(true);
         ui->Tabla->setVisible(true);
     }

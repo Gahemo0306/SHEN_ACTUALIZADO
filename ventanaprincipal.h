@@ -35,9 +35,9 @@ private slots:
     void on_actionSave_as_triggered();
     void on_actionArea_Targets_triggered();
     void on_actionSuper_Targeting_triggered();
-    void on_actionHelp_Topics_triggered();
-    void on_actionAbour_SHEN_triggered();
-    void on_actionContact_triggered();
+//    void on_actionHelp_Topics_triggered();
+//    void on_actionAbour_SHEN_triggered();
+//    void on_actionContact_triggered();
 
     void on_actionNetwork_Design_triggered();
 

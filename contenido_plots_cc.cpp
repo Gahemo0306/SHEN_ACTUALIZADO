@@ -217,3 +217,4 @@ void contenido_plots_cc::helprecibidor(bool checked)
         return;
     }
 }
+

@@ -16,10 +16,10 @@
   <layout class="QGridLayout" name="gridLayout_3">
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout_2">
-     <item row="0" column="11">
-      <widget class="Line" name="line">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
+     <item row="0" column="7">
+      <widget class="QPushButton" name="IMAGE">
+       <property name="text">
+        <string>Export image</string>
        </property>
       </widget>
      </item>
@@ -36,7 +36,7 @@
        </property>
       </spacer>
      </item>
-     <item row="0" column="6">
+     <item row="0" column="5">
       <widget class="QComboBox" name="comboBoxFormat">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
@@ -67,24 +67,24 @@
        </item>
       </widget>
      </item>
-     <item row="0" column="5">
+     <item row="0" column="4">
       <widget class="QLabel" name="label_2">
        <property name="text">
         <string>Format:</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="8">
-      <widget class="QPushButton" name="IMAGE">
+     <item row="0" column="9">
+      <widget class="QPushButton" name="SAVE">
        <property name="text">
-        <string>Export image</string>
+        <string>Save </string>
        </property>
       </widget>
      </item>
-     <item row="0" column="4">
-      <widget class="QPushButton" name="pushButton">
-       <property name="text">
-        <string>Debug</string>
+     <item row="0" column="3">
+      <widget class="Line" name="line_2">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
        </property>
       </widget>
      </item>
@@ -105,24 +105,10 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="9">
+     <item row="0" column="8">
       <widget class="QPushButton" name="PDF">
        <property name="text">
         <string>Export PDF</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="3">
-      <widget class="Line" name="line_2">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="10">
-      <widget class="QPushButton" name="SAVE">
-       <property name="text">
-        <string>Save </string>
        </property>
       </widget>
      </item>

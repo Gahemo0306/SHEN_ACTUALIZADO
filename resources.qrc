@@ -25,5 +25,8 @@
         <file>Resources/NuevaPresentacionBlanco.png</file>
         <file>Resources/intercambiador.png</file>
         <file>Resources/arrow.png</file>
+        <file>Resources/Bienvenida.png</file>
+        <file>Resources/area.png</file>
+        <file>Resources/resumen.png</file>
     </qresource>
 </RCC>

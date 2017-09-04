@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>649</width>
-    <height>340</height>
+    <width>434</width>
+    <height>323</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -52,7 +52,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>649</width>
+     <width>434</width>
      <height>21</height>
     </rect>
    </property>
@@ -89,15 +89,6 @@
      <string>Language</string>
     </property>
    </widget>
-   <widget class="QMenu" name="menuHelp">
-    <property name="title">
-     <string>Help</string>
-    </property>
-    <addaction name="actionHelp_Topics"/>
-    <addaction name="separator"/>
-    <addaction name="actionContact"/>
-    <addaction name="actionAbour_SHEN"/>
-   </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
      <string>Edit</string>
@@ -110,14 +101,11 @@
     <addaction name="actionCopy"/>
     <addaction name="actionPaste"/>
     <addaction name="separator"/>
-    <addaction name="actionElminate"/>
-    <addaction name="actionElimnate_all"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuPlots"/>
    <addaction name="menuLanguage"/>
-   <addaction name="menuHelp"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -147,10 +135,10 @@
     <string>toolBar</string>
    </property>
    <attribute name="toolBarArea">
-    <enum>LeftToolBarArea</enum>
+    <enum>TopToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
-    <bool>false</bool>
+    <bool>true</bool>
    </attribute>
    <addaction name="actionCustom_Analysis"/>
    <addaction name="separator"/>
@@ -158,17 +146,9 @@
    <addaction name="actionPlots"/>
    <addaction name="actionArea_Targets"/>
    <addaction name="actionSuper_Targeting"/>
-  </widget>
-  <widget class="QToolBar" name="toolBar_2">
-   <property name="windowTitle">
-    <string>toolBar_2</string>
-   </property>
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
+   <addaction name="actionNetwork_Design"/>
+   <addaction name="separator"/>
+   <addaction name="actionSummary"/>
   </widget>
   <action name="actionNew">
    <property name="icon">
@@ -251,7 +231,7 @@
   <action name="actionArea_Targets">
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/resources/Resources/intercambiador.png</normaloff>:/resources/Resources/intercambiador.png</iconset>
+     <normaloff>:/resources/Resources/area.png</normaloff>:/resources/Resources/area.png</iconset>
    </property>
    <property name="text">
     <string>Area Targets</string>
@@ -267,18 +247,12 @@
    </property>
   </action>
   <action name="actionNetwork_Design">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/resources/Resources/intercambiador.png</normaloff>:/resources/Resources/intercambiador.png</iconset>
+   </property>
    <property name="text">
     <string>Network Design</string>
-   </property>
-  </action>
-  <action name="actionAbour_SHEN">
-   <property name="text">
-    <string>About SHEN ...</string>
-   </property>
-  </action>
-  <action name="actionHelp_Topics">
-   <property name="text">
-    <string>Help Topics</string>
    </property>
   </action>
   <action name="actionUndo">
@@ -350,16 +324,6 @@
     <string>Clean</string>
    </property>
   </action>
-  <action name="actionElminate">
-   <property name="text">
-    <string>Elminate </string>
-   </property>
-  </action>
-  <action name="actionElimnate_all">
-   <property name="text">
-    <string>Elimnate all</string>
-   </property>
-  </action>
   <action name="actionPlots">
    <property name="icon">
     <iconset resource="resources.qrc">
@@ -370,6 +334,10 @@
    </property>
   </action>
   <action name="actionSummary">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/resources/Resources/resumen.png</normaloff>:/resources/Resources/resumen.png</iconset>
+   </property>
    <property name="text">
     <string>Summary</string>
    </property>
@@ -381,11 +349,6 @@
    </property>
    <property name="text">
     <string>Problem Table</string>
-   </property>
-  </action>
-  <action name="actionContact">
-   <property name="text">
-    <string>Contact</string>
    </property>
   </action>
  </widget>

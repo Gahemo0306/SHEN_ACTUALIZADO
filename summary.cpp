@@ -956,8 +956,8 @@ void Summary::desplegar_info(QString text)
                     ui->tablewidget->clear();
                     ui->tablewidget->setVisible(true);
                     QStringList Headers;
-                    Headers << "Temperature" << "Temperature" << "Deficit" << "Heat_flow_in"
-                            << "Heat_flow_out" << "Heat_flow_in_adjusted" << "Heat_flow_out_adjusted";
+                    Headers << "Temperature" << "Temperature" << "Deficit" << "Heat flow in"
+                            << "Heat flow out" << "Heat flow in adjusted" << "Heat flow out adjusted";
                     ui->tablewidget->setColumnCount(7);
                     ui->tablewidget->setHorizontalHeaderLabels(Headers);
                     double DTmin = Min;
@@ -967,7 +967,7 @@ void Summary::desplegar_info(QString text)
                     ui->tablewidget->setVisible(true);
                     QStringList Headers;
                     Headers << "Temperature" << "Temperature" << "Deficit" << "Heat flow in"
-                            << "Heat_flow_out" << "Heat_flow_in_adjusted" << "Heat_flow_out_adjusted";
+                            << "Heat flow out" << "Heat flow in adjusted" << "Heat flow out adjusted";
                     ui->tablewidget->setColumnCount(7);
                     ui->tablewidget->setHorizontalHeaderLabels(Headers);
                     double Minimo = Min, Maximo = Max, Incremento = Inc;
@@ -1688,26 +1688,19 @@ void Summary::desplegar_info(QString text)
                 ui->tablewidget->setColumnCount(5);
                 ui->tablewidget->setHorizontalHeaderLabels(Headers);
                 double DTmin = Min;
-                duoble k = K;
+                double k = K;
                 costos_grid_diversa(DTmin,k,text);
             }
         }
     }
     connect(ui->qcustomplot, SIGNAL(selectionChangedByUser()), this, SLOT(selectionChanged()));
-    // connect slots that takes care that when an axis is selected, only that direction can be dragged and zoomed:
     connect(ui->qcustomplot, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(mousePress()));
     connect(ui->qcustomplot, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheel()));
-
-    // make bottom and left axes transfer their ranges to top and right axes:
     connect(ui->qcustomplot->xAxis, SIGNAL(rangeChanged(QCPRange)), ui->qcustomplot->xAxis2, SLOT(setRange(QCPRange)));
     connect(ui->qcustomplot->yAxis, SIGNAL(rangeChanged(QCPRange)), ui->qcustomplot->yAxis2, SLOT(setRange(QCPRange)));
-
-    // connect some interaction slots:
     connect(ui->qcustomplot, SIGNAL(axisDoubleClick(QCPAxis*,QCPAxis::SelectablePart,QMouseEvent*)), this, SLOT(axisLabelDoubleClick(QCPAxis*,QCPAxis::SelectablePart)));
     connect(ui->qcustomplot, SIGNAL(legendDoubleClick(QCPLegend*,QCPAbstractLegendItem*,QMouseEvent*)), this, SLOT(legendDoubleClick(QCPLegend*,QCPAbstractLegendItem*)));
     connect(title, SIGNAL(doubleClicked(QMouseEvent*)), this, SLOT(titleDoubleClick(QMouseEvent*)));
-
-    // setup policy and connect slot for context menu popup:
     ui->qcustomplot->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->qcustomplot, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(contextMenuRequest(QPoint)));
 }
@@ -1819,7 +1812,6 @@ void Summary::areas_grid_diversa(double DTmin, double k, QString text)
 
 void Summary::costos_grid_uniforme(double DTmin, QString text)
 {
-    //Plot_Costos_vs_Areas_Uniforme plot(TS,TE,WCP,H,Calentamiento,Enfriamento,CapitalCost,OperationCost,DTmin,CTo,CCo,SI,SIS);
     Grid_Costos_Uniforme plot(TS,TE,WCP,H,Calentamiento,CapitalCost,OperationCost,Enfriamento,Uniones,Servicios,CTo,CCo,SI,SIS);
     double MOpeCosC = plot.getOpeCosC();
     double MOpeCosH = plot.getOpeCosH();
@@ -2064,8 +2056,9 @@ void Summary::tablaproblema_incremento_uniforme(double DTmin, QString text)
     }else if(text == "Minimal cold utility"){
         ui->tablewidget->item(CONTADORFILAS - 1 , 6)->setBackground(Qt::blue); // coldutility
     }else if(text == "Location of the pinch point"){
+        int pos = VecAdjHeatFlow.size() - min_pos;
         for(int i = 0; i < ui->tablewidget->columnCount(); i++){
-            ui->tablewidget->item(CONTADORFILAS - min_pos -1,i)->setBackground(Qt::darkYellow); //pinchpoint
+            ui->tablewidget->item(CONTADORFILAS - pos,i)->setBackground(Qt::darkYellow); //pinchpoint
         }
     }
 }
@@ -2169,14 +2162,16 @@ void Summary::tablaproblema_incremento_diverso(double DTmin, double k, QString t
     }else if(text == "Minimal cold utility"){
         ui->tablewidget->item(CONTADORFILAS - 1 , 6)->setBackground(Qt::blue); // coldutility
     }else if(text == "Location of the pinch point"){
+        int pos = VecAdjHeatFlow.size() - min_pos;
         for(int i = 0; i < ui->tablewidget->columnCount(); i++){
-            ui->tablewidget->item(CONTADORFILAS - min_pos -1,i)->setBackground(Qt::darkYellow); //pinchpoint
+            ui->tablewidget->item(CONTADORFILAS - pos,i)->setBackground(Qt::darkYellow); //pinchpoint
         }
     }
 }
 
 void Summary::tablaproblema_estatico_both(double DTmin, double k, QString text,float punto1,float punto2)
 {
+    int pos;
     Plot_curvascompuestasajustadas plot(TS,TE,WCP,DTmin);
     QVector<QVector<double>> VecCorrientesTotal = plot.getVectorCorrientesTotal();
     QVector<QVector<double>> VecHeatFlow = plot.getVecHeatFlow();
@@ -2220,8 +2215,9 @@ void Summary::tablaproblema_estatico_both(double DTmin, double k, QString text,f
     }else if(text == "Minimal cold utility"){
         ui->tablewidget->item(CONTADORFILAS - 1 , 6)->setBackground(Qt::blue); // coldutility
     }else if(text == "Location of the pinch point"){
+        pos = VecAdjHeatFlow.size() - min_pos;
         for(int i = 0; i < ui->tablewidget->columnCount(); i++){
-            ui->tablewidget->item(CONTADORFILAS - min_pos -1,i)->setBackground(Qt::darkYellow); //pinchpoint
+            ui->tablewidget->item(CONTADORFILAS - pos,i)->setBackground(Qt::darkYellow); //pinchpoint
         }
     }
     Plot_CCAJUSTADA_DIVERSA plot2(TS,TE,WCP,H,DTmin,k,punto1,punto2);
@@ -2267,8 +2263,9 @@ void Summary::tablaproblema_estatico_both(double DTmin, double k, QString text,f
     }else if(text == "Minimal cold utility"){
         ui->tablewidget->item(CONTADORFILAS - 1 , 6)->setBackground(Qt::blue); // coldutility
     }else if(text == "Location of the pinch point"){
+        pos = VecAdjHeatFlow.size() - min_pos;
         for(int i = 0; i < ui->tablewidget->columnCount(); i++){
-            ui->tablewidget->item(CONTADORFILAS - min_pos -1,i)->setBackground(Qt::darkYellow); //pinchpoint
+            ui->tablewidget->item(CONTADORFILAS - pos,i)->setBackground(Qt::darkYellow); //pinchpoint
         }
     }
 }
@@ -2821,7 +2818,7 @@ void Summary::costos_incremento_uniforme(double DTmin, QString text)
             ui->tablewidget->item(i,3)->setBackground(Qt::yellow); // areas
         }
     }else if(text =="Total cost"){
-        for(int i = CONTADORFILAS; i < row ; i++){
+        for(int i = CONTADORFILAS - AreaAglomerados.size() ; i < row ; i++){
             ui->tablewidget->item(i,4)->setBackground(Qt::yellow); // areas
         }
     }
@@ -3110,7 +3107,7 @@ void Summary::costos_estatico_both(double DTmin, double k, QString text, float p
             ui->tablewidget->item(i,3)->setBackground(Qt::yellow); // areas
         }
     }else if(text =="Total cost"){
-        for(int i = CONTADORFILAS; i < row ; i++){
+        for(int i = CONTADORFILAS - AreaAglomerados.size(); i < row ; i++){
             ui->tablewidget->item(i,4)->setBackground(Qt::yellow); // areas
         }
     }
@@ -7276,6 +7273,8 @@ void Summary::on_pushButton_clicked()
                     }
                 }
             }
+        }else if(Ventanamadre == 0){
+            return;
         }
         doc.setDefaultStyleSheet(style);
         doc.setHtml(text);
@@ -7425,6 +7424,8 @@ QString Summary::espaceadorcalculos(QString text,QString row,int j )
                 }
             }
         }
+    }else if(Ventanamadre == 0){
+        return espace;
     }
     return espace;
 }
@@ -7557,6 +7558,8 @@ QStringList Summary::unidadestablas(QString item_select)
                 }
             }
         }
+    }else if(Ventanamadre == 0){
+        return lista;
     }
     return lista;
 }
